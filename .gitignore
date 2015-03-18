@@ -10,6 +10,7 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+<<<<<<< HEAD
 
 .classpath
 .DS_Store
@@ -20,3 +21,5 @@ target
 
 # exclude static files from third party libs
 src/main/webapp/static/lib
+=======
+>>>>>>> c7b6285368a132c74d3a52ed1abca3d24782b000
