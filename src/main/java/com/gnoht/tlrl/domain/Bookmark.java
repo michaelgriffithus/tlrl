@@ -21,8 +21,11 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
@@ -34,6 +37,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 	/* each user may have 1 bookmark per url */
 	@UniqueConstraint(columnNames={"webresource_id", "user_id"})	
 })
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = 1L;
@@ -86,8 +90,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 	 */
 	public static Builder builder(String url, User user) {
 		return new Builder(
-			WebResource
-				.builder()
+			WebResource.builder()
 				.url(url)
 				.get(), 
 			user);
@@ -164,6 +167,17 @@ public class Bookmark extends ManagedAuditable<Long> {
 		}
 	}
 	
+	/*
+	 * Hack for binding url to WebResource when initially creating bookmark. 
+	 */
+	@JsonSetter
+	private void setUrl(String url) {
+		webResource = WebResource
+			.builder()
+			.url(url)
+			.get();
+	}
+	
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
@@ -171,6 +185,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 			.add("title", title)
 			.add("description", description)
 			.add("tags.size", (tags != null ? tags.size() : ""))
-			.add("user", (user != null ? user.getName() : ""));
+			.add("user", (user != null ? user.getName() : ""))
+			.add("webResource", webResource);
 	}
 }

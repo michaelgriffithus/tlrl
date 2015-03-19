@@ -18,7 +18,7 @@ public class ApplicationConfig {
 
 	@Resource private Environment env;
 	
-	@Bean(name = "jacksonMessageConverter")
+	@Bean(name="jacksonMessageConverter")
 	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 		converter.getObjectMapper().setSerializationInclusion(Include.NON_NULL);
@@ -36,7 +36,7 @@ public class ApplicationConfig {
 	 * @return instance of MessageSourceAccessor
 	 */
 	@Autowired
-	@Bean(name = "messageSourceAccessor")
+	@Bean(name="messageSourceAccessor")
 	public MessageSourceAccessor messageSourceAccessor(MessageSource messageSource) {
 		return new MessageSourceAccessor(messageSource);
 	}

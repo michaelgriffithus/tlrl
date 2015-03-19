@@ -32,6 +32,7 @@ public class BookmarkController {
 	
 	@RequestMapping(value={"/urls"}, method=RequestMethod.POST)
 	public @ResponseBody Bookmark add(@Valid @RequestBody Bookmark bookmark) {
-		return bookmarkService.save(bookmark);
+		System.out.println("============== in add:" + bookmark);
+		return bookmarkService.create(bookmark);
 	}
 }
