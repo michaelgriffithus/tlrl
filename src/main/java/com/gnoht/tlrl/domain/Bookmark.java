@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -63,6 +65,15 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
 	@JoinColumn(name="user_id")
 	private User user;
+	
+	/** Flag indicating if this bookmark is shared (true) or private (false) */ 
+	@Column(columnDefinition="boolean default false", nullable=false, name="shared")
+	private boolean shared = SharedStatus.PRIVATE.value();
+	
+	@Enumerated(EnumType.STRING)
+	@Column(name="readlater", nullable=false)
+	private ReadLater readLater = ReadLater.NA;
+	
 	
 	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebResource.class,
 			cascade={CascadeType.MERGE}, optional=false)
@@ -125,6 +136,12 @@ public class Bookmark extends ManagedAuditable<Long> {
 	public User getUser() {
 		return user;
 	}
+	public boolean isShared() {
+		return shared;
+	}
+	public ReadLater getReadLater() {
+		return readLater;
+	}
 
 	/**
 	 * Simple implementation of builder pattern for creating
@@ -162,6 +179,12 @@ public class Bookmark extends ManagedAuditable<Long> {
 		public Builder user(User user) {
 			bookmark.user = user; return this;
 		}
+		public Builder shared(SharedStatus status) {
+			bookmark.shared = status.value(); return this;
+		}
+		public Builder readLater(ReadLater readLater) {
+			bookmark.readLater = readLater; return this;
+		}
 		public Bookmark get() {
 			return bookmark;
 		}
@@ -187,5 +210,38 @@ public class Bookmark extends ManagedAuditable<Long> {
 			.add("tags.size", (tags != null ? tags.size() : ""))
 			.add("user", (user != null ? user.getName() : ""))
 			.add("webResource", webResource);
+	}
+	
+	/**
+	 * Represents the read later state of a {@link Bookmark}.
+	 * Possible values are:
+	 * <ul>
+	 *   <li>NA no assigned as read later.</li>
+	 *   <li>UNREAD is in read later, and unread.</li>
+	 *   <li>READ is in read later, and read.</li>
+	 * </ul>
+	 */
+	public static enum ReadLater {
+		NA,
+		UNREAD,
+		READ,
+	}
+	
+	/**
+	 * Represents the shared state of a {@link Bookmark}. Possible
+	 * values are PUBLIC and PRIVATE. 
+	 */
+	public static enum SharedStatus {
+		PUBLIC(true),
+		PRIVATE(false);
+		
+		private final boolean status;
+		
+		SharedStatus(boolean status) {
+			this.status = status;
+		}
+		public boolean value() {
+			return status;
+		}
 	}
 }

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gnoht.tlrl.domain.Bookmark;
+import com.gnoht.tlrl.domain.Bookmark.ReadLater;
+import com.gnoht.tlrl.domain.ManageableNotFoundException;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.BookmarkRepository;
@@ -53,6 +55,19 @@ public class BookmarkServiceImpl
 		return super.create(updater(bookmark)
 			.webResource(webResource)
 			.get());
+	}
+
+	@Transactional(readOnly=false)
+	@Override
+	public Bookmark update(Long id, ReadLater readLater)
+				throws ManageableNotFoundException {
+		/* use get(id), vs findOne(id) as the 
+			latter will not throw exception if not found */
+		Bookmark bookmark = updater(get(id)) 
+				.readLater(readLater)
+				.get();
+		
+		return save(bookmark);
 	}
 
 	@Override
