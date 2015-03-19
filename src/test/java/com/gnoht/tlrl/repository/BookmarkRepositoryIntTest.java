@@ -29,12 +29,16 @@ public class BookmarkRepositoryIntTest {
 	
 	@Test
 	public void shouldSaveBookmark() {
+		WebResource existingWebResource = WebResource
+				.builder()
+				.id(1L)
+				.get();
+		
+		User user = new User(1L);
+		
 		// given
 		Bookmark bookmark = Bookmark
-			.builder(WebResource
-					.builder().id(1L)
-					.get())
-			.user(new User(1L))
+			.builder(existingWebResource, user)
 			.get();
 		
 		assertNull("Id should be null!", bookmark.getId());

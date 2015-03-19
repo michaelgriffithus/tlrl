@@ -58,7 +58,6 @@ public class Bookmark extends ManagedAuditable<Long> {
 	
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
 	@JoinColumn(name="user_id")
-	@JsonIgnore
 	private User user;
 	
 	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebResource.class,
@@ -72,10 +71,11 @@ public class Bookmark extends ManagedAuditable<Long> {
 	/**
 	 * Returns a {@link Builder} for creating a new {@link Bookmark}.
 	 * @param webResource webResource referenced by this bookmark
+	 * @param user creator of bookmark
 	 * @return an instance of Builder.
 	 */
-	public static Builder builder(WebResource webResource) {
-		return new Builder(webResource);
+	public static Builder builder(WebResource webResource, User user) {
+		return new Builder(webResource, user);
 	}
 	/**
 	 * Returns a {@link Builder} for creating a new {@link Bookmark}.
@@ -85,9 +85,12 @@ public class Bookmark extends ManagedAuditable<Long> {
 	 * @return an instance of Builder
 	 */
 	public static Builder builder(String url, User user) {
-		return new Builder(WebResource
-				.builder(url, user)
-				.get());
+		return new Builder(
+			WebResource
+				.builder()
+				.url(url)
+				.get(), 
+			user);
 	}
 	
 	/**
@@ -116,23 +119,8 @@ public class Bookmark extends ManagedAuditable<Long> {
 	public List<Tag> getTags() {
 		return Collections.unmodifiableList(tags);
 	}
-	@JsonIgnore
 	public User getUser() {
 		return user;
-	}
-	@JsonProperty
-	public void setUser(User user) {
-		this.user = user;
-	}
-	@Transient
-	@JsonProperty(value="userId")
-	public Long getUserId() {
-		return (user == null) ? null : user.getId();
-	}
-	@Transient
-	@JsonProperty(value="userName")
-	public String getUserName() {
-		return (user == null) ? null : user.getName();
 	}
 
 	/**
@@ -145,9 +133,10 @@ public class Bookmark extends ManagedAuditable<Long> {
 		private Builder(Bookmark bookmark) {
 			this.bookmark = bookmark;
 		}
-		private Builder(WebResource webResource) {
+		private Builder(WebResource webResource, User user) {
 			this.bookmark = new Bookmark();
 			webResource(webResource);
+			user(user);
 		}
 		public Builder webResource(WebResource webResource) {
 			bookmark.webResource = webResource; return this;

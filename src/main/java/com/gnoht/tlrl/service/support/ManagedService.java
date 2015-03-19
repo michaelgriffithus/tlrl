@@ -1,13 +1,14 @@
 package com.gnoht.tlrl.service.support;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ import com.gnoht.tlrl.domain.support.Manageable;
  */
 @Transactional(readOnly=true) // default
 public abstract class ManagedService<ID extends Serializable, 
-			T extends Manageable<ID>, R extends PagingAndSortingRepository<T, ID>> 
+			T extends Manageable<ID>, R extends JpaRepository<T, ID>> 
 		implements ManageableService<ID, T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ManagedService.class);
@@ -114,6 +115,12 @@ public abstract class ManagedService<ID extends Serializable,
 	public void deleteAll() {
 		LOG.info("Starting deleteAll():");
 		repository.deleteAll();
+	}
+
+	@Override
+	public List<T> findAll() {
+		LOG.info("Starting findAll():");
+		return repository.findAll();
 	}
 
 	protected MessageSourceAccessor getMessageSource() {

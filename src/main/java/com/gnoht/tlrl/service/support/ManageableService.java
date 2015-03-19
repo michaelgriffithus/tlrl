@@ -1,6 +1,8 @@
 package com.gnoht.tlrl.service.support;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -80,6 +82,13 @@ public interface ManageableService<ID extends Serializable, T extends Manageable
 	 * @return A {@link Page} containing list of entities and page attributes.
 	 */
 	public Page<T> findAll(Pageable pageable);
+	
+	/**
+	 * Finds all entities.
+	 * 
+	 * @return Collection of found entities or empty collection.
+	 */
+	public List<T> findAll();
 	
 	/**
 	 * Deletes all entities.

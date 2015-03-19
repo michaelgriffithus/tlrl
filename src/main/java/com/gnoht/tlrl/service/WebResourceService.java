@@ -17,4 +17,12 @@ public interface WebResourceService
 	 * @return found or newly created WebResource.
 	 */
 	WebResource findOrCreate(WebResource webResource);
+	
+	/**
+	 * Find a {@link WebResource} with matching url.
+	 * 
+	 * @param url
+	 * @return WebResource or null.
+	 */
+	WebResource findByUrl(String url);
 }
