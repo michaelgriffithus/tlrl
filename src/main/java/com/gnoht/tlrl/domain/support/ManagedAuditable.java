@@ -42,12 +42,12 @@ public abstract class ManagedAuditable<ID extends Serializable>
 	}
 
 	@PrePersist
-	public void setDateCreated() {
+	public void prePersist() {
 		this.dateCreated = new Date();
 		this.dateModified = new Date();
 	}
 	@PreUpdate
-	public void setDateModified() {
+	public void preUpdate() {
 		this.dateModified = new Date();
 	}
 

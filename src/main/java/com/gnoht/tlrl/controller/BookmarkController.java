@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gnoht.tlrl.controller.support.ResourceResponse;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Bookmark.ReadLater;
 import com.gnoht.tlrl.service.BookmarkService;
@@ -38,6 +37,7 @@ public class BookmarkController {
 	
 	/**
 	 * Create a new {@link Bookmark}. Only requirement is a valid url.
+	 * 
 	 * @param bookmark to save.
 	 * @return saved instance of the Bookmark.
 	 */
@@ -47,6 +47,13 @@ public class BookmarkController {
 		return bookmarkService.create(bookmark);
 	}
 	
+	/**
+	 * Updates {@link ReadLater} state for {@link Bookmark} with given id.
+	 * 
+	 * @param id of Bookmark to update
+	 * @param readLater state to update with
+	 * @return ReadLater state from updated Bookmark
+	 */
 	@RequestMapping(value="/urls/{id}/readlater", method=RequestMethod.PUT)
 	public @ResponseBody ReadLater updateReadLater(
 				@PathVariable Long id, @RequestBody ReadLater readLater) {
@@ -55,4 +62,31 @@ public class BookmarkController {
 		return updated.getReadLater();
 	}
 	
+	/**
+	 * Updates shared property for {@link Bookmark} with given id.
+	 * 
+	 * @param id of Bookmark to update
+	 * @param status to update to
+	 * @return SharedStatus from updated Bookmark
+	 */
+	@RequestMapping(value="/urls/{id}/shared", method=RequestMethod.PUT)
+	public @ResponseBody Boolean updateSharedStatus(
+				@PathVariable Long id, @RequestBody Boolean shared) {
+		LOG.info("Starting request for /api/urls/{id}/shared: id={}, shared={}", id, shared);
+		return bookmarkService.update(id, shared).isShared();
+	}
+	
+	/**
+	 * Updates properties for {@link Bookmark} with given id.
+	 * 
+	 * @param id of Bookmark to update
+	 * @param bookmark contains updated properties
+	 * @return Bookmark that was updated
+	 */
+	@RequestMapping(value="/urls/{id}", method=RequestMethod.PUT)
+	public @ResponseBody Bookmark update(
+				@PathVariable Long id, @RequestBody Bookmark bookmark) {
+		LOG.info("Starting request for /api/urls/{id}: id={}, bookmark={}", id, bookmark);
+		return bookmarkService.update(bookmark);
+	}
 }

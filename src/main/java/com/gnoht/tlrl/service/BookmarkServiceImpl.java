@@ -1,7 +1,5 @@
 package com.gnoht.tlrl.service;
 
-import static com.gnoht.tlrl.domain.Bookmark.*;
-
 import javax.annotation.Resource;
 import javax.inject.Inject;
 
@@ -44,30 +42,61 @@ public class BookmarkServiceImpl
 	public Bookmark create(Bookmark bookmark) {
 		LOG.info("Starting create(): bookmark={}", bookmark);
 		
-		/* Get the referenced WebResource, otherwise create 
-		 * if first time being bookmark */
+		/* Get the referenced WebResource, otherwise create it, 
+		 * if first time being bookmarked */
 		WebResource webResource = webResourceService
 			.findOrCreate(WebResource.builder()
 					.url(bookmark.getUrl())
 					.user(bookmark.getUser())
 					.get());
 		
-		return super.create(updater(bookmark)
-			.webResource(webResource)
-			.get());
+		return super.create(Bookmark
+			.updater(bookmark)
+				.webResource(webResource)
+				.get());
+	}
+	
+	@Transactional(readOnly=false)
+	@Override
+	public Bookmark update(Long id, Boolean shared)
+			throws ManageableNotFoundException {
+		
+		Bookmark toUpdate = Bookmark
+			// use get vs findOne, as latter will not throw NotFoundException	
+			.updater(get(id)) 
+			.shared(shared)
+			.get();
+		
+		return save(toUpdate);
 	}
 
 	@Transactional(readOnly=false)
 	@Override
 	public Bookmark update(Long id, ReadLater readLater)
 				throws ManageableNotFoundException {
-		/* use get(id), vs findOne(id) as the 
-			latter will not throw exception if not found */
-		Bookmark bookmark = updater(get(id)) 
-				.readLater(readLater)
-				.get();
 		
-		return save(bookmark);
+		Bookmark toUpdate = Bookmark
+			// use get vs findOne, as latter will not throw NotFoundException	
+			.updater(get(id)) 
+			.readLater(readLater)
+			.get();
+		
+		return save(toUpdate);
+	}
+
+	@Transactional(readOnly=false)
+	@Override
+	public Bookmark update(Bookmark bookmark)
+			throws ManageableNotFoundException {
+		
+		// use get vs findOne, as latter will not throw NotFoundException	
+		Bookmark toUpdate = Bookmark.updater(get(bookmark.getId()))
+			.title(bookmark.getTitle())
+			.description(bookmark.getDescription())
+			.tags(bookmark.getTags())
+			.get();
+		
+		return save(toUpdate);
 	}
 
 	@Override

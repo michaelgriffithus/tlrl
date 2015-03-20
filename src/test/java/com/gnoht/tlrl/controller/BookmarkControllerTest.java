@@ -8,15 +8,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Bookmark.ReadLater;
-import com.gnoht.tlrl.domain.Bookmark.SharedStatus;
+import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.service.BookmarkService;
 
@@ -38,8 +40,8 @@ public class BookmarkControllerTest
 				public Bookmark answer(InvocationOnMock inv) throws Throwable {
 					Bookmark saved = Bookmark
 						.updater(inv.getArgumentAt(0, Bookmark.class))
-							.id(1L).get(); 			// saved bookmarks will have id and 
-					saved.setDateCreated();	// created timestamp
+						.id(1L).get(); 		// saved bookmarks will have id and 
+					saved.prePersist();	// created timestamp
 					return saved;
 				}});
 		
@@ -55,12 +57,11 @@ public class BookmarkControllerTest
 			.andExpect(jsonPath("$.id", is(1)))
 			.andExpect(jsonPath("$.dateCreated", notNullValue()))
 			// test default readlater and shared status
-			.andExpect(jsonPath("$.readLater", is(ReadLater.NA.name())))
-			.andExpect(jsonPath("$.shared", is(SharedStatus.PRIVATE.value())));
+			.andExpect(jsonPath("$.readLater", is(ReadLater.NA.name())));
 	}
 
 	@Test
-	public void shouldUpdateSharedStatusAndReadLater() throws IOException, Exception {
+	public void shouldUpdateReadLater() throws IOException, Exception {
 		final Bookmark toUpdate = createTestBookmark();
 		
 		when(bookmarkService.update(any(Long.class), any(ReadLater.class)))
@@ -68,22 +69,82 @@ public class BookmarkControllerTest
 				@Override
 				public Bookmark answer(InvocationOnMock inv) throws Throwable {
 					return Bookmark.updater(toUpdate)
-							.readLater(inv.getArgumentAt(1, ReadLater.class))
-							.get();
-				}
-			});
+							.readLater(inv.getArgumentAt(1, ReadLater.class)).get();
+				}});
 		
-		assertEquals("ReadLater is not in default state!", ReadLater.NA, toUpdate.getReadLater());
-		assertEquals("PRIVATE should be default status!", SharedStatus.PRIVATE.value(), toUpdate.isShared());
+		// make sure we're in default state
+		assertEquals(ReadLater.NA, toUpdate.getReadLater());
 		
 		this.mockMvc.perform(
 				put("/api/urls/1/readlater")
 					.contentType(contentType)
 					.content(toJson(ReadLater.UNREAD)))
 				.andExpect(jsonPath("$", is(ReadLater.UNREAD.name())));
-		
 	}
 
+	@Test
+	public void shouldUpdateSharedStatus() throws IOException, Exception {
+		final Bookmark toUpdate = createTestBookmark();
+		
+		when(bookmarkService.update(any(Long.class), any(Boolean.class)))
+			.then(new Answer<Bookmark>() {
+				@Override
+				public Bookmark answer(InvocationOnMock inv) throws Throwable {
+					return Bookmark.updater(toUpdate)
+						.shared(inv.getArgumentAt(1, Boolean.class)).get();
+				}
+			});
+		
+		// make sure to start with default shared status
+		assertEquals(Bookmark.DEFAULT_SHARED_STATUS, toUpdate.isShared());
+		
+		this.mockMvc.perform(
+				put("/api/urls/1/shared")
+					.contentType(contentType)
+					.content(toJson(!Bookmark.DEFAULT_SHARED_STATUS)))
+				.andExpect(jsonPath("$", is(!Bookmark.DEFAULT_SHARED_STATUS)));
+				
+	}
+	
+	@Test
+	public void shouldUpdateBookmark() throws IOException, Exception {
+		final Bookmark existing = createTestBookmark();
+		final Bookmark toUpdate = Bookmark
+				.builder(existing.getUrl(), existing.getUser())
+				.description("a description")
+				.title("a webresource title")
+				.tag(new Tag("tag1"))
+				.get();
+		
+		when(bookmarkService.update(any(Bookmark.class)))
+			.then(new Answer<Bookmark>() {
+				@Override
+				public Bookmark answer(InvocationOnMock inv) throws Throwable {
+					Bookmark given = inv.getArgumentAt(0, Bookmark.class);
+					return Bookmark.updater(existing).id(given.getId())
+							.description(given.getDescription())
+							.tags(given.getTags())
+							.title(given.getTitle())
+							.get();
+				}
+			});
+		
+		
+		MvcResult result = mockMvc.perform(
+			put("/api/urls/1")
+				.contentType(contentType)
+				.content(toJson(toUpdate)))
+			.andExpect(jsonPath("$.title", is(toUpdate.getTitle())))
+			.andExpect(jsonPath("$.description", is(toUpdate.getDescription())))
+			.andReturn();
+		
+		Bookmark returned = (Bookmark) fromJson(
+				Bookmark.class, result.getResponse().getContentAsByteArray());
+		
+		// check we back same tag we saved 
+		assertEquals(returned.getTags().get(0), toUpdate.getTags().get(0));
+	}
+	
 	Bookmark createTestBookmark() {
 		return Bookmark.builder("http://yahoo.com", new User(1L)).get();
 	}

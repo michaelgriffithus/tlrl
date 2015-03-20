@@ -22,7 +22,18 @@ public interface BookmarkService
 	Bookmark findByUrlAndUser(String url, User user);
 
 	/**
-	 * Updates a {@link Bookmark}s {@link ReadLater} state to the passed
+	 * Updates a {@link Bookmark}'s {@link SharedStatus} to the passed in 
+	 * {@link SharedStatus} value.
+	 * 
+	 * @param id of Bookmark to update.
+	 * @param sharedStatus value to update to.
+	 * @return Bookmark that was updated, along with current shared value after update.
+	 * @throws ManageableNotFoundException
+	 */
+	Bookmark update(Long id, Boolean shared) throws ManageableNotFoundException;
+	
+	/**
+	 * Updates a {@link Bookmark}'s {@link ReadLater} state to the passed
 	 * in ReadLater state. 
 	 * 
 	 * @param id of Bookmark to update.
@@ -31,4 +42,5 @@ public interface BookmarkService
 	 * @throws ManageableNotFoundException
 	 */
 	Bookmark update(Long id, ReadLater readLater) throws ManageableNotFoundException;
+	
 }

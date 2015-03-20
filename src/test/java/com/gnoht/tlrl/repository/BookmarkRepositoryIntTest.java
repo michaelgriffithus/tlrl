@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -19,6 +20,9 @@ import com.gnoht.tlrl.domain.WebResource;
 @ActiveProfiles("test")
 public class BookmarkRepositoryIntTest {
 
+	@Autowired
+	Environment env;
+	
 	@Autowired
 	private BookmarkRepository bookmarkRepository;
 	

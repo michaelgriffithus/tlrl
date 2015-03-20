@@ -43,6 +43,8 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final Boolean DEFAULT_SHARED_STATUS = false;
 
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
@@ -68,7 +70,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 	
 	/** Flag indicating if this bookmark is shared (true) or private (false) */ 
 	@Column(columnDefinition="boolean default false", nullable=false, name="shared")
-	private boolean shared = SharedStatus.PRIVATE.value();
+	private Boolean shared = DEFAULT_SHARED_STATUS;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name="readlater", nullable=false)
@@ -171,7 +173,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 			bookmark.description = description; return this;
 		}
 		public Builder tag(Tag tag) {
-			bookmark.getTags().add(tag); return this;
+			bookmark.tags.add(tag); return this;
 		}
 		public Builder tags(List<Tag> tags) {
 			bookmark.tags = tags; return this;
@@ -179,8 +181,8 @@ public class Bookmark extends ManagedAuditable<Long> {
 		public Builder user(User user) {
 			bookmark.user = user; return this;
 		}
-		public Builder shared(SharedStatus status) {
-			bookmark.shared = status.value(); return this;
+		public Builder shared(boolean shared) {
+			bookmark.shared = shared; return this;
 		}
 		public Builder readLater(ReadLater readLater) {
 			bookmark.readLater = readLater; return this;
@@ -227,21 +229,4 @@ public class Bookmark extends ManagedAuditable<Long> {
 		READ,
 	}
 	
-	/**
-	 * Represents the shared state of a {@link Bookmark}. Possible
-	 * values are PUBLIC and PRIVATE. 
-	 */
-	public static enum SharedStatus {
-		PUBLIC(true),
-		PRIVATE(false);
-		
-		private final boolean status;
-		
-		SharedStatus(boolean status) {
-			this.status = status;
-		}
-		public boolean value() {
-			return status;
-		}
-	}
 }

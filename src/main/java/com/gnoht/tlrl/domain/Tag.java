@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gnoht.tlrl.domain.support.Managed;
 
 /**
@@ -30,6 +31,12 @@ public class Tag extends Managed<String>
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@JsonIgnore
+	@Override
+	public boolean isNew() {
+		return super.isNew();
 	}
 
 	@Override
