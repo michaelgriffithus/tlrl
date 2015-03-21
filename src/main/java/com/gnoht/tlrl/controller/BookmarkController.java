@@ -38,7 +38,7 @@ public class BookmarkController {
 	/**
 	 * Create a new {@link Bookmark}. Only requirement is a valid url.
 	 * 
-	 * @param bookmark to save.
+	 * @param bookmark The Bookmark to save.
 	 * @return saved instance of the Bookmark.
 	 */
 	@RequestMapping(value={"/urls"}, method=RequestMethod.POST)
@@ -51,7 +51,7 @@ public class BookmarkController {
 	 * Updates {@link ReadLater} state for {@link Bookmark} with given id.
 	 * 
 	 * @param id of Bookmark to update
-	 * @param readLater state to update with
+	 * @param readLater The ReadLater state to update with
 	 * @return ReadLater state from updated Bookmark
 	 */
 	@RequestMapping(value="/urls/{id}/readlater", method=RequestMethod.PUT)
@@ -65,8 +65,8 @@ public class BookmarkController {
 	/**
 	 * Updates shared property for {@link Bookmark} with given id.
 	 * 
-	 * @param id of Bookmark to update
-	 * @param status to update to
+	 * @param id Id of Bookmark to update
+	 * @param status The shared status to update to
 	 * @return SharedStatus from updated Bookmark
 	 */
 	@RequestMapping(value="/urls/{id}/shared", method=RequestMethod.PUT)
@@ -79,8 +79,8 @@ public class BookmarkController {
 	/**
 	 * Updates properties for {@link Bookmark} with given id.
 	 * 
-	 * @param id of Bookmark to update
-	 * @param bookmark contains updated properties
+	 * @param id Id of Bookmark to update
+	 * @param bookmark The Bookmark containing updated properties
 	 * @return Bookmark that was updated
 	 */
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.PUT)
@@ -88,5 +88,17 @@ public class BookmarkController {
 				@PathVariable Long id, @RequestBody Bookmark bookmark) {
 		LOG.info("Starting request for /api/urls/{id}: id={}, bookmark={}", id, bookmark);
 		return bookmarkService.update(bookmark);
+	}
+	
+	/**
+	 * Deletes a {@link Bookmark} with given id.
+	 * 
+	 * @param id Id of Bookmark to delete
+	 * @return the Id of the deleted Bookmark
+	 */
+	@RequestMapping(value="/urls/{id}", method=RequestMethod.DELETE)
+	public @ResponseBody Long delete(@PathVariable Long id) {
+		LOG.info("Starting request for /api/urls/{id}: id={}", id);
+		return bookmarkService.delete(id);
 	}
 }

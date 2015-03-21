@@ -32,6 +32,17 @@ public class BookmarkControllerTest
 	BookmarkService bookmarkService;
 	
 	@Test
+	public void shouldDeleteBookmark() throws Exception {
+		when(bookmarkService.delete(any(Long.class)))
+			.thenReturn(1L);
+		
+		mockMvc.perform(
+			delete("/api/urls/1")
+				.contentType(contentType));
+			//.andExpect(arg0)
+	}
+	
+	@Test
 	public void shouldCreateBookmarkAndReturnIt() throws Exception {
 		// mocking bookmark service 
 		when(bookmarkService.create(any(Bookmark.class)))
@@ -128,7 +139,6 @@ public class BookmarkControllerTest
 							.get();
 				}
 			});
-		
 		
 		MvcResult result = mockMvc.perform(
 			put("/api/urls/1")

@@ -53,10 +53,11 @@ public abstract class ManagedService<ID extends Serializable,
 
 	@Transactional(readOnly=false)
 	@Override
-	public void delete(ID id) throws ManageableNotFoundException {
+	public ID delete(ID id) throws ManageableNotFoundException {
 		LOG.info("Starting delete(): id={}", id);
 		assertExistingManageable(id);
 		repository.delete(id);
+		return id;
 	}
 
 	@Transactional(readOnly=false)
