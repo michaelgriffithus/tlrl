@@ -22,7 +22,7 @@ import com.gnoht.tlrl.domain.Bookmark.ReadLater;
 import com.gnoht.tlrl.service.BookmarkService;
 
 @RestController
-@RequestMapping(value={"/api"})
+@RequestMapping(value={"/api/"})
 public class BookmarkController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkController.class);
