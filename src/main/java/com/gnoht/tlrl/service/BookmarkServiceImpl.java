@@ -41,7 +41,6 @@ public class BookmarkServiceImpl
 	@Override
 	public Bookmark create(Bookmark bookmark) {
 		LOG.info("Starting create(): bookmark={}", bookmark);
-		
 		/* Get the referenced WebResource, otherwise create it, 
 		 * if first time being bookmarked */
 		WebResource webResource = webResourceService
@@ -60,7 +59,7 @@ public class BookmarkServiceImpl
 	@Override
 	public Bookmark update(Long id, Boolean shared)
 			throws ManageableNotFoundException {
-		
+		LOG.info("Starting update(): id={}, shared={}", id, shared);
 		Bookmark toUpdate = Bookmark
 			// use get vs findOne, as latter will not throw NotFoundException	
 			.updater(get(id)) 
@@ -74,7 +73,7 @@ public class BookmarkServiceImpl
 	@Override
 	public Bookmark update(Long id, ReadLater readLater)
 				throws ManageableNotFoundException {
-		
+		LOG.info("Starting update(): id={}, readLater={}", id, readLater);
 		Bookmark toUpdate = Bookmark
 			// use get vs findOne, as latter will not throw NotFoundException	
 			.updater(get(id)) 
@@ -86,9 +85,8 @@ public class BookmarkServiceImpl
 
 	@Transactional(readOnly=false)
 	@Override
-	public Bookmark update(Bookmark bookmark)
-			throws ManageableNotFoundException {
-		
+	public Bookmark update(Bookmark bookmark) throws ManageableNotFoundException {
+		LOG.info("Starting update(): bookmark={}", bookmark);
 		// use get vs findOne, as latter will not throw NotFoundException	
 		Bookmark toUpdate = Bookmark.updater(get(bookmark.getId()))
 			.title(bookmark.getTitle())
