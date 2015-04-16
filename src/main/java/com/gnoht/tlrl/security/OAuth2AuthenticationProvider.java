@@ -47,7 +47,7 @@ public class OAuth2AuthenticationProvider
 
 	private Authentication createSuccessfulAuthentication(
 			OAuth2Authentication oauthAuth, UserDetails userDetails) {
-		return null;
+		return new OAuth2Authentication(userDetails, userDetails);
 	}
 
 	@Override

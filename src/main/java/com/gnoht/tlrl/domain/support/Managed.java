@@ -30,7 +30,7 @@ public abstract class Managed<ID extends Serializable>
 			.add("id", getId())
 			.add("isNew", isNew());
   }
-
+	
 	/**
 	 * Default behavior considers an entity new if it has no ID.
 	 */

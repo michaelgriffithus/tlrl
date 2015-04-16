@@ -43,11 +43,20 @@ public class OAuth2AuthenticationUserDetailsService
 		}
 	}
 
+	/**
+	 * Creates a new User from given {@link OAuth2Authentication}. The only requirement
+	 * for a User to be created is a valid email address, which is the principal of given
+	 * authentication object.
+	 * 
+	 * @param auth Authenticated principal (with email)
+	 * @return
+	 */
 	private OAuth2UserDetails createUnconfirmedUser(OAuth2Authentication auth) {
+		LOG.info("Starting createUnconfirmedUser(): auth={}", auth);
 		User unconfirmedUser = userService.create(
 			new User(
-				secureRandomStringKey(), 
-				(String) auth.getPrincipal(),
+				secureRandomStringKey(), //TODO: possible constraint violation?
+				(String) auth.getPrincipal(), // email is stored as principal
 				UNCONFIRMED_ROLE, 
 				false));
 		

@@ -34,7 +34,8 @@ public class OAuth2Authentication extends AbstractAuthenticationToken {
 	 * @param userDetails
 	 */
 	public OAuth2Authentication(Object principal, UserDetails userDetails) {
-		this(principal);
+		super(userDetails.getAuthorities());
+		this.principal = principal;
 		setDetails(userDetails);
 		super.setAuthenticated(!getAuthorities().isEmpty());
 	}
