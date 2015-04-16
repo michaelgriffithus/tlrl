@@ -3,6 +3,7 @@ package com.gnoht.tlrl.util;
 import java.util.Collections;
 import java.util.List;
 
+import com.gnoht.tlrl.domain.Role;
 import com.google.common.base.Splitter;
 
 public final class StringUtils {
@@ -18,4 +19,5 @@ public final class StringUtils {
 			return Collections.emptyList();
 		return Splitter.on(delim).splitToList(s);
 	}
+	
 }

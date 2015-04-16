@@ -4,10 +4,12 @@ import javax.annotation.Resource;
 import javax.servlet.Filter;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,14 +23,19 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 
 import com.gnoht.tlrl.security.GoogleOAuth2AuthenticationTokenService;
 import com.gnoht.tlrl.security.OAuth2AuthenticationProcessingFilter;
+import com.gnoht.tlrl.security.OAuth2AuthenticationProvider;
 import com.gnoht.tlrl.security.OAuth2AuthenticationTokenService;
+import com.gnoht.tlrl.security.OAuth2AuthenticationUserDetailsService;
+import com.gnoht.tlrl.security.SecurityPackage;
 
 @Configuration
+@ComponentScan(basePackageClasses={SecurityPackage.class})
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Resource private Environment env;
 	@Resource private OAuth2ClientContextFilter oAuth2ClientContextFilter;
+	@Resource private OAuth2AuthenticationUserDetailsService userDetailsService;
 	@Resource private OAuth2RestOperations restTemplate;
 
 	/**
@@ -55,34 +62,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/**").fullyAuthenticated()
 		.and()
 			.addFilterAfter(oAuth2ClientContextFilter, ExceptionTranslationFilter.class)
-			.addFilterBefore(googleOAuthProcessingFilter(), FilterSecurityInterceptor.class)
-		.authenticationProvider(new AuthenticationProvider() {
-			@Override
-			public boolean supports(Class<?> arg0) {
-				System.out.println("--------------------");
-				return false;
-			}
-			@Override
-			public Authentication authenticate(Authentication arg0)
-					throws AuthenticationException {
-				return null;
-			}
-		});		
+			.addFilterBefore(googleOAuthProcessingFilter(), FilterSecurityInterceptor.class);
+	}
+	
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.authenticationProvider(authenticationProvider());
 	}
 
 	@Bean
-	protected Filter googleOAuthProcessingFilter() {
+	protected AuthenticationProvider authenticationProvider() {
+		return new OAuth2AuthenticationProvider(userDetailsService);
+	}
+	
+	@Bean
+	protected Filter googleOAuthProcessingFilter() throws Exception {
 		OAuth2AuthenticationProcessingFilter filter = 
 				new OAuth2AuthenticationProcessingFilter("/googleLogin");
 		filter.setOAuthAuthenticationTokenService(googleAuthenticationTokenService());
-		filter.setAuthenticationManager(new AuthenticationManager() {
-			@Override
-			public Authentication authenticate(Authentication arg0)
-					throws AuthenticationException {
-				System.out.println("----------- no op:" + arg0);
-				return null;
-			}
-		});
+		filter.setAuthenticationManager(authenticationManager());
 		return filter;
 	}
 }
