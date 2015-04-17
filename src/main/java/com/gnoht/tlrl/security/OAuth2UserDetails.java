@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.gnoht.tlrl.domain.User;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+/**
+ * {@link UserDetails} implementation that wraps currently authenticated {@link User}.
+ */
 public class OAuth2UserDetails extends User 
 		implements UserDetails {
 
@@ -20,7 +23,7 @@ public class OAuth2UserDetails extends User
 	
 	public OAuth2UserDetails(User user) {
 		super(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.isEnabled());
-		authorities.add(new SimpleGrantedAuthority(getRole().getId()));
+		authorities.add(SecurityUtils.asGrantedAuthority(getRole()));
 	}
 
 	@Override

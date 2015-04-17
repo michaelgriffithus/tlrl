@@ -9,7 +9,9 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * 
+ * Simple {@link AuthenticationProvider} responsible for loading an 
+ * {@link Authentication}'s {@link UserDetails}, which would provide the 
+ * authorities needed to make the Authentication complete. 
  */
 public class OAuth2AuthenticationProvider 
 		implements AuthenticationProvider {
@@ -22,27 +24,28 @@ public class OAuth2AuthenticationProvider
 		this.userDetailsService = userDetailsService;
 	}
 	
+	/*
+	 * @see org.springframework.security.authentication.AuthenticationProvider#authenticate(
+	 * 	org.springframework.security.core.Authentication)
+	 */
 	@Override
 	public Authentication authenticate(Authentication authentication)
 			throws AuthenticationException {
 		
 		LOG.debug("Starting authenticate(): authentication={}", authentication);
 		
-		// We only support OAuth2Authentication
-		if(authentication == null || !supports(authentication.getClass())) {
+		if(authentication == null || !supports(authentication.getClass())) 
 			throw new IllegalArgumentException("Unsupported Authentication class!");
-		}
-		
-		// No need to proceed, currently authenticated!
-		if(authentication.isAuthenticated()) {
+		 
+		if(authentication.isAuthenticated()) { 
 			LOG.debug("Already authenticated, returning current authentication!");
 			return authentication;
+		} else {
+			LOG.debug("Not fulled authenticated, try to find and load associated UserDetails.");
+			OAuth2Authentication oauthAuth = (OAuth2Authentication) authentication;
+			UserDetails userDetails = userDetailsService.loadUserDetails(oauthAuth);
+			return createSuccessfulAuthentication(oauthAuth, userDetails);
 		}
-		
-		// We have a valid OAuth2Authentication object
-		OAuth2Authentication oauthAuth = (OAuth2Authentication) authentication;
-		UserDetails userDetails = userDetailsService.loadUserDetails(oauthAuth);
-		return createSuccessfulAuthentication(oauthAuth, userDetails);
 	}
 
 	private Authentication createSuccessfulAuthentication(
@@ -50,6 +53,9 @@ public class OAuth2AuthenticationProvider
 		return new OAuth2Authentication(userDetails, userDetails);
 	}
 
+	/*
+	 * @see org.springframework.security.authentication.AuthenticationProvider#supports(java.lang.Class)
+	 */
 	@Override
 	public boolean supports(Class<?> authClass) {
 		return OAuth2Authentication.class.isAssignableFrom(authClass);

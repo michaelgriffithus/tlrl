@@ -15,6 +15,14 @@ import org.springframework.stereotype.Service;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.service.UserService;
 
+/**
+ * {@link UserDetailsService} implementation that loads a {@link User} via 
+ * {@link UserDetails} from a given {@link OAuth2Authentication}. It's assume 
+ * the passed in Authentication has been authenticated by an 
+ * {@link OAuth2AuthenticationTokenService} and contains an valid user email. 
+ * If the passed in Authentication does not have an associated User, one will 
+ * be created.
+ */
 @Service("userDetailsService")
 public class OAuth2AuthenticationUserDetailsService 
 		implements UserDetailsService, AuthenticationUserDetailsService<OAuth2Authentication> {
@@ -30,7 +38,7 @@ public class OAuth2AuthenticationUserDetailsService
 		LOG.info("Starting loadUserDetails(): auth={}", auth);
 
 		/* At this point, request has been authenticated against OAuth provider
-		 * and we have a provided email identifying the authenticated principal. 
+		 * and we have an email identifying the authenticated principal. 
 		 * It's just a matter of looking up that email and it's associated User
 		 * or if it's their first time to our system, create a new account. */
 		User user = userService.findByEmail((String) auth.getPrincipal());
@@ -57,7 +65,7 @@ public class OAuth2AuthenticationUserDetailsService
 			new User(
 				secureRandomStringKey(), //TODO: possible constraint violation?
 				(String) auth.getPrincipal(), // email is stored as principal
-				UNCONFIRMED_ROLE, 
+				ROLE_UNCONFIRMED, 
 				false));
 		
 		return new OAuth2UserDetails(unconfirmedUser);
