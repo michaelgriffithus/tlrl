@@ -30,7 +30,7 @@ import com.gnoht.tlrl.security.SecurityPackage;
 
 @Configuration
 @ComponentScan(basePackageClasses={SecurityPackage.class})
-@EnableWebSecurity
+@EnableWebSecurity // @EnableWebMvcSecurity is deprecated as 4.0
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Resource private Environment env;

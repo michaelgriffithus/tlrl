@@ -20,5 +20,15 @@
 	<script type="text/javascript" src="/static/lib/angular-resource/angular-resource.min.js"></script>
 	<script type="text/javascript" src="/static/lib/angular-sanitize/angular-sanitize.min.js"></script>
 	<script type="text/javascript" src="/static/js/tlrl.js"></script>
+	<script type="text/javascript">
+	<c:choose>
+		<c:when test="${user eq null}">
+			var currentUser = null;
+		</c:when>
+		<c:otherwise>
+			var currentUser = {name: "${user.name}"};
+		</c:otherwise>
+	</c:choose>
+	</script>
 </body>
 </html>

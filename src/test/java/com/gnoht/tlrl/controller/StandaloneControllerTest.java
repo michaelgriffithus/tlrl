@@ -11,7 +11,6 @@ import java.nio.charset.Charset;
 import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -32,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public abstract class StandaloneControllerTest<T> {
 
 	protected MockMvc mockMvc;
+	@SuppressWarnings("rawtypes")
 	protected HttpMessageConverter messageConverter = defaultMessageConverter();
 	protected MediaType contentType = defaultMediaType();
 

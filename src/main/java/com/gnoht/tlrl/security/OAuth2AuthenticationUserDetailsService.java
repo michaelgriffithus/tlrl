@@ -74,6 +74,7 @@ public class OAuth2AuthenticationUserDetailsService
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
+		System.out.println("====================== loadUserby");
 		return null;
 	}
 

@@ -27,6 +27,9 @@
 		<h2.version>1.4.186</h2.version>
 		<postgresql.version>9.3-1102-jdbc41</postgresql.version>
 
+		<!-- Spring Security (overrides parent pom) -->
+		<spring-security.version>4.0.0.RELEASE</spring-security.version>
+		<spring-security-oauth2.version>2.0.7.RELEASE</spring-security-oauth2.version>
 	</properties>
 
 	<!-- Add typical dependencies for a web application -->
@@ -45,9 +48,17 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-core</artifactId>
+    </dependency>
+		<dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+    </dependency>
+ 		<dependency>
 			<groupId>org.springframework.security.oauth</groupId>
 			<artifactId>spring-security-oauth2</artifactId>
-			<version>2.0.7.RELEASE</version>
+			<version>${spring-security-oauth2.version}</version>
 		</dependency>
 		<!-- Guava -->
 		<dependency>
@@ -89,6 +100,11 @@
 			<!-- provides Spring related Testing dependencies -->
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<dependency>
+  		<groupId>org.springframework.security</groupId>
+  		<artifactId>spring-security-test</artifactId>
+      <version>${spring-security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>

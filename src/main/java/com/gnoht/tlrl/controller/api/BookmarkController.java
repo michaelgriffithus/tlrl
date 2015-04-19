@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.controller;
+package com.gnoht.tlrl.controller.api;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

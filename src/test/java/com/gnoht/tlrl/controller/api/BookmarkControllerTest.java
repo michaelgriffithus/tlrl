@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.controller;
+package com.gnoht.tlrl.controller.api;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.mockito.Mock;
@@ -16,6 +15,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.web.servlet.MvcResult;
 
+import com.gnoht.tlrl.controller.StandaloneControllerTest;
+import com.gnoht.tlrl.controller.api.BookmarkController;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Bookmark.ReadLater;
 import com.gnoht.tlrl.domain.Tag;
