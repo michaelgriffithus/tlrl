@@ -28,8 +28,10 @@ public class OAuth2AuthenticationProcessingFilter extends
 	public Authentication attemptAuthentication(HttpServletRequest request,
 			HttpServletResponse response) throws AuthenticationException, IOException,
 			ServletException {
+		System.out.println("========== starting attemptAuth");
 		OAuth2AccessToken accessToken = oauthAuthenticationTokenService.getAccessToken();
 		Authentication authentication = oauthAuthenticationTokenService.getAuthentication(accessToken);
+		System.out.println("======== calling authManager.authenticate");
 		return getAuthenticationManager().authenticate(authentication);
 	}
 

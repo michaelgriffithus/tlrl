@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +36,8 @@ import org.springframework.web.client.RestTemplate;
 public abstract class AbstractOAuth2AuthenticationTokenService implements
 		OAuth2AuthenticationTokenService {
 
+	protected static final Logger LOG = LoggerFactory.getLogger(AbstractOAuth2AuthenticationTokenService.class);
+	
 	final OAuth2RestOperations restTemplate;
 	final String baseAuthorizationUrl;
 	final String tokenName;
@@ -116,6 +120,7 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 */
 	@Override
 	public OAuth2Authentication getAuthentication(OAuth2AccessToken accessToken) {
+		LOG.info("Starting getAuthentication(): accessToken={}", accessToken);
 		Map<String, Object> tokenInfo = getTokenInfo(accessToken);
 		return tokenConverter.extractAuthentication(tokenInfo);
 	}
@@ -125,6 +130,7 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 */
 	@Override
 	public OAuth2AccessToken getAccessToken() {
+		LOG.info("Starting getAccessToken()");
 		return restTemplate.getAccessToken();
 	}
 
