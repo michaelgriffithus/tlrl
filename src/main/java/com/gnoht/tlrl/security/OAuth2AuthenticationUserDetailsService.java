@@ -34,13 +34,13 @@ public class OAuth2AuthenticationUserDetailsService
 	@Override
 	public UserDetails loadUserDetails(OAuth2Authentication auth)
 			throws UsernameNotFoundException {
-		
 		LOG.info("Starting loadUserDetails(): auth={}", auth);
 
 		/* At this point, request has been authenticated against OAuth provider
 		 * and we have an email identifying the authenticated principal. 
 		 * It's just a matter of looking up that email and it's associated User
 		 * or if it's their first time to our system, create a new account. */
+		
 		User user = userService.findByEmail((String) auth.getPrincipal());
 		if(user == null) {
 			// user doesn't exists in our system yet, but they've been authenticated
@@ -66,7 +66,7 @@ public class OAuth2AuthenticationUserDetailsService
 				secureRandomStringKey(), //TODO: possible constraint violation?
 				(String) auth.getPrincipal(), // email is stored as principal
 				ROLE_UNCONFIRMED, 
-				false));
+				true));
 		
 		return new OAuth2UserDetails(unconfirmedUser);
 	}
@@ -74,8 +74,10 @@ public class OAuth2AuthenticationUserDetailsService
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		System.out.println("====================== loadUserby");
-		return null;
+		User user = userService.findByName(username);
+		if(user == null) 
+			throw new UsernameNotFoundException("User not found: " + username);
+		return new OAuth2UserDetails(user);
 	}
 
 }

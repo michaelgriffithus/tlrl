@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 /**
  * Provides decoupling of Spring specific @AuthenticationPrincipal in 

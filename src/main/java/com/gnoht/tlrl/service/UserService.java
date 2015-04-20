@@ -6,4 +6,5 @@ import com.gnoht.tlrl.service.support.ManageableService;
 public interface UserService extends ManageableService<Long, User> {
 
 	User findByEmail(String email);
+	User findByName(String name);
 }

@@ -63,14 +63,15 @@ public class User extends Managed<Long> {
 	}
 	
 	public User(Long id, String name, String email, Role role, boolean enabled) {
+		this(name, email, role, enabled);
+		this.id = id;
+	}
+	
+	public User(String name, String email, Role role, boolean enabled) {
 		this.name = name;
 		this.email = email;
 		this.role = role;
 		this.enabled = enabled;
-	}
-	
-	public User(String name, String email, Role role, boolean enabled) {
-		this(null, name, email, role, enabled);
 	}
 	
 	@Override

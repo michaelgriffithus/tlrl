@@ -21,7 +21,11 @@ public class UserServiceImpl extends ManagedService<Long, User, UserRepository>
 
 	@Override
 	public User findByEmail(String email) {
-		return null;
+		return repository.findOneByEmail(email);
 	}
 
+	@Override
+	public User findByName(String name) {
+		return repository.findOneByName(name);
+	}
 }

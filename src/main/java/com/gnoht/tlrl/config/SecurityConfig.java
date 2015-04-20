@@ -14,12 +14,14 @@ import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -36,7 +39,10 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -46,6 +52,7 @@ import com.gnoht.tlrl.security.OAuth2AuthenticationProvider;
 import com.gnoht.tlrl.security.OAuth2AuthenticationTokenService;
 import com.gnoht.tlrl.security.OAuth2AuthenticationUserDetailsService;
 import com.gnoht.tlrl.security.SecurityPackage;
+import com.gnoht.tlrl.security.SecurityUtils;
 
 @Configuration
 @ComponentScan(basePackageClasses={SecurityPackage.class})
@@ -62,7 +69,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Resource private OAuth2ClientContextFilter oAuth2ClientContextFilter;
 	@Resource private OAuth2AuthenticationUserDetailsService userDetailsService;
 	@Resource private OAuth2RestOperations restTemplate;
-
+	
+	@Resource(name="persistentTokenRepository") 
+	private PersistentTokenRepository persistentTokenRepository;
+	
 	/**
 	 * @return a Google specific {@link OAuth2AuthenticationTokenService} to handle
 	 * OAuth communication with Google OAuth services. 
@@ -95,6 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/urls")
 					.hasRole("USER")
 		.and()
+			.csrf().disable() // TODO: remove after test
 			.logout()
 				.deleteCookies("JSESSIONID")
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET
@@ -103,7 +114,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl(SIGNIN_URL)
 		.and()
 			.addFilterAfter(oAuth2ClientContextFilter, ExceptionTranslationFilter.class)
-			.addFilterBefore(googleOAuthProcessingFilter(), FilterSecurityInterceptor.class);
+			.addFilterBefore(googleOAuthProcessingFilter(), FilterSecurityInterceptor.class)
+		.rememberMe()
+			.rememberMeServices(rememberMeServices());
 		
 		
 	}
@@ -129,6 +142,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.authenticationProvider(new OAuth2AuthenticationProvider(userDetailsService));
 	}
+	
+	@Bean
+	public RememberMeServices rememberMeServices() {
+		PersistentTokenBasedRememberMeServices service =
+				new PersistentTokenBasedRememberMeServices(SecurityUtils.secureRandomStringKey(), userDetailsService, persistentTokenRepository);
+		service.setCookieName(env.getRequiredProperty("app.security.rememberMe.cookieKey"));
+		service.setAlwaysRemember(Boolean.valueOf(env.getRequiredProperty("app.security.rememberMe.alwaysRemember")));
+		service.setUseSecureCookie(Boolean.valueOf(env.getRequiredProperty("app.security.rememberMe.useSecureCookie")));
+		return service;
+	}
 
 	/**
 	 * @return Security filter to handle Google OAuth logins.
@@ -138,6 +161,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected Filter googleOAuthProcessingFilter() throws Exception {
 		OAuth2AuthenticationProcessingFilter filter = 
 				new OAuth2AuthenticationProcessingFilter("/auth/google");
+		filter.setRememberMeServices(rememberMeServices());
 		filter.setOAuthAuthenticationTokenService(googleAuthenticationTokenService());
 		filter.setAuthenticationManager(authenticationManager());
 		return filter;
