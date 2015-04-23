@@ -45,10 +45,9 @@ public class OAuth2AuthenticationUserDetailsService
 		if(user == null) {
 			// user doesn't exists in our system yet, but they've been authenticated
 			// let's create a new account, with "UNCONFIRMED" role. 
-			return createUnconfirmedUser(auth);
-		} else {
-			return new OAuth2UserDetails(user);
-		}
+			user = createUnconfirmedUser(auth);
+		} 
+		return new OAuth2UserDetails(user);
 	}
 
 	/**
@@ -61,14 +60,10 @@ public class OAuth2AuthenticationUserDetailsService
 	 */
 	private OAuth2UserDetails createUnconfirmedUser(OAuth2Authentication auth) {
 		LOG.info("Starting createUnconfirmedUser(): auth={}", auth);
-		User unconfirmedUser = userService.create(
-			new User(
-				secureRandomStringKey(), //TODO: possible constraint violation?
-				(String) auth.getPrincipal(), // email is stored as principal
-				ROLE_UNCONFIRMED, 
-				true));
-		
-		return new OAuth2UserDetails(unconfirmedUser);
+		User user = new User();
+		user.setEmail((String) auth.getPrincipal());
+		user.setRole(ROLE_UNCONFIRMED);
+		return new OAuth2UserDetails(user);
 	}
 
 	@Override

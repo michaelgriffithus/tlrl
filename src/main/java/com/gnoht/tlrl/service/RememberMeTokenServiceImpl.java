@@ -20,10 +20,10 @@ import com.gnoht.tlrl.service.support.ManagedService;
  * {@link RememberMeTokenService} implementation that also supports Spring 
  * Security's {@link PersistentTokenRepository}.
  */
-@Service("persistentTokenRepository")
-public final class RememberMeTokenServiceImpl 
+@Service("rememberMeTokenService")
+public class RememberMeTokenServiceImpl 
 			extends ManagedService<Long, RememberMeToken, RememberMeTokenRepository> 
-		implements PersistentTokenRepository, RememberMeTokenService {
+		implements RememberMeTokenService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RememberMeTokenServiceImpl.class);
 	

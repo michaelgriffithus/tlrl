@@ -5,20 +5,26 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.Filter;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
@@ -34,8 +40,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -49,15 +57,20 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import com.gnoht.tlrl.security.GoogleOAuth2AuthenticationTokenService;
 import com.gnoht.tlrl.security.OAuth2AuthenticationProcessingFilter;
 import com.gnoht.tlrl.security.OAuth2AuthenticationProvider;
+import com.gnoht.tlrl.security.OAuth2AuthenticationSuccessHandler;
 import com.gnoht.tlrl.security.OAuth2AuthenticationTokenService;
 import com.gnoht.tlrl.security.OAuth2AuthenticationUserDetailsService;
+import com.gnoht.tlrl.security.OAuth2UserDetails;
 import com.gnoht.tlrl.security.SecurityPackage;
 import com.gnoht.tlrl.security.SecurityUtils;
+import com.gnoht.tlrl.service.RememberMeTokenService;
 
 @Configuration
 @ComponentScan(basePackageClasses={SecurityPackage.class})
 @EnableWebSecurity // @EnableWebMvcSecurity is deprecated as 4.0
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
 	public static final String SIGNIN_URL = "/";
 	public static final String SIGNUP_URL = "/signup";
@@ -70,23 +83,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Resource private OAuth2AuthenticationUserDetailsService userDetailsService;
 	@Resource private OAuth2RestOperations restTemplate;
 	
-	@Resource(name="persistentTokenRepository") 
-	private PersistentTokenRepository persistentTokenRepository;
+	@Resource(name="rememberMeTokenService")
+	private RememberMeTokenService rememberMeTokenService;
 	
-	/**
-	 * @return a Google specific {@link OAuth2AuthenticationTokenService} to handle
-	 * OAuth communication with Google OAuth services. 
-	 */
-	@Bean public OAuth2AuthenticationTokenService googleAuthenticationTokenService() {
-		return GoogleOAuth2AuthenticationTokenService
-			.getBuilder(restTemplate)
-				.clientId(env.getRequiredProperty("oauth2.google.client.id"))
-				.clientSecret(env.getRequiredProperty("oauth2.google.client.secret"))
-				.baseAuthorizationUrl(env.getRequiredProperty("oauth2.google.baseAuthorizationUrl"))
-				.tokenName(env.getRequiredProperty("oauth2.google.tokenName"))
-			.build();
-	}
-
+	@Value("app.security.rememberMe.cookieName")
+	private String rememberMeCookieName;
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
@@ -94,20 +96,39 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authenticationEntryPoint(delegatingAuthenticationEntryPoint())
 		.and()
 			.exceptionHandling()
-				.accessDeniedPage(SIGNIN_URL)
+				.accessDeniedPage("/signup")
+//				.accessDeniedHandler(new AccessDeniedHandler() {
+//					@Override
+//					public void handle(HttpServletRequest request, HttpServletResponse response,
+//							AccessDeniedException e) throws IOException, ServletException {
+//						LOG.debug("userPrincipal={}", request.getUserPrincipal());
+//						if(SecurityUtils.hasRole(request.getUserPrincipal(), SecurityUtils.ROLE_UNCONFIRMED)) {
+//							response.sendRedirect(SIGNUP_URL);
+//						} else {
+//							response.sendRedirect(SIGNIN_URL);
+//						}
+//					}
+//				})
 		.and()
 			.anonymous().disable()
 			.authorizeRequests()
-				.antMatchers(
-						SIGNOUT_URL,
-						AUTH_CATCHALL_URL)
-					.permitAll()
-				.antMatchers("/api/urls")
-					.hasRole("USER")
+				//URLs for all users
+				.antMatchers( 						
+						AUTH_CATCHALL_URL,
+						SIGNOUT_URL).permitAll()
+				//URLS for users with 'unconfirmed' role		
+				.antMatchers( 
+						SIGNUP_URL, 
+						"/api/signup").hasRole("UNCONFIRMED")
+				//URLs for users with 'user' role		
+				.antMatchers( 
+						"/secured", // tmp for testing
+						"/@*", 			// users home directory
+ 						"/api/urls").hasRole("USER")
 		.and()
 			.csrf().disable() // TODO: remove after test
 			.logout()
-				.deleteCookies("JSESSIONID")
+				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET
 				// http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf-logout
 				.logoutUrl(SIGNOUT_URL) 
@@ -143,14 +164,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.authenticationProvider(new OAuth2AuthenticationProvider(userDetailsService));
 	}
 	
+	/**
+	 * @return a Google specific {@link OAuth2AuthenticationTokenService} to handle
+	 * OAuth communication with Google OAuth services. 
+	 */
+	@Bean public OAuth2AuthenticationTokenService googleAuthenticationTokenService() {
+		return GoogleOAuth2AuthenticationTokenService
+			.getBuilder(restTemplate)
+				.clientId(env.getRequiredProperty("oauth2.google.client.id"))
+				.clientSecret(env.getRequiredProperty("oauth2.google.client.secret"))
+				.baseAuthorizationUrl(env.getRequiredProperty("oauth2.google.baseAuthorizationUrl"))
+				.tokenName(env.getRequiredProperty("oauth2.google.tokenName"))
+			.build();
+	}
+
 	@Bean
 	public RememberMeServices rememberMeServices() {
-		PersistentTokenBasedRememberMeServices service =
-				new PersistentTokenBasedRememberMeServices(SecurityUtils.secureRandomStringKey(), userDetailsService, persistentTokenRepository);
-		service.setCookieName(env.getRequiredProperty("app.security.rememberMe.cookieKey"));
+		PersistentTokenBasedRememberMeServices service = new PersistentTokenBasedRememberMeServices(
+				SecurityUtils.secureRandomStringKey(), userDetailsService, rememberMeTokenService);
+		service.setCookieName(rememberMeCookieName);
 		service.setAlwaysRemember(Boolean.valueOf(env.getRequiredProperty("app.security.rememberMe.alwaysRemember")));
 		service.setUseSecureCookie(Boolean.valueOf(env.getRequiredProperty("app.security.rememberMe.useSecureCookie")));
 		return service;
+	}
+	
+	@Bean
+	public AuthenticationSuccessHandler authenticationSuccessHandler() {
+		return new OAuth2AuthenticationSuccessHandler();
 	}
 
 	/**
@@ -164,6 +204,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		filter.setRememberMeServices(rememberMeServices());
 		filter.setOAuthAuthenticationTokenService(googleAuthenticationTokenService());
 		filter.setAuthenticationManager(authenticationManager());
+		filter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 		return filter;
 	}
 	

@@ -37,9 +37,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 
-import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
@@ -101,7 +99,12 @@ public class WebAppControllerTest {
 				@Override
 				public OAuth2UserDetails answer(InvocationOnMock invocation)
 						throws Throwable {
-					return new OAuth2UserDetails(new User(1L, "thong", "thong@xyz.com", SecurityUtils.ROLE_USER, true));
+					User user = new User(1L);
+					user.setName("thong");
+					user.setEmail("thong@xyz.com");
+					user.setRole(SecurityUtils.ROLE_USER);
+					user.setEnabled(true);
+					return new OAuth2UserDetails(user);
 				}
 			});
 					

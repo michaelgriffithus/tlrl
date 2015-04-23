@@ -21,6 +21,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gnoht.tlrl.domain.support.Managed;
+import com.gnoht.tlrl.security.SecurityUtils;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
@@ -45,7 +46,7 @@ public class User extends Managed<Long> {
 	@Column(unique=true)
 	private String email;
 
-	private boolean enabled;
+	private boolean enabled = false;
 	
 	@ManyToOne(targetEntity=Role.class, fetch=FetchType.EAGER, cascade={CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
 	@JoinColumn(name="role_id", nullable=false)
@@ -56,22 +57,23 @@ public class User extends Managed<Long> {
 //	@JoinColumn(name="user_id", referencedColumnName="id")
 //	private List<OAuthToken> oauthTokens = new ArrayList<OAuthToken>();
 
-	User() {}
+	public User() {}
 	
 	public User(Long id) {
 		this.id = id;
 	}
-	
+
 	public User(Long id, String name, String email, Role role, boolean enabled) {
-		this(name, email, role, enabled);
-		this.id = id;
-	}
-	
-	public User(String name, String email, Role role, boolean enabled) {
+		this(id);
 		this.name = name;
 		this.email = email;
 		this.role = role;
 		this.enabled = enabled;
+	}
+	
+	public User(String name, String email) {
+		this.name = name;
+		this.email = email;
 	}
 	
 	@Override
@@ -89,6 +91,21 @@ public class User extends Managed<Long> {
 	}
 	public Role getRole() {
 		return role;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setRole(Role role) {
+		this.role = role;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	@Override

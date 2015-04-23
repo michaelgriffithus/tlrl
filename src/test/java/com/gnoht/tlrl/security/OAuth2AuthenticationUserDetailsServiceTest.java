@@ -30,7 +30,11 @@ public class OAuth2AuthenticationUserDetailsServiceTest {
 	@Test
 	public void shouldReturnUserByGivenAuthentication() {
 		// given
-		User user = new User(1L, "john", "user@xyz.com", SecurityUtils.ROLE_USER, true);
+		User user = new User(1L);
+		user.setName("john");
+		user.setEmail("user@xyz.com");
+		user.setRole(SecurityUtils.ROLE_USER);
+		user.setEnabled(true);
 		when(userService.findByEmail(any(String.class))).thenReturn(user);
 		OAuth2Authentication auth = new OAuth2Authentication("user@xyz.com");
 		
@@ -45,7 +49,9 @@ public class OAuth2AuthenticationUserDetailsServiceTest {
 	@Test
 	public void shouldReturnAnUnconfirmedUser() {
 		// given
-		User unconfirmedUser = new User(1L, "john", "user@xyz.com", SecurityUtils.ROLE_UNCONFIRMED, true);
+		User unconfirmedUser = new User();
+		unconfirmedUser.setEmail("user@xyz.com");
+		unconfirmedUser.setRole(SecurityUtils.ROLE_UNCONFIRMED);
 		when(userService.findByEmail(any(String.class))).thenReturn(null);
 		when(userService.create(any(User.class))).thenReturn(unconfirmedUser);
 		OAuth2Authentication auth = new OAuth2Authentication("user@xyz.com");

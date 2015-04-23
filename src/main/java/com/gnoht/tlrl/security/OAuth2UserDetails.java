@@ -22,7 +22,11 @@ public class OAuth2UserDetails extends User
 	private Collection<GrantedAuthority> authorities = new ArrayList<>();
 	
 	public OAuth2UserDetails(User user) {
-		super(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.isEnabled());
+		setId(user.getId());
+		setName(user.getName());
+		setEmail(user.getEmail());
+		setRole(user.getRole());
+		setEnabled(user.isEnabled());
 		authorities.add(SecurityUtils.asGrantedAuthority(getRole()));
 	}
 

@@ -7,4 +7,5 @@ public interface UserService extends ManageableService<Long, User> {
 
 	User findByEmail(String email);
 	User findByName(String name);
+	User signUpUser(User user);
 }
