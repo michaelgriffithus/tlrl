@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 
-import javax.annotation.Resource;
 import javax.servlet.Filter;
 
 import org.junit.Before;
@@ -21,17 +20,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithSecurityContext;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.gnoht.tlrl.domain.AlreadySignedUpException;
 import com.gnoht.tlrl.domain.User;
+import com.gnoht.tlrl.security.OAuth2UserDetails;
 import com.gnoht.tlrl.security.SecurityUtils;
 import com.gnoht.tlrl.service.UserService;
 
@@ -88,7 +79,7 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 	
 	@Test
 	@SuppressWarnings("unchecked")
-	public void doSignUpShouldFailOnAlreadySignedUpException() throws Exception {
+	public void doSignUpShouldFailWithAlreadySignedUpException() throws Exception {
 		Authentication auth = authenticatedWithRole(SecurityUtils.ROLE_UNCONFIRMED);
 		when(userService.signUpUser(any(User.class)))
 			.thenThrow(AlreadySignedUpException.class);
@@ -101,6 +92,20 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
+	public void doSignUpShouldFailWithDataIntegrityException() throws Exception {
+		Authentication auth = authenticatedWithRole(SecurityUtils.ROLE_UNCONFIRMED);
+		when(userService.signUpUser(any(User.class)))
+			.thenThrow(DataIntegrityViolationException.class);
+		
+		mockMvc.perform(post("/signup")
+				.param("name", "blah")
+				.with(authentication(auth)))
+			.andDo(print())
+			.andExpect(model().attributeHasFieldErrorCode("user", "name", "user.error.nameExists"));
+	}
+	
+	@Test
 	public void doSignUpShouldSucceedAndRedirectToUserHome() throws Exception {
 		Authentication auth = authenticatedWithRole(SecurityUtils.ROLE_UNCONFIRMED);
 		when(userService.signUpUser(any(User.class))).then(new Answer<User>() {
@@ -110,6 +115,8 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 				return user;
 			}
 		});
+		when(userService.findByName(any(String.class)))
+			.thenReturn((OAuth2UserDetails) auth.getDetails());
 		
 		mockMvc.perform(post("/signup")
 					.param("name", auth.getName())

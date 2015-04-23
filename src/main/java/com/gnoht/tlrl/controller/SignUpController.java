@@ -89,9 +89,7 @@ public class SignUpController {
 		if(!bindingResult.hasErrors()) {
 			try {
 				currentUser = userService.signUpUser(newUser);
-				System.out.println("======= currentUser after userService:" + currentUser);
 				reloadAuthentication(currentUser, request, response);
-				System.out.println("======== after reloadAuth:" + currentUser);
 				return "redirect:/@" + currentUser.getName();
 				
 			} catch(AlreadySignedUpException e) {
@@ -113,18 +111,12 @@ public class SignUpController {
 	
 	public void reloadAuthentication(User user, 
 			HttpServletRequest request, HttpServletResponse response) {
-		System.out.println("========== before removeUserTokens()");
 		rememberMeTokenService.removeUserTokens(user.getName());
-		System.out.println("========== before loadUserByUsername");
-		OAuth2UserDetails userDetails = new OAuth2UserDetails(user);
-		 //(OAuth2UserDetails) 
-			//	userDetailsService.loadUserByUsername(user.getName());
-		System.out.println("========== before new Oauth2Auth");
+		OAuth2UserDetails userDetails = (OAuth2UserDetails) 
+				userDetailsService.loadUserByUsername(user.getName());
 		OAuth2Authentication authToken = 
 				new OAuth2Authentication(userDetails, userDetails);
-		System.out.println("========== before setAuthentication");
 		SecurityContextHolder.getContext().setAuthentication(authToken);
-		System.out.println("========== before loginSuccess");
 		rememberMeServices.loginSuccess(request, response, authToken);
 	}
 }
