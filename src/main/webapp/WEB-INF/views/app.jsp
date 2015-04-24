@@ -13,13 +13,21 @@
 <body>
 	<div class="container">
 		<div data-ng-view></div>
+		<div class="grid">
+			<div class="grid__col grid__col--1-of-12"></div>
+			<div class="grid__col grid__col--10-of-12">
+			<x-ng-include src="'/views/shared/footer.html'"></x-ng-include>
+			</div>
+			<div class="grid__col grid__col--1-of-12"></div>
+		</div>
 	</div>
-	<script type="text/javascript" src="/static/lib/jquery/dist/jquery.min.js"></script> 
-	<script type="text/javascript" src="/static/lib/angular/angular.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-route/angular-route.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-resource/angular-resource.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-sanitize/angular-sanitize.min.js"></script>
-	<script type="text/javascript" src="/static/js/tlrl.js"></script>
+	<script type="text/javascript" src="/scripts/lib/jquery/dist/jquery.min.js"></script> 
+	<script type="text/javascript" src="/scripts/lib/angular/angular.min.js"></script>
+	<script type="text/javascript" src="/scripts/lib/angular-route/angular-route.min.js"></script>
+	<script type="text/javascript" src="/scripts/lib/angular-resource/angular-resource.min.js"></script>
+	<script type="text/javascript" src="/scripts/lib/angular-sanitize/angular-sanitize.min.js"></script>
+	<script type="text/javascript" src="/scripts/lib/moment/min/moment.min.js"></script>
+	<script type="text/javascript" src="/scripts/tlrl.js"></script>
 	<script type="text/javascript">
 	<c:choose>
 		<c:when test="${user eq null}">

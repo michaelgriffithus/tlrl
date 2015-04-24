@@ -1,0 +1,22 @@
+					<div class="rl-edit">
+						<input x-ng-show="!readLater.id" type="text" x-ng-model="readLater.url" placeholder="url">
+						<input type="text" class="title" x-ng-model="readLater.title" placeholder="title">
+						<div x-ng-show="readLater.id" class="ellipsis text-muted">{{readLater.url}}</div>
+						<textarea name="description" x-ng-model="readLater.description" rows="5"
+								placeholder="{{((readLater.content | htmlToPlaintext) || 'description')}}"></textarea>
+						<input type="text" x-ng-model="readLater.tagsFlattened" placeholder="tags">
+						<div>
+							<span class="text-muted">
+								<span x-ng-show="readLater.id">{{readLater.dateCreated | dateFormat }}</span>
+								
+								<span>&middot;</span>
+								<span style="display:inline-block;">
+									<i class="fa" x-ng-class="{'fa-unlock-alt': readLater.shared, 'fa-lock': !readLater.shared}"></i>
+									shared <input type="checkbox" x-ng-model="readLater.shared">
+								</span>
+								<span>&middot;</span>
+								<button class="btn-success" x-ng-click="doSaveReadLater(readLater);">Save</button>
+								<button class="btn-default" x-ng-click="cancel()">Cancel</button>
+							</span>
+						</div>
+					</div>

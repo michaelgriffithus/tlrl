@@ -1,0 +1,39 @@
+		<div class="grid">
+			<div class="grid__col grid__col--1-of-12"></div>
+			<div class="grid__col grid__col--10-of-12">
+				<div class="top-nav">
+					<a href="/" target="_self" class="logo"><i class="fa fa-lg fa-bookmark-o"></i> tlrl</a>
+					<span x-ng-show="currentUser" class="text-muted">(<a x-ng-href="/@{{currentUser.name}}">{{currentUser.name}}</a>)</span>
+					<div class="pull-right">
+		 				<a href="/recent">recent</a> &middot;
+						<a href="/popular">popular</a>
+						<span class="spacer">|</span>
+		 				<span x-ng-show="currentUser">
+							my <a x-ng-href="/@{{currentUser.name}}/urls">bookmarks</a>
+							<!-- &middot; -->
+							<!-- <a>tags</a> --> 
+							<span class="spacer">|</span>
+							<a x-ng-show="currentUser" href="/signout" target="_self">sign out <i class="fa fa-sign-out"></i></a>					
+						</span> 
+						<a x-ng-hide="currentUser" href="/" target="_self">sign in <i class="fa fa-sign-in"></i></a>					
+					</div>
+				</div>
+			</div>
+			<div class="grid__col grid__col--1-of-12"></div>
+		</div>
+		<div class="grid search-nav">
+			<div class="grid__col grid__col--1-of-12"></div>
+			<div class="grid__col grid__col--7-of-12">
+				<span class="heading" ng-bind-html="pageHeading()"></span>
+				<form class="search-form" x-ng-submit="loadSearchByUser(term, (targetUser || currentUser))">
+						<input type="text" name="url" data-ng-model="term" autofocus="autofocus"> 
+				</form><br/>						
+			</div>
+			<div class="grid__col grid__col--4-of-12 search-nav-btns">
+				<span class="search-btns">
+					<button type="button" class="btn-default" x-ng-show="(targetUser || currentUser)" data-ng-click="loadSearchByUser(term, (targetUser || currentUser))"><i class="fa fa-search"></i> {{((!targetUser || isManageable) ? ' mine' : " this user")}}</button>
+					<button type="button" class="btn-default" data-ng-click="loadSearch(term)"><i class="fa fa-search"></i> all</button>
+					<button x-ng-show="currentUser" class="btn-success" x-ng-click="addReadLater(term)"><i class="fa fa-plus"></i> add url</button>
+				</span>
+			</div>
+		</div>

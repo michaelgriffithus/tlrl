@@ -18,7 +18,7 @@
 			el = document.createElement("script");
 
 		window.__tlrlBaseUrl = baseUrl;	
-		el.src=baseUrl + "/static/js/bookmarklet-sender.js?" +(new Date).getTime();
+		el.src=baseUrl + "/scripts/bookmarklet-sender.js?" +(new Date).getTime();
 		document.body.appendChild(el);
 	} else { 
 		/* We've loaded our scripts before, just call the function that will handle bookmarking this page's URL */

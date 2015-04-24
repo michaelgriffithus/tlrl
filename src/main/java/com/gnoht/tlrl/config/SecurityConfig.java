@@ -97,18 +97,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.and()
 			.exceptionHandling()
 				.accessDeniedPage("/signup")
-//				.accessDeniedHandler(new AccessDeniedHandler() {
-//					@Override
-//					public void handle(HttpServletRequest request, HttpServletResponse response,
-//							AccessDeniedException e) throws IOException, ServletException {
-//						LOG.debug("userPrincipal={}", request.getUserPrincipal());
-//						if(SecurityUtils.hasRole(request.getUserPrincipal(), SecurityUtils.ROLE_UNCONFIRMED)) {
-//							response.sendRedirect(SIGNUP_URL);
-//						} else {
-//							response.sendRedirect(SIGNIN_URL);
-//						}
-//					}
-//				})
 		.and()
 			.anonymous().disable()
 			.authorizeRequests()
@@ -122,7 +110,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						"/api/signup").hasRole("UNCONFIRMED")
 				//URLs for users with 'user' role		
 				.antMatchers( 
-						"/secured", // tmp for testing
 						"/@*", 			// users home directory
  						"/api/urls").hasRole("USER")
 		.and()

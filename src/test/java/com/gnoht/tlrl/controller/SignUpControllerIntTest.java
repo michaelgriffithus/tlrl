@@ -48,7 +48,6 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 	
 	private MockMvc mockMvc;
 	
-	
 	@Before
 	public void setUp() {
 		mockMvc = MockMvcBuilders

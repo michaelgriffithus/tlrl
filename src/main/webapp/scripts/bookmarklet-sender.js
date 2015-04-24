@@ -3,7 +3,7 @@
 	if(!(f=e.jQuery) || h(f)) {
 		c=a.createElement("script");
 		c.type="text/javascript";
-		c.src=window.__tlrlBaseUrl + "/static/lib/jquery/dist/jquery.min.js";
+		c.src=window.__tlrlBaseUrl + "/scripts/lib/jquery/dist/jquery.min.js";
 		c.onload = c.onreadystatechange = function() {
 			if(!b && (!(d=this.readyState) || d=="loaded" || d=="complete")) {
 				h((f=e.jQuery).noConflict(1),b=1);
@@ -35,7 +35,7 @@
 		/* An overlay to show with login message */
 		tlrlOverlay = $('<div id="tlrl-overlay" class="tlrl-hide" style="display:none;position:fixed;left:0%;right:0%;top:0%;bottom:0%;z-index:99999;background:#111;opacity:0.5;"></div>').appendTo('#tlrl-container'),
 		/* iframe containing receiver code for our postMessage cross domain communication */
-		tlrlFrame = $('<iframe id="tlrl-frame" style="display:none;" src="' + window.__tlrlBaseUrl + '/static/bookmarklet-receiver.html?r=' + new Date().getTime() + '"></iframe>').appendTo('#tlrl-container');
+		tlrlFrame = $('<iframe id="tlrl-frame" style="display:none;" src="' + window.__tlrlBaseUrl + '/views/bookmarklet-receiver.html?r=' + new Date().getTime() + '"></iframe>').appendTo('#tlrl-container');
 
 	/* Show the login message */
 	function tlrlShowLogin(show) {
