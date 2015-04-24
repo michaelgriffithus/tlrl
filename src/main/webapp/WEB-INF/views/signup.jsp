@@ -12,7 +12,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>TL;RL</title>
-	<link type="text/css" href="/static/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
+	<link type="text/css" href="/scripts/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
 	<link type="text/css" href="/static/css/tlrl.css" rel="stylesheet">
 </head>
 <body>
@@ -51,12 +51,6 @@
 	<div class="grid__col grid__col--1-of-12"></div>
 </div>
 
-	<script type="text/javascript" src="/static/lib/jquery/dist/jquery.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular/angular.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-route/angular-route.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-resource/angular-resource.min.js"></script>
-	<script type="text/javascript" src="/static/lib/angular-sanitize/angular-sanitize.min.js"></script>
-	<script type="text/javascript" src="/static/lib/moment/min/moment.min.js"></script>
 	<script type="text/javascript">
 		function cancel() {
 			window.location.href = "/signout";
