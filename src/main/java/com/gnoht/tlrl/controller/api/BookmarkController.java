@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Bookmark.ReadLater;
+import com.gnoht.tlrl.domain.User;
+import com.gnoht.tlrl.security.CurrentUser;
 import com.gnoht.tlrl.service.BookmarkService;
 
 @RestController
@@ -40,9 +42,13 @@ public class BookmarkController {
 	 * @return saved instance of the Bookmark.
 	 */
 	@RequestMapping(value={"/urls"}, method=RequestMethod.POST)
-	public @ResponseBody Bookmark create(@Valid @RequestBody Bookmark bookmark) {
-		LOG.info("Starting request for /api/urls: bookmark={}", bookmark);
-		return bookmarkService.create(bookmark);
+	public @ResponseBody Bookmark create(@CurrentUser User user, 
+			@Valid @RequestBody(required=true) Bookmark bookmark) {
+		LOG.info("Starting request for /api/urls: user={}, bookmark={}", user, bookmark);
+		return bookmarkService.findOrCreate(
+			Bookmark.updater(bookmark)
+				.user(user)
+				.get());
 	}
 	
 	/**

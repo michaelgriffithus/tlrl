@@ -43,16 +43,16 @@ public class BookmarkServiceImplIntTest {
 		List<WebResource> webResources = webResourceService.findAll();
 		assertFalse("Should have some existing webResources!", webResources.isEmpty());
 		
-		WebResource toBookmark = webResources.get(0);
-		assertNull("Bookmark already exists!", bookmarkService.findByUrlAndUser(toBookmark.getUrl(), testUser));
+		WebResource webResource = webResources.get(0);
+		assertNull("Bookmark already exists!", bookmarkService.findByUrlAndUser(webResource.getUrl(), testUser));
 		
-		bookmarkService.create(
-			builder(toBookmark.getUrl(), testUser)
+		bookmarkService.findOrCreate(
+			builder(webResource.getUrl(), testUser)
 				.get());
 		
 		// check to see if webResource count changed after adding bookmark
 		assertTrue("Another webResource was created!", webResourceService.count() == webResources.size());
-		assertNotNull("Bookmark was not created!", bookmarkService.findByUrlAndUser(toBookmark.getUrl(), testUser));
+		assertNotNull("Bookmark was not created!", bookmarkService.findByUrlAndUser(webResource.getUrl(), testUser));
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class BookmarkServiceImplIntTest {
 		String randomUrl = "http://domain.com/" + System.currentTimeMillis(); 
 		assertNull(webResourceService.findByUrl(randomUrl));
 		
-		bookmarkService.create(
+		bookmarkService.findOrCreate(
 			builder(randomUrl, testUser)
 				.get());
 		

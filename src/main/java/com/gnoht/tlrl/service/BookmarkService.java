@@ -20,7 +20,16 @@ public interface BookmarkService
 	 * @return
 	 */
 	Bookmark findByUrlAndUser(String url, User user);
-
+	
+	/**
+	 * Creates the passed in {@link Bookmark} if it doesn't already exists, and 
+	 * return the newly created Bookmark or currently existing one.
+	 * 
+	 * @param bookmark
+	 * @return
+	 */
+	Bookmark findOrCreate(Bookmark bookmark);
+	
 	/**
 	 * Updates a {@link Bookmark}'s {@link SharedStatus} to the passed in 
 	 * {@link SharedStatus} value.

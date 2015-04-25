@@ -36,25 +36,33 @@ public class BookmarkServiceImpl
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
-
+	
 	@Transactional(readOnly=false)
 	@Override
-	public Bookmark create(Bookmark bookmark) {
-		LOG.info("Starting create(): bookmark={}", bookmark);
-		/* Get the referenced WebResource, otherwise create it, 
-		 * if first time being bookmarked */
-		WebResource webResource = webResourceService
-			.findOrCreate(WebResource.builder()
-					.url(bookmark.getUrl())
-					.user(bookmark.getUser())
-					.get());
+	public Bookmark findOrCreate(Bookmark toCreateBookmark) {
+		LOG.info("Starting create(): bookmark={}", toCreateBookmark);
 		
-		return super.create(Bookmark
-			.updater(bookmark)
-				.webResource(webResource)
-				.get());
+		Bookmark bookmark = repository.findByWebResourceUrlAndUser(
+				toCreateBookmark.getUrl(), toCreateBookmark.getUser());
+		
+		if(bookmark == null) {
+			/* Get the referenced WebResource, otherwise create it, 
+			 * if first time being bookmarked */
+			WebResource webResource = webResourceService
+				.findOrCreate(WebResource.builder()
+						.url(toCreateBookmark.getUrl())
+						.user(toCreateBookmark.getUser())
+						.get());
+			
+			bookmark = create(Bookmark
+					.updater(toCreateBookmark)
+						.webResource(webResource)
+						.get());
+		}
+		
+		return bookmark;
 	}
-	
+
 	@Transactional(readOnly=false)
 	@Override
 	public Bookmark update(Long id, Boolean shared)

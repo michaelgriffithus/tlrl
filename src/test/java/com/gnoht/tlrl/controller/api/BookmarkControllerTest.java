@@ -46,7 +46,7 @@ public class BookmarkControllerTest
 	@Test
 	public void shouldCreateBookmarkAndReturnIt() throws Exception {
 		// mocking bookmark service 
-		when(bookmarkService.create(any(Bookmark.class)))
+		when(bookmarkService.findOrCreate(any(Bookmark.class)))
 			.then(new Answer<Bookmark>() {
 				@Override
 				public Bookmark answer(InvocationOnMock inv) throws Throwable {

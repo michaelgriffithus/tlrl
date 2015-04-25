@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.client.token.grant.code.Authorization
 import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
 
+import com.gnoht.tlrl.security.ClientOnlyAuthCodeResourceDetails;
 import com.gnoht.tlrl.util.StringUtils;
 
 @Configuration
@@ -24,7 +25,7 @@ public class OAuth2SecurityConfig {
 	
 	@Bean
 	public OAuth2ProtectedResourceDetails googleOAuthResouce() {
-		AuthorizationCodeResourceDetails details = new AuthorizationCodeResourceDetails();
+		AuthorizationCodeResourceDetails details = new ClientOnlyAuthCodeResourceDetails();
 		details.setId("oauth2-google-client");
 		details.setClientId(env.getProperty("oauth2.google.client.id"));
 		details.setClientSecret(env.getProperty("oauth2.google.client.secret"));

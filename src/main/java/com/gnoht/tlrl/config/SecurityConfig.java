@@ -4,9 +4,12 @@ import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
+import static com.gnoht.tlrl.security.SecurityUtils.ROLE_UNCONFIRMED;
+import static com.gnoht.tlrl.security.SecurityUtils.ROLE_USER;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.neo4j.cypher.internal.compiler.v2_1.ast.rewriters.distributeLawsRewriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,12 +28,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
@@ -76,7 +85,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
-	public static final String[] SECURED_URLS = {"/api/urls"};
+	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
+	public static final String[] SECURED_GET_URLS = {"/api/urls"};
+	public static final String[] SECURED_POST_URLS = {"/api/urls"};
+	public static final String[] SECURED_PUT_URLS = {"/api/urls"};
 	
 	@Resource private Environment env;
 	@Resource private OAuth2ClientContextFilter oAuth2ClientContextFilter;
@@ -88,7 +100,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Value("app.security.rememberMe.cookieName")
 	private String rememberMeCookieName;
+
 	
+	
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.ignoring()
+			.antMatchers(
+					"/favicon.ico",
+					SIGNIN_URL,
+					"/static/**",
+					"/scripts/**",
+					"/views/**");
+	}
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
@@ -98,20 +123,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.exceptionHandling()
 				.accessDeniedPage("/signup")
 		.and()
-			.anonymous().disable()
+			//.anonymous().disable() 
 			.authorizeRequests()
 				//URLs for all users
-				.antMatchers( 						
-						AUTH_CATCHALL_URL,
-						SIGNOUT_URL).permitAll()
-				//URLS for users with 'unconfirmed' role		
+				.antMatchers(
+							"/recent",
+							"/@**",
+							"/popular",
+							"/help",
+							"/about",
+							AUTH_CATCHALL_URL,
+							SIGNOUT_URL)
+						.access("!hasRole('UNCONFIRMED')")
+				//URLS for users with 'unconfirmed' role	
 				.antMatchers( 
-						SIGNUP_URL, 
-						"/api/signup").hasRole("UNCONFIRMED")
+							SIGNUP_URL, 
+							"/api/signup")
+						.hasRole("UNCONFIRMED")
 				//URLs for users with 'user' role		
-				.antMatchers( 
-						"/@*", 			// users home directory
- 						"/api/urls").hasRole("USER")
+				.antMatchers(GET, SECURED_GET_URLS).hasRole("USER")
+				.antMatchers(PUT, SECURED_PUT_URLS).hasRole("USER")
+				.antMatchers(POST, SECURED_POST_URLS).hasRole("USER")
+				.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole("USER")
 		.and()
 			.csrf().disable() // TODO: remove after test
 			.logout()
@@ -203,10 +236,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		public SecuredRequestMatcher() {
 			securedMethodToUrlMap = new HashMap<String, String[]>();
-			securedMethodToUrlMap.put(GET.name(), SECURED_URLS);
-			securedMethodToUrlMap.put(PUT.name(), SECURED_URLS);
-			securedMethodToUrlMap.put(POST.name(), SECURED_URLS);
-			securedMethodToUrlMap.put(DELETE.name(), SECURED_URLS);
+			securedMethodToUrlMap.put(GET.name(), SECURED_GET_URLS);
+			securedMethodToUrlMap.put(PUT.name(), SECURED_PUT_URLS);
+			securedMethodToUrlMap.put(POST.name(), SECURED_POST_URLS);
+			securedMethodToUrlMap.put(DELETE.name(), SECURED_DELETE_URLS);
 		}
 		
 		@Override

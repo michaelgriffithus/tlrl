@@ -116,28 +116,28 @@ angular.module('tlrl', [
     function($routeProvider, $locationProvider, $httpProvider) {
 	//$httpProvider.interceptors.push('securityInterceptor');
 	var listRoute = {
-			templateUrl: '/tlrl/list.html',
+			templateUrl: '/views/list.html',
 			controller: 'urlsCtrl',
 			reloadOnSearch: true
 	}
 	$routeProvider
 		.when('/url/:webpageId', {
-			templateUrl: '/tlrl/webpage.html',
+			templateUrl: '/views/webpage.html',
 			controller: 'webpageCtrl'
 		})
 		.when('/recent', {
-			templateUrl: '/tlrl/recent.html',
+			templateUrl: '/views/recent.html',
 			controller: 'recentCtrl',
 			reloadOnSearch: true
 		})
 		.when("/popular", {
-			templateUrl: '/tlrl/popular.html',
+			templateUrl: '/views/popular.html',
 			controller: 'popularCtrl',
 			reloadOnSearch: true
 		})
 		.when('/:user?/urls', listRoute)
 		.when('/:user?/search', {
-			templateUrl: '/tlrl/search.html',
+			templateUrl: '/views/search.html',
 			controller: 'searchCtrl',
 			reloadOnSearch: true})
 		.when('/:user', listRoute);
@@ -607,14 +607,14 @@ angular.module('tlrl', [
 				NavService.url(pageRequest)
 			}
 		},
-		templateUrl: '/tlrl/paginate.html'
+		templateUrl: '/views/paginate.html'
 	}
 }])
 .directive('readLaters', ['$compile', '$http', '$templateCache', '$location', 'TLRLService',
      function($compile, $http, $templateCache, $location, TLRLService) {
 	
 	function getTemplate(name) {
-		return $http.get('/tlrl/'+ name +'.html', {
+		return $http.get('/views/'+ name +'.html', {
 			cache: $templateCache 
 		})
 	}
@@ -671,7 +671,7 @@ angular.module('tlrl', [
 		},
 		templateUrl: function(elem, attrs) {
 			// load default view or mode if present
-			return '/tlrl/' + (attrs.mode || 'view') +'.html';
+			return '/views/' + (attrs.mode || 'view') +'.html';
 		}
 	}
 	
