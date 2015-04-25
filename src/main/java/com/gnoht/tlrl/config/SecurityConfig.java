@@ -108,7 +108,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring()
 			.antMatchers(
 					"/favicon.ico",
-					SIGNIN_URL,
 					"/static/**",
 					"/scripts/**",
 					"/views/**");
@@ -133,13 +132,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							"/help",
 							"/about",
 							AUTH_CATCHALL_URL,
-							SIGNOUT_URL)
-						.access("!hasRole('UNCONFIRMED')")
+							SIGNOUT_URL,
+							SIGNIN_URL)
+					.access("!hasRole('UNCONFIRMED')")
 				//URLS for users with 'unconfirmed' role	
 				.antMatchers( 
 							SIGNUP_URL, 
 							"/api/signup")
-						.hasRole("UNCONFIRMED")
+					.hasRole("UNCONFIRMED")
 				//URLs for users with 'user' role		
 				.antMatchers(GET, SECURED_GET_URLS).hasRole("USER")
 				.antMatchers(PUT, SECURED_PUT_URLS).hasRole("USER")
