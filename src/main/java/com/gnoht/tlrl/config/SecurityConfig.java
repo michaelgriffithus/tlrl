@@ -117,14 +117,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.headers()
-				.cacheControl()
-				.disable()
-			.httpBasic()
-				// NO authentication exists yet
-				/* adds Http403ForbiddenEntryPoint which sends back 403 HTTP 
-				 * Status for unauthenticated /api calls*/
-				.authenticationEntryPoint(delegatingAuthenticationEntryPoint())
+			.headers().cacheControl().disable()
+			.and()
+				.httpBasic()
+					// NO authentication exists yet
+					/* adds Http403ForbiddenEntryPoint which sends back 403 HTTP 
+					 * Status for unauthenticated /api calls*/
+					.authenticationEntryPoint(delegatingAuthenticationEntryPoint())
 			.and()
 				// we have authentication, but not authorized
 				.exceptionHandling()
