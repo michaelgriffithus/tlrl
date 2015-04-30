@@ -58,7 +58,7 @@ public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpa
 			throws ManageableNotFoundException {
 		WebPage webPage = findById(updated.getId());
 		if(webPage == null)
-			throw new ManageableNotFoundException();
+			throw new ManageableNotFoundException(updated.getId());
 		webPage.update(updated);
 		webPage = save(webPage);
 		return webPage;

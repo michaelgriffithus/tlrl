@@ -6,14 +6,17 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gnoht.tlrl.security.RememberMeToken;
+import com.gnoht.tlrl.domain.RememberMeToken;
 
-@Transactional(readOnly=true)
-public interface RememberMeTokenJpaRepository 
-		extends JpaRepository<RememberMeToken, Long>{
+/**
+ * {@link Repository} implmentation for managing {@link RememberMeToken}s.
+ */
+public interface RememberMeTokenRepository extends 
+		JpaRepository<RememberMeToken, Long> {
 	
 	public RememberMeToken findBySeries(String series);
 	public RememberMeToken findById(Long id);
@@ -31,5 +34,4 @@ public interface RememberMeTokenJpaRepository
 			" SET value =:value, date =:date WHERE series = :series ")
 	public int update(@Param("series") String series, 
 			@Param("value") String value, @Param("date") Date date);
-	
 }

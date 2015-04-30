@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.security;
+package com.gnoht.tlrl.domain;
 
 import java.util.Date;
 
@@ -10,14 +10,17 @@ import javax.persistence.Id;
 
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 
-import com.gnoht.tlrl.domain.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+/**
+ * Wrapper entity for Spring Security's {@link PersistentRememberMeToken} used
+ * in "Remember Me" functionality. 
+ */
 @Entity(name="remember_me_token")
-public class RememberMeToken extends Managed<Long, RememberMeToken>{
-	
-	private static final long serialVersionUID = 1L;
+public class RememberMeToken extends Managed<Long, RememberMeToken> {
 
+	private static final long serialVersionUID = 1L;
+	
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	private String userName;
@@ -43,7 +46,6 @@ public class RememberMeToken extends Managed<Long, RememberMeToken>{
 	public Long getId() {
 		return id;
 	}
-	@Override
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -67,11 +69,10 @@ public class RememberMeToken extends Managed<Long, RememberMeToken>{
 			.add("series", series)
 			.add("date", date);
 	}
-	
+
+	//TODO: remove
 	@Override
 	public RememberMeToken update(RememberMeToken from) {
-		this.value = from.value;
-		this.date = from.date;
-		return this;
+		return null;
 	}
 }

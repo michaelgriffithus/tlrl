@@ -39,7 +39,7 @@ public class UserServiceImpl
 
 	@Transactional(readOnly=false)
 	@Override
-	public User confirmUser(User unconfirmedUser) {
+	public User signUpUser(User unconfirmedUser) {
 		User user = getRepository().findOneByEmail(unconfirmedUser.getEmail());
 		if(user != null) {
 			user.setEnabled(true);

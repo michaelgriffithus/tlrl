@@ -62,7 +62,7 @@ public abstract class ManagedService<ID extends Serializable,
 	public T get(ID id) throws ManageableNotFoundException {
 		T manageable = repository.findOne(id);
 		if(manageable == null) {
-			throw new ManageableNotFoundException();
+			throw new ManageableNotFoundException(id);
 		}
 		return manageable;
 	}

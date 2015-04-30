@@ -2,9 +2,7 @@ package com.gnoht.tlrl.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Resource;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,35 +11,38 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.gnoht.tlrl.domain.User;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class OAuthUserDetails 
-		extends User implements UserDetails {
+/**
+ * {@link UserDetails} implementation that wraps currently authenticated {@link User}.
+ */
+public class OAuth2UserDetails extends User 
+		implements UserDetails {
 
-	private static final long serialVersionUID = 5938803981040019080L;
+	private static final long serialVersionUID = 1L;
 
-	private List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+	private Collection<GrantedAuthority> authorities = new ArrayList<>();
 	
-	public OAuthUserDetails(User user) {
-		this.setId(user.getId());
-		this.setEmail(user.getEmail());
-		this.setEnabled(user.isEnabled());
-		this.setName(user.getName());
-		this.setRole(user.getRole());
-		authorities.add(new SimpleGrantedAuthority(getRole().getId()));
+	public OAuth2UserDetails(User user) {
+		setId(user.getId());
+		setName(user.getName());
+		setEmail(user.getEmail());
+		setRole(user.getRole());
+		setEnabled(user.isEnabled());
+		authorities.add(SecurityUtils.asGrantedAuthority(getRole()));
 	}
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return authorities;
+		return Collections.unmodifiableCollection(authorities);
 	}
 
 	@Override
 	public String getPassword() {
-		return null;
+		return SecurityUtils.secureRandomStringKey();
 	}
 
 	@Override
 	public String getUsername() {
-		return this.getName();
+		return getName();
 	}
 
 	@Override public boolean isAccountNonExpired() { return true; }

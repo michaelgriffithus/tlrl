@@ -7,5 +7,5 @@ public interface UserService
 
 	public User findByName(String name);
 	public User findByEmail(String email);
-	public User confirmUser(User user);
+	public User signUpUser(User user);
 }

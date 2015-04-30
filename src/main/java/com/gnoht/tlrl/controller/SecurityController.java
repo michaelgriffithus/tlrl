@@ -4,6 +4,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static com.gnoht.tlrl.security.SecurityUtils.*;
 
 import java.util.regex.Pattern;
 
@@ -30,19 +31,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.security.CurrentUser;
-import com.gnoht.tlrl.security.OAuthUserDetails;
 import com.gnoht.tlrl.security.SecurityUtils;
 import com.gnoht.tlrl.service.UserService;
 
-@Controller
+//@Controller
 public class SecurityController {
 	
 	@Resource private UserService userService;
-	@Resource private SecurityUtils securityUtils;
 	
 	@RequestMapping(value={"/unauthorized", "/signup"}, method={GET})
 	public String unauthorized(@CurrentUser User currentUser, Model model) {
-		if(securityUtils.isUnconfirmedUser(currentUser)) {
+		if(hasRole(currentUser, ROLE_UNCONFIRMED)) {
 			return showSignUp(currentUser, new User(), model);
 		} else {
 			return "errors/401"; 
@@ -59,8 +58,8 @@ public class SecurityController {
 		}
 		
 		try {
-			userService.confirmUser(currentUser);
-			securityUtils.reloadUserDetails(currentUser, request, response);
+			//userService.confirmUser(currentUser);
+			//SecurityUtils.reloadUserDetails(currentUser, request, response);
 			return "redirect:/@" + user.getName() + "/urls";
 		} catch(DataIntegrityViolationException e) {
 			bindingResult.rejectValue("name", "user.error.nameExists", 

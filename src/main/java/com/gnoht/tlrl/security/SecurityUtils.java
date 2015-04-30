@@ -1,58 +1,59 @@
 package com.gnoht.tlrl.security;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import com.gnoht.tlrl.domain.Role;
 import com.gnoht.tlrl.domain.User;
 
-@Component("securityUtils")
 public final class SecurityUtils {
 
-	private static final String UNCONFIRMED_ROLE_ID = "ROLE_UNCONFIRMED";
-	
-	private SecureRandom secureRandom;
+	public static final String ROLE_PREFIX = "ROLE_";
+	public static final String USER_ROLE_ID = "USER";
+	public static final String UNCONFIRMED_ROLE_ID = "UNCONFIRMED";
+	public static final Role ROLE_UNCONFIRMED = new Role(ROLE_PREFIX + UNCONFIRMED_ROLE_ID);
+	public static final Role ROLE_USER = new Role(ROLE_PREFIX + USER_ROLE_ID);
 
-	@Resource private RememberMeServices rememberMeServices;
-	@Resource private UserDetailsService userDetailsService;
+	/**
+	 * Generates a secure random String.
+	 * @return
+	 */
+	public static String secureRandomStringKey() {
+		return KeyGenerators.string().generateKey();
+	}
 	
-	public SecurityUtils() {
-		try {
-			secureRandom = SecureRandom.getInstance("SHA1PRNG");
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException("Failed find SHA1PRNG algorithm!");
+	/**
+	 * Converts given {@link Role} to a {@link GrantedAuthority} to be used in
+	 * Spring Security context.
+	 * 
+	 * @param role
+	 * @return
+	 */
+	public static GrantedAuthority asGrantedAuthority(Role role) {
+		return new SimpleGrantedAuthority(role.getId());
+	}
+	
+	/**
+	 * Checks if given principal (either instance of User or Authentication) 
+	 * has the given {@link Role}.
+	 *  
+	 * @param principal instance of either {@link User} or {@link Authentication}
+	 * @param role {@link Role} to check for
+	 * @return 
+	 */
+	public static boolean hasRole(Object principal, Role role) {
+		if(principal != null) {
+			if(principal instanceof User && ((User)
+					principal).getRole().equals(role)) {
+				return true;
+			}
+			if(principal instanceof Authentication && ((Authentication) 
+					principal).getAuthorities().contains(asGrantedAuthority(role))) {
+				return true;
+			}
 		}
+		return false;
 	}
-	
-	public String createRandom() {
-		return Long.toString(secureRandom.nextLong());
-	}
-
-	public boolean isUnconfirmedUser(User user) {
-		return (user != null && user.getRole() != null &&
-				UNCONFIRMED_ROLE_ID.equals(user.getRole().getId()));
-	}
-	
-	public void reloadUserDetails(User user, 
-				HttpServletRequest request, HttpServletResponse response) {
-		
-		OAuthUserDetails userDetails = (OAuthUserDetails) 
-					userDetailsService.loadUserByUsername(user.getName());
-		OAuthAuthenticationToken authToken = 
-			new OAuthAuthenticationToken(new OAuthAuthenticationStatus(),
-					userDetails, userDetails);
-		
-		SecurityContextHolder.getContext().setAuthentication(authToken);
-		rememberMeServices.loginSuccess(request, response, authToken);
-	}
-	
 }

@@ -20,7 +20,7 @@
 	<div class="grid__col grid__col--5-of-12">
 		<p>
 		<sec:authorize access="!isAuthenticated()">
-			<a href="<c:url value="/auth"/>">
+			<a href="<c:url value="/auth/google"/>">
 				<img src="<c:url value="/static/img/signin-google.png"/>" style="width: 182px; height: 40px;">
 			</a>		
 		</sec:authorize>
