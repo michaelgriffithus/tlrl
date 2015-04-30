@@ -1,0 +1,70 @@
+		<x-ng-include src="'/partials/_topnav.html'"></x-ng-include>
+				
+				
+		<div class="grid">
+			<div class="grid__col grid__col--1-of-12"></div>
+			<div class="grid__col grid__col--7-of-12">
+				<div class="filters" x-ng-show="isManageable">
+					<ul class="filters-items">
+						<li x-ng-class="{'current': hasFilters('all')}" x-ng-click="applyFilter('all')">all</li>
+						<li x-ng-class="{'current': hasFilters('public')}" x-ng-click="applyFilter('public')">public</li>
+						<li x-ng-class="{'current': hasFilters('private')}" x-ng-click="applyFilter('private')">private</li>
+						<li x-ng-class="{'current': hasFilters('untagged')}" x-ng-click="applyFilter('untagged')">untagged</li>
+						<li x-ng-class="{'current': hasFilters('unread')}" x-ng-click="applyFilter('unread')">unread</li>
+					</ul>
+				</div>
+	 			<ul class="list-unstyled" x-ng-show="newReadLaters.length">
+					<li x-ng-repeat="readLater in newReadLaters" id="{{readLater.id}}">
+						<read-laters read-later="readLater" mode="edit" remove-on-cancel="true"
+							is-manageable="isManageable" on-save="saveReadLater(readLater, cb)" on-delete="deleteReadLater(readLater)"></read-laters>
+					</li>
+				</ul>
+			
+	 			<ul class="list-unstyled push-up">
+					<li x-ng-repeat="readLater in readLaters" id="{{readLater.id}}" class="li-item">
+						<read-laters read-later="readLater" mode="view" target-user="targetUser"
+							is-manageable="isManageable" on-save="saveReadLater(readLater, cb)"
+							update-status="updateReadLaterStatus(id, status)" 
+							on-delete="deleteReadLater(readLater)"></read-laters>
+					</li>
+				</ul>
+				<div>
+					<tlrl-page class="pull-right" page-request="pageRequest"/>
+				</div>
+			</div>
+			<div class="grid__col grid__col--3-of-12">
+				<div class="total text-muted">{{pageResult.total}} </div>
+				<div>
+					<span x-ng-show="isManageable">{{getFilterName()}}</span> bookmark{{(pageResult.total == 1 ? '' : 's')}} <span x-ng-show="(tags.selected.length && !hasFilters('untagged'))">tagged (<a x-ng-click="clearTags()">clear</a>)</span>
+				</div>
+				<p x-ng-hide="hasFilters('untagged')">
+					<span x-ng-repeat="tag in tags.selected">
+						<span class="tag"><a x-ng-click="removeTag(tag)">{{tag}} &#215;</a></span>
+					</span>
+				</p>
+				<div class="related-well" x-ng-hide="hasFilters('untagged')">
+					<div class="subheading">Related</div>
+					<ul class="list-unstyled push-up">
+						<li x-ng-repeat="tag in tags.related">
+							<span class="tag">
+								<a x-ng-click="filterWithTag(tag.id)">{{tag.id}}</a> 
+								<span x-ng-show="{{tag.count > 1}}" class="count">{{tag.count}}</span>
+							</span>
+						</li>
+					</ul>
+					<br/>
+				</div>
+				<div class="tags-well" x-ng-hide="hasFilters('untagged')">
+					<div class="subheading">Tags</div> 
+					<ul class="list-unstyled">
+						<li x-ng-repeat="tag in tags.all">
+							<span class="tag"><a x-ng-click="filterByTag(tag.id)">{{tag.id}}</a> 
+								<span x-ng-show="{{tag.count > 1}}" class="count">{{tag.count}}</span>
+							</span>
+						</li>
+					</ul>
+				</div>
+		</div>
+		<div class="grid__col grid__col--1-of-12"></div>
+	</div>
+		

@@ -12,11 +12,11 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>TL;RL</title>
-	<link type="text/css" href="/scripts/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
+	<link type="text/css" href="/static/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
 	<link type="text/css" href="/static/css/tlrl.css" rel="stylesheet">
 </head>
 <body>
-<%@ include file="/WEB-INF/views/shared/header.jsp" %>
+<%@ include file="/WEB-INF/views/shared/_header.jsp" %>
 <div class="grid">
 	<div class="grid__col grid__col--1-of-12"></div>
 	<div class="grid__col grid__col--10-of-12">
@@ -30,7 +30,7 @@
 		<p class="lead">
 		Thanks for signing up with <span class="logo">tlrl</span>. 
 		We just need to confirm 
-		<span class="hl">${user.email}</span> is your correct email. While we're at, let's
+		<span class="hl">${unconfirmedUser.email}</span> is your correct email. While we're at, let's
 		pick a <span class="hl">username</span> as well.<br/>
 		</p>
 	</div>
@@ -38,7 +38,7 @@
 		<p>
 		<sf:form action="/signup" method="post" modelAttribute="user">
 			<c:if test="${!empty requestScope['org.springframework.validation.BindingResult.user'].allErrors}">
-				<span class="text-danger"><sf:errors path="*" /></span><br/>
+			<span class="text-danger"><sf:errors path="name"/> </span><br/>
 			</c:if>
 			<sf:input type="text" path="name" style="width: 200px;"/> 
 			<p>
@@ -50,7 +50,14 @@
 	</div>
 	<div class="grid__col grid__col--1-of-12"></div>
 </div>
+<%@ include file="/WEB-INF/views/shared/_footer-wrapper.jsp" %>
 
+	<script type="text/javascript" src="/static/lib/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="/static/lib/angular/angular.min.js"></script>
+	<script type="text/javascript" src="/static/lib/angular-route/angular-route.min.js"></script>
+	<script type="text/javascript" src="/static/lib/angular-resource/angular-resource.min.js"></script>
+	<script type="text/javascript" src="/static/lib/angular-sanitize/angular-sanitize.min.js"></script>
+	<script type="text/javascript" src="/static/lib/moment/min/moment.min.js"></script>
 	<script type="text/javascript">
 		function cancel() {
 			window.location.href = "/signout";

@@ -1,44 +1,54 @@
 package com.gnoht.tlrl.service;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.gnoht.tlrl.domain.AlreadySignedUpException;
-import com.gnoht.tlrl.domain.ManageableNotFoundException;
+import com.gnoht.tlrl.domain.Role;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.repository.UserRepository;
-import com.gnoht.tlrl.security.SecurityUtils;
-import com.gnoht.tlrl.service.support.ManagedService;
+import com.gnoht.tlrl.repository.UserJpaRepository;
 
 @Service("userService")
-public class UserServiceImpl extends ManagedService<Long, User, UserRepository> 
+public class UserServiceImpl 
+			extends ManagedService<Long, User, UserJpaRepository> 
 		implements UserService {
 
+	@Resource(name="rememberMeTokenService")
+	private PersistentTokenRepository persistentTokenRepository;
+	
 	@Inject
-	public UserServiceImpl(UserRepository repository,
+	public UserServiceImpl(UserJpaRepository repository,
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
 
 	@Override
-	public User findByEmail(String email) {
-		return repository.findOneByEmail(email);
-	}
-
-	@Override
 	public User findByName(String name) {
-		return repository.findOneByName(name);
+		return getRepository().findOneByName(name);
 	}
 
 	@Override
-	public User signUpUser(User user) {
-		if(repository.findOneByEmail(user.getEmail()) != null)
-			throw new AlreadySignedUpException("Your email has already been signed up!");
-		
-		user.setEnabled(true);
-		user.setRole(SecurityUtils.ROLE_USER);
-		return repository.saveAndFlush(user);
+	public User findByEmail(String email) {
+		return getRepository().findOneByEmail(email);
+	}
+
+	@Transactional(readOnly=false)
+	@Override
+	public User confirmUser(User unconfirmedUser) {
+		User user = getRepository().findOneByEmail(unconfirmedUser.getEmail());
+		if(user != null) {
+			user.setEnabled(true);
+			user.setName(unconfirmedUser.getName());
+			user.setRole(new Role("ROLE_USER"));
+			persistentTokenRepository.removeUserTokens(unconfirmedUser.getEmail());
+			return getRepository().saveAndFlush(user);
+		}
+		//TODO: exception
+		return unconfirmedUser;
 	}
 }

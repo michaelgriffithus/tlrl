@@ -3,17 +3,15 @@ package com.gnoht.tlrl.domain;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import com.gnoht.tlrl.domain.support.Managed;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
-/**
- * Class representing a role within the application (e.g. ROLE_USER).
- */
-@Entity(name="tlrl_role")
-public class Role extends Managed<String> {
+@Entity(name="role")
+public class Role extends Managed<String, Role> {
 
 	private static final long serialVersionUID = -8267798491874591689L;
 	
-	@Id private String id;
+	@Id 
+	private String id;
 	
 	public Role() {}
 	
@@ -24,5 +22,18 @@ public class Role extends Managed<String> {
 	@Override
 	public String getId() {
 		return id;
+	}
+	@Override
+	public void setId(String id) {
+		this.id = id;
+	}
+	@Override
+	public Role update(Role from) {
+		return this;
+	}
+
+	@Override
+	protected ToStringHelper toStringHelper() {
+		return super.toStringHelper();
 	}
 }

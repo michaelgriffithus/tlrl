@@ -1,0 +1,44 @@
+		<x-ng-include src="'/partials/_topnav.html'"></x-ng-include>
+		
+		<div class="grid">
+			<div class="grid__col grid__col--1-of-12"></div>
+			<div class="grid__col grid__col--7-of-12">
+	 			<ul class="list-unstyled">
+					<li x-ng-repeat="readLater in newReadLaters" id="{{readLater.id}}">
+						<read-laters read-later="readLater" mode="edit" remove-on-cancel="true"
+							is-manageable="isManageable" on-save="saveReadLater(readLater, cb)" on-delete="deleteReadLater(readLater)"></read-laters>
+					</li>
+				</ul>
+			
+	 			<ul class="list-unstyled push-up">
+					<li x-ng-repeat="readLater in readLaters" id="{{readLater.id}}" class="li-item">
+						<div class="rl-view">
+							<div class="attr">
+								<a x-ng-href="{{readLater.url}}"><span x-ng-bind-html="(readLater.title || readLater.url)"></span></a> {{(readLater.refCount || '')}}</div>
+							<div class="attr ellipsis text-muted">{{readLater.url}}</div>
+							<div class="attr desc" x-ng-bind-html="(readLater.description || readLater.content)"></div>
+							<div class="attr">
+								<span class="tag" x-ng-repeat="tag in readLater.tags"><a x-ng-href="/@{{readLater.userName}}/urls?t={{tag.id}}">{{tag.id}}</a></span>
+							</div>
+							<div>
+								<div class="text-muted">{{readLater.dateCreated | dateFormat }}
+									by <a x-ng-href="/@{{readLater.userName}}/urls">{{readLater.userName}}</a>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="grid__col grid__col--3-of-12">
+				<div class="subheading">Recent tags</div>
+				<ul class="list-unstyled">
+					<li x-ng-repeat="tag in tags.all">
+						<span class="tag"><a x-ng-click="filterByTag(tag.id, '/urls')">{{tag.id}}</a> 
+							<span x-ng-show="{{tag.count > 1}}" class="count">{{tag.count}}</span>
+						</span>
+					</li>
+				</ul>
+			</div>
+			<div class="grid__col grid__col--1-of-12"></div>
+		</div>
+		

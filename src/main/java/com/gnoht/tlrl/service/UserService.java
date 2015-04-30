@@ -1,11 +1,11 @@
 package com.gnoht.tlrl.service;
 
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.service.support.ManageableService;
 
-public interface UserService extends ManageableService<Long, User> {
+public interface UserService 
+		extends ManageableService<Long, User> {
 
-	User findByEmail(String email);
-	User findByName(String name);
-	User signUpUser(User user);
+	public User findByName(String name);
+	public User findByEmail(String email);
+	public User confirmUser(User user);
 }

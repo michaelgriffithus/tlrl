@@ -6,15 +6,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.gnoht.tlrl.domain.User;
 
 /**
- * Provides decoupling of Spring specific @AuthenticationPrincipal in 
- * controller methods.
+ * Current authenticated {@link User}.
  */
-@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@AuthenticationPrincipal
 public @interface CurrentUser {
+
 }

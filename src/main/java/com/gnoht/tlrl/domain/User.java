@@ -13,26 +13,24 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.gnoht.tlrl.domain.support.Managed;
-import com.gnoht.tlrl.security.SecurityUtils;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-/**
- * Class representing a user within the application.
- */
 @Entity(name="tlrl_user")
-public class User extends Managed<Long> {
+public class User extends Managed<Long, User>{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8669637638091978788L;
 	
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
 	@Column(unique=true)
@@ -46,45 +44,28 @@ public class User extends Managed<Long> {
 	@Column(unique=true)
 	private String email;
 
-	private boolean enabled = false;
+	private boolean enabled;
 	
 	@ManyToOne(targetEntity=Role.class, fetch=FetchType.EAGER, cascade={CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
 	@JoinColumn(name="role_id", nullable=false)
 	private Role role;
 
-//	@JsonIgnore
-//	@OneToMany(targetEntity=OAuthToken.class, fetch=FetchType.EAGER)
-//	@JoinColumn(name="user_id", referencedColumnName="id")
-//	private List<OAuthToken> oauthTokens = new ArrayList<OAuthToken>();
-
-	public User() {}
+	@JsonIgnore
+	@OneToMany(targetEntity=OAuthToken.class, fetch=FetchType.EAGER)
+	@JoinColumn(name="user_id", referencedColumnName="id")
+	private List<OAuthToken> oauthTokens = new ArrayList<OAuthToken>();
 	
-	public User(Long id) {
-		this.id = id;
-	}
-
-	public User(Long id, String name, String email, Role role, boolean enabled) {
-		this(id);
-		this.name = name;
-		this.email = email;
-		this.role = role;
-		this.enabled = enabled;
-	}
-	
-	public User(String name, String email) {
-		this.name = name;
-		this.email = email;
-	}
-	
-	@Override
 	public Long getId() {
 		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
 	}
 	public String getName() {
 		return name;
 	}
-	public String getEmail() {
-		return email;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public boolean isEnabled() {
 		return enabled;
@@ -92,27 +73,29 @@ public class User extends Managed<Long> {
 	public Role getRole() {
 		return role;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public void setRole(Role role) {
 		this.role = role;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public void setEmail(String email) {
-		this.email = email;
 	}
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	@Override
+	public User update(User from) {
+		this.enabled = from.enabled;
+		return this;
+	}
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
 			.add("name", name)
 			.add("enabled", enabled)
+			.add("email", email)
 			.add("role", role);
 	}
 }
