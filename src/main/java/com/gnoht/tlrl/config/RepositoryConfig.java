@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import com.gnoht.tlrl.domain.DomainPackage;
 import com.gnoht.tlrl.repository.RepositoryPackage;

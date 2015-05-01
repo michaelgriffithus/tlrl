@@ -32,15 +32,15 @@ public class ApplicationConfig {
 		return converter;
 	}
 
-	@Bean
-	public SolrServer solrServer() {
-		return new HttpSolrServer(env.getRequiredProperty("spring.data.solr.host"));
-	}
-
-	@Bean
-	public SolrTemplate solrTemplate(SolrServer server) throws Exception {
-		return new SolrTemplate(server);
-	}
+//	@Bean
+//	public SolrServer solrServer() {
+//		return new HttpSolrServer(env.getRequiredProperty("spring.data.solr.host"));
+//	}
+//
+//	@Bean
+//	public SolrTemplate solrTemplate(SolrServer server) throws Exception {
+//		return new SolrTemplate(server);
+//	}
 
 	/**
 	 * Returns a {@link MessageSourceAccessor} instance configured to use

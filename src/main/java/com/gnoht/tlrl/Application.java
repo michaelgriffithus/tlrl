@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import com.gnoht.tlrl.config.ConfigPackage;
 
 @Configuration
-@EnableAutoConfiguration(exclude={ SecurityAutoConfiguration.class })
-@ComponentScan(basePackageClasses={ ConfigPackage.class })
+@EnableAutoConfiguration(exclude={SecurityAutoConfiguration.class})
+@ComponentScan(basePackageClasses={ConfigPackage.class})
 public class Application { 
 
 	public static void main(String[] args) {
