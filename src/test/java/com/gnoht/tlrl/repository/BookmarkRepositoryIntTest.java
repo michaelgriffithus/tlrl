@@ -11,8 +11,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.gnoht.tlrl.config.RepositoryConfig;
-import com.gnoht.tlrl.domain.Bookmark;
+import com.gnoht.tlrl.domain.ReadLater;
 import com.gnoht.tlrl.domain.User;
+import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.domain.WebResource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -24,31 +25,30 @@ public class BookmarkRepositoryIntTest {
 	Environment env;
 	
 	@Autowired
-	private BookmarkRepository bookmarkRepository;
+	private ReadLaterJpaRepository readLaterRepository;
 	
 	@Test
 	public void repositoryShouldNotBeNull() {
-		assertNotNull(bookmarkRepository);
+		assertNotNull(readLaterRepository);
 	}
 	
 	@Test
 	public void shouldSaveBookmark() {
-		WebResource existingWebResource = WebResource
-				.builder()
-				.id(1L)
-				.get();
+		WebPage webPage = new WebPage("http://yahoo.com");
+		webPage.setId(1L);
 		
-		User user = new User(1L);
+		User user = new User();
+		user.setId(1L);
 		
 		// given
-		Bookmark bookmark = Bookmark
-			.builder(existingWebResource, user)
-			.get();
+		ReadLater bookmark = new ReadLater();
+		bookmark.setWebPage(webPage);
+		bookmark.setUser(user);
 		
 		assertNull("Id should be null!", bookmark.getId());
 		
 		// when
-		bookmarkRepository.save(bookmark);
+		readLaterRepository.save(bookmark);
 		
 		// then
 		assertNotNull("Id should not be null", bookmark.getId());

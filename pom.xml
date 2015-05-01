@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.2.2.RELEASE</version>
+		<version>1.2.3.RELEASE</version>
 	</parent>
 
 	<properties>
@@ -22,8 +22,6 @@
 		<guava.version>18.0</guava.version>
 		<!-- Jsoup -->
 		<jsoup.version>1.7.3</jsoup.version>
-		<!-- Bonecp -->
-		<bonecp.version>0.8.0.RELEASE</bonecp.version>
 		<!-- Joda-Time -->
 		<joda-time.version>2.3</joda-time.version>
 		<!-- JSR validation -->
@@ -98,17 +96,13 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP-java6</artifactId>
 			<scope>compile</scope>
+			<version>2.3.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<!-- version>${h2.version}</version -->
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${postgresql.version}</version>
 		</dependency>
 
 		<!-- Servlet/JSP -->		
@@ -130,12 +124,6 @@
 			<version>${jsoup.version}</version>
 		</dependency>
 
-		<!-- Scribe -->
-		<dependency>
-		  <groupId>org.scribe</groupId>
-		  <artifactId>scribe</artifactId>
-		  <version>${scribe.version}</version>
-		</dependency>
 		
 		<!-- Testing -->
 		<dependency>

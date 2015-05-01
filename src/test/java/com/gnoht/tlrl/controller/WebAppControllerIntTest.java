@@ -38,23 +38,28 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.ApplicationConfig;
+import com.gnoht.tlrl.config.OAuth2SecurityConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
 import com.gnoht.tlrl.config.WebMvcConfig;
 import com.gnoht.tlrl.domain.User;
+import com.gnoht.tlrl.repository.ReadLaterWebPageSolrRepository;
 import com.gnoht.tlrl.security.OAuth2AuthenticationUserDetailsService;
 import com.gnoht.tlrl.security.OAuth2UserDetails;
 import com.gnoht.tlrl.security.SecurityUtils;
+import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.gnoht.tlrl.service.UserService;
 
-public class WebAppControllerTest 
-		extends StandaloneControllerTest<WebAppController> {
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes={Application.class})
+@WebAppConfiguration
+@ActiveProfiles("test")
+public class WebAppControllerIntTest {
 
 	@Autowired WebApplicationContext context;
-	
-	@Autowired UserDetailsService userDetailsService;
-	
 	
 	private MockMvc mockMvc;
 	
@@ -68,11 +73,17 @@ public class WebAppControllerTest
 	}
 
 	@Test
-	@WithUserDetails("thong")
 	public void shouldRedirectToUserHome() throws Exception {
-		mockMvc.perform(get("/"))
+		User user = new User();
+		user.setId(1L);
+		user.setName("thong");
+		user.setEmail("thong@xyz.com");
+		user.setRole(SecurityUtils.ROLE_USER);
+		user.setEnabled(true);
+
+		mockMvc.perform(get("/").with(user(new OAuth2UserDetails(user))))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("/@thong"))
+			.andExpect(redirectedUrl("/@" + user.getName()))
 			.andReturn();
 	}
 	
@@ -87,40 +98,5 @@ public class WebAppControllerTest
 			.andExpect(view().name("index"))
 			.andReturn();
 	}
-	
-	@Configuration
-	public static class SecurityConfig {
-		
-		@Mock UserService userService;
-		
-		@Bean
-		public UserService userService() {
-			return userService;
-		}
-		
-		@Bean
-		public UserDetailsService userDetailsService() {
-			UserDetailsService userDetailsService = Mockito.mock(OAuth2AuthenticationUserDetailsService.class);
-			when(userDetailsService.loadUserByUsername(any(String.class))).then(new Answer<OAuth2UserDetails>() {
-				@Override
-				public OAuth2UserDetails answer(InvocationOnMock invocation)
-						throws Throwable {
-					User user = new User();
-					user.setId(1L);
-					user.setName("thong");
-					user.setEmail("thong@xyz.com");
-					user.setRole(SecurityUtils.ROLE_USER);
-					user.setEnabled(true);
-					return new OAuth2UserDetails(user);
-				}
-			});
-					
-			return userDetailsService;
-		}
-	}
 
-	@Override
-	protected WebAppController createController() {
-		return new WebAppController();
-	}
 }

@@ -30,7 +30,8 @@ public class OAuth2AuthenticationUserDetailsServiceTest {
 	@Test
 	public void shouldReturnUserByGivenAuthentication() {
 		// given
-		User user = new User(1L);
+		User user = new User();
+		user.setId(1L);
 		user.setName("john");
 		user.setEmail("user@xyz.com");
 		user.setRole(SecurityUtils.ROLE_USER);

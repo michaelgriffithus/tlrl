@@ -10,6 +10,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
@@ -18,7 +19,7 @@ import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.domain.WebResource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes={ApplicationConfig.class, RepositoryConfig.class, ServiceConfig.class})
+@SpringApplicationConfiguration(classes={Application.class})
 @ActiveProfiles("test")
 public class WebResourceServiceImplIntTest {
 
