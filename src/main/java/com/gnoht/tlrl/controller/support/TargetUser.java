@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.controller;
+package com.gnoht.tlrl.controller.support;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

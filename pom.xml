@@ -98,12 +98,12 @@
 			<scope>compile</scope>
 			<version>2.3.7</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<!-- version>${h2.version}</version -->
+			version>${h2.version}</version
 			<scope>runtime</scope>
-		</dependency>
+		</dependency> -->
 
 		<!-- Servlet/JSP -->		
 		<dependency>
@@ -190,6 +190,19 @@
 			</activation>
 			<properties>
 				<spring.profiles.active>dev</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<version>${postgresql.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
 			</properties>
 			<dependencies>
 				<dependency>

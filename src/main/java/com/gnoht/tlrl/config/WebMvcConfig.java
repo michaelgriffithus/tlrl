@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.gnoht.tlrl.controller.ControllerPackage;
 import com.gnoht.tlrl.controller.FiltersHandlerMethodArgumentResolver;
-import com.gnoht.tlrl.controller.TargetUserHandlerMethodArgumentResolver;
+import com.gnoht.tlrl.controller.support.TargetUserHandlerMethodArgumentResolver;
 import com.gnoht.tlrl.service.UserService;
 
 @Configuration
