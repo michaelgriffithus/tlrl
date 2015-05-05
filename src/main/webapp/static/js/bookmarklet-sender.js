@@ -10,7 +10,12 @@
 				f(c).remove();
 			}
 		};
-		a.documentElement.childNodes[0].appendChild(c);
+		for(n in a.documentElement.childNodes) {
+			var node = a.documentElement.childNodes[n]
+			if(node.hasOwnProperty("nodeName") && node.nodeName === 'HEAD') {
+				node.appendChild(c);
+			}
+		}
 	}
 })(window,document,function($,L) {
 	/* Common properties for our alert/msg divs */
@@ -84,8 +89,10 @@
 	 * of bookmarklet can skip reloading this sender and just call tlrlPost.
 	 */
 	window.tlrlPost = function () {
+		console.log(encodeURIComponent($(document).attr('body')))
 		tlrlFrame[0].contentWindow.postMessage('tlrl=addReadLater&url=' +
-				encodeURIComponent(window.location.href) + '&title=' +
+				encodeURIComponent(window.location.href) + '&content=' +
+				encodeURIComponent($(document).text().replace(/\s{2,}/g, ' ')) + '&title=' +
 				encodeURIComponent($(document).attr('title')), '*');
 	}
 

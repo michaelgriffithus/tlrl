@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.service;
+package com.gnoht.tlrl.service.support;
 
 import java.io.Serializable;
 
@@ -7,11 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import com.gnoht.tlrl.domain.Manageable;
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
+import com.gnoht.tlrl.domain.support.Manageable;
 
 public abstract class ManagedService<ID extends Serializable, 
-	T extends Manageable<ID,T>, R extends PagingAndSortingRepository<T, ID>>
+	T extends Manageable<ID>, R extends PagingAndSortingRepository<T, ID>>
 		implements ManageableService<ID, T> {
 
 	protected MessageSourceAccessor messageSource;
@@ -47,10 +47,9 @@ public abstract class ManagedService<ID extends Serializable,
 
 	@Override
 	public T update(T updatedManageable) throws ManageableNotFoundException {
-		T manageable = get(updatedManageable.getId());
-		manageable.update(updatedManageable);
-		repository.save(manageable);
-		return manageable;
+		//TODO: improve this
+		//T manageable = get(updatedManageable.getId());
+		return repository.save(updatedManageable);
 	}
 
 	@Override

@@ -10,14 +10,15 @@ import javax.persistence.Id;
 
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
- * Wrapper entity for Spring Security's {@link PersistentRememberMeToken} used
- * in "Remember Me" functionality. 
+ * Wrapper for Spring Security's {@link PersistentRememberMeToken} used in 
+ * "Remember Me" functionality. 
  */
 @Entity(name="remember_me_token")
-public class RememberMeToken extends Managed<Long, RememberMeToken> {
+public class RememberMeToken extends Managed<Long> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -71,7 +72,7 @@ public class RememberMeToken extends Managed<Long, RememberMeToken> {
 	}
 
 	//TODO: remove
-	@Override
+	@Deprecated
 	public RememberMeToken update(RememberMeToken from) {
 		return null;
 	}

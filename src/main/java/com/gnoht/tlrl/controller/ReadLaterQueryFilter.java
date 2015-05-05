@@ -1,17 +1,26 @@
 package com.gnoht.tlrl.controller;
 
+import com.gnoht.tlrl.domain.ReadLater;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.SharedStatus;
 
-public class Filters {
+/**
+ * Object holding filter attributes for {@link ReadLater} queries.
+ */
+public class ReadLaterQueryFilter {
 
+	/** For filtering tagged vs. untagged {@link ReadLater}s */
 	private boolean untagged = false;
-	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA; 
+	
+	/** For filtering ReadLater status. Defaults to NA (not applicable) */
+	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA;
+	
+	/** For filtering ReadLater shared status. Defaults to NA (not applicable) */
 	private SharedStatus sharedStatus = SharedStatus.NA;
 	
-	public Filters() {}
+	public ReadLaterQueryFilter() {}
 	
-	public Filters(String ... filters) {
+	public ReadLaterQueryFilter(String ... filters) {
 		for(String filter: filters) {
 			if(filter.equals("private")) {
 				sharedStatus = SharedStatus.PRIVATE;

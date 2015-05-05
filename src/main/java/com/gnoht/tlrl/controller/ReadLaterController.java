@@ -1,5 +1,6 @@
 package com.gnoht.tlrl.controller;
 
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +28,7 @@ import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.repository.ResultPage;
+import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
 import com.gnoht.tlrl.security.CurrentUser;
 import com.gnoht.tlrl.service.ReadLaterService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
@@ -40,6 +41,7 @@ public class ReadLaterController {
 	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterController.class);
 
 	@Resource private ReadLaterService readLaterService;
+	@Resource private ReadLaterJpaRepository repo;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	@Resource private UserService userService;
 	
@@ -58,7 +60,6 @@ public class ReadLaterController {
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable,
 			@RequestParam(required=false, value="tags") String[] tags) {
 		return readLaterService.findAllTagged(toSet(tags), pageable);
-		//return readLaterService.findAllReadLaterByTags(toSet(tags), pageable);
 	}
 	
 	@RequestMapping(value="/url/{id}", method=RequestMethod.GET)
@@ -98,25 +99,42 @@ public class ReadLaterController {
 				&& currentUser.getId().equals(targetUser.getId()));
 	}
 	
+	/**
+	 * Handles all request for querying {@link ReadLater}s owned by a target 
+	 * {@link User}. Note: this method is overloaded to handle the request
+	 * differently based on who is making the request. If caller and target User 
+	 * are same (private allowed), then additional filters may be applied (see below). 
+	 * Otherwise it's a public query and only tags filter may be applied in addition 
+	 * to the target User.
+	 * 
+	 * @param currentUser the current authenticated User making this request
+	 * @param user the target User to query by
+	 * @param ownerOnlyFilters optional filters to apply against the query. Note, 
+	 * these filters will only be applied if calling authenticated User is also 
+	 * the target User.
+	 * @param tags list of tags to filter by
+	 * @param pageable 
+	 * @return 
+	 */
 	@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
-	public ResultPage<ReadLater> findAllByUser(@CurrentUser User currentUser, 
-			@TargetUser("userName") User user, @FiltersArgument("filters") Filters filters, 
+	public ResultPage<ReadLater> findAllByUser(@CurrentUser User currentUser, @TargetUser("userName") User user, 
+			@RequestParam(value="filters", defaultValue="") ReadLaterQueryFilter ownerOnlyFilters, 
 			@RequestParam(value="tags", required=false) String[] tags,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
 		
 		LOG.debug("Starting findAllByUser(): currentUser={}, user={}, filters={}, tags={}", 
-				currentUser, user, filters, tags);
+				currentUser, user, ownerOnlyFilters, tags);
 		
 		if(!isOwner(currentUser, user)) {
 			LOG.debug("In non owner block");
-			/* Non owner queries are limited to tagged and public-only readLaters */
+			/* public/non owner queries can only filter by tags */
 			return readLaterService.findAllByUserAndTagged(user, toSet(tags), pageable);
 		} else {
 			LOG.debug("In owner block");
-			/* Owner queries can be tagged or untagged, with public-only/private-only/both readLaters */
-			return (filters.isUntagged() ? 
-					readLaterService.findAllByOwnerAndUntagged(currentUser, filters, pageable) :
-				readLaterService.findAllByOwnerAndTagged(currentUser, filters, toSet(tags), pageable));
+			/* private/owner queries can filter by tags and optional untagged, shared, status */
+			return (ownerOnlyFilters.isUntagged() ? 
+					readLaterService.findAllByOwnerAndUntagged(currentUser, ownerOnlyFilters, pageable) :
+				readLaterService.findAllByOwnerAndTagged(currentUser, ownerOnlyFilters, toSet(tags), pageable));
 		}
 	}
 

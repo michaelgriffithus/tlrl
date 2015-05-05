@@ -14,7 +14,7 @@
 							<span class="spacer">&middot;</span>
 							<span x-ng-hide="isManageable"> by <a x-ng-href="/@{{readLater.userName}}/urls">{{readLater.userName}}</a></span>
 							<span x-ng-show="isManageable">
-								<i class="fa" x-ng-class="{'fa-unlock-alt': readLater.shared, 'fa-lock': !readLater.shared}"></i> shared 
+								<i class="fa" x-ng-class="readLater.shared ? 'fa-unlock-alt' : 'fa-lock'"></i> shared 
 							</span>
 							<span x-ng-show="isManageable">
 							<span class="spacer">&middot;</span>

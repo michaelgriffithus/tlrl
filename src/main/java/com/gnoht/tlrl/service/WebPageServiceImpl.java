@@ -15,6 +15,7 @@ import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.repository.WebPageJpaRepository;
 //import com.gnoht.tlrl.domain.Tag;
 //import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.service.support.ManagedService;
 
 @Service("webPageService")
 public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpaRepository> 
@@ -35,7 +36,9 @@ public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpa
 		LOG.debug("Starting findOrCreate(webPage={})", webPage);
 		WebPage found = getRepository().findByUrl(webPage.getUrl());
 		if(found == null) {
+			found = save(webPage);
 			LOG.debug("No webPage found, creating new entry!");
+			// calls async
 			found = resourceFetcher.fetch(webPage);
 		}
 		LOG.debug("Leaving findOrCreate(): webPage={}", found);
@@ -63,82 +66,4 @@ public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpa
 		webPage = save(webPage);
 		return webPage;
 	}
-
-//	@Resource private IndexedWebPageService indexedWebPageService;
-//	@Resource private WebResourceFetcher<WebPage> webResourceFetcher;
-	
-//	@Inject()
-//	public WebPageServiceImpl(WebPageMongoRepository repository,
-//			MessageSourceAccessor messageSourceAccessor) {
-//		super(repository, messageSourceAccessor);
-//	}
-//
-//	@Override
-//	public Page<WebPage> findAllByUserIdAndTags(
-//			String userId, Set<String> tags, boolean isPartial, Pageable pageable) {
-//		Page<WebPage> webPages = getRepository().findAllByUserIdAndTags(userId, tags, pageable);
-//		List<Tag> webPageTags = getRepository().findAllTagsByUserIdAndTags(userId, tags);
-//		return webPages;
-//	}
-//
-//	@Override
-//	public WebPage findById(String id, boolean isPartial) {
-//		return getRepository().findById(id);
-//	}
-//
-//	@Override
-//	public WebPage create(WebPage webPage) {
-//		webPage = save(webPage);
-//		indexedWebPageService.create(new IndexedWebPage(webPage));
-//		webResourceFetcher.fetch(webPage);
-//		return webPage;
-//	}
-//	
-//	@Override
-//	public WebPage create(String url) {
-//		return create(new WebPage(url));
-//	}
-//
-//	@Override
-//	public WebPage update(WebPage updatedWebPage)
-//			throws ManageableNotFoundException {
-//		return update(updatedWebPage, false);
-//	}
-//
-//	@Override
-//	public WebPage delete(String id) throws ManageableNotFoundException {
-//		WebPage webPage = get(id);
-//		repository.delete(webPage);
-//		indexedWebPageService.delete(id);
-//		return webPage;
-//	}
-//
-//	@Override
-//	public List<Tag> findAllTagsByUserIdAndTags(String userId, Set<String> tags) {
-//		return repository.findAllTagsByUserIdAndTags(userId, tags);
-//	}
-//
-//	@Override
-//	public List<Tag> findAllTagsByUserId(String userId) {
-//		return repository.findAllTagsByUserId(userId);
-//	}
-//
-//	@Override
-//	public void deleteAll() {
-//		throw new UnsupportedOperationException();
-//	}
-//
-//	@Override
-//	public WebPage setFetchedContent(WebPage fetched)
-//			throws ManageableNotFoundException {
-//		WebPage webPage = get(fetched.getId());
-//		webPage.setContent(fetched.getContent());
-//		// title is either user defined title, fetched title, or url
-//		webPage.setTitle(webPage.getTitle() == null ? 
-//				(fetched.getTitle() == null ? fetched.getUrl() : fetched.getTitle()) : 
-//					webPage.getTitle());
-//		indexedWebPageService.setFetchedContent(webPage);
-//		return save(webPage);
-//	}
-//
 }

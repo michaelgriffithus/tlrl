@@ -2,13 +2,10 @@ package com.gnoht.tlrl.config;
 
 import javax.annotation.Resource;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,12 +25,6 @@ public class ServiceConfig {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getMessageConverters().add(jacksonMessageConverter);
 		return restTemplate;
-	}
-	
-	@Bean
-	@Autowired
-	public SolrTemplate solrTemplate(SolrServer server) throws Exception {
-		return new SolrTemplate(server);
 	}
 	
 }

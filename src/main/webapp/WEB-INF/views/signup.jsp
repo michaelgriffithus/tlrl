@@ -30,7 +30,7 @@
 		<p class="lead">
 		Thanks for signing up with <span class="logo">tlrl</span>. 
 		We just need to confirm 
-		<span class="hl">${unconfirmedUser.email}</span> is your correct email. While we're at, let's
+		<span class="hl">${user.email}</span> is your correct email. While we're at, let's
 		pick a <span class="hl">username</span> as well.<br/>
 		</p>
 	</div>

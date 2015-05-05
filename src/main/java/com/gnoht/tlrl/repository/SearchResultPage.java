@@ -2,19 +2,13 @@ package com.gnoht.tlrl.repository;
 
 import static com.gnoht.tlrl.repository.ReadLaterWebPageSolrRepositoryImpl.FIELD_TAGS;
 
-import java.beans.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
-import org.springframework.data.solr.core.query.result.HighlightEntry;
-import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
-import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
 
 import com.gnoht.tlrl.domain.ReadLaterWebPage;

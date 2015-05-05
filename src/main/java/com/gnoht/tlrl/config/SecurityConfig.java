@@ -1,24 +1,21 @@
 package com.gnoht.tlrl.config;
 
+import static com.gnoht.tlrl.security.SecurityUtils.UNCONFIRMED_ROLE_ID;
+import static com.gnoht.tlrl.security.SecurityUtils.USER_ROLE_ID;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
-import static com.gnoht.tlrl.security.SecurityUtils.*;
 
-import java.io.IOException;
-import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 import javax.servlet.Filter;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,28 +25,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.RememberMeAuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.oauth2.client.OAuth2RestOperations;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -57,14 +50,12 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.gnoht.tlrl.config.OAuth2SecurityConfig.GoogleOauth2;
-import com.gnoht.tlrl.security.GoogleOAuth2AuthenticationTokenService;
+import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.security.OAuth2AuthenticationProcessingFilter;
 import com.gnoht.tlrl.security.OAuth2AuthenticationProvider;
 import com.gnoht.tlrl.security.OAuth2AuthenticationSuccessHandler;
@@ -78,6 +69,7 @@ import com.gnoht.tlrl.service.RememberMeTokenService;
 @Configuration
 @ComponentScan(basePackageClasses={SecurityPackage.class})
 @EnableWebSecurity // @EnableWebMvcSecurity is deprecated as 4.0
+@EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
@@ -185,6 +177,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
+	
+	@Bean
 	public RememberMeServices rememberMeServices() {
 		PersistentTokenBasedRememberMeServices service = new PersistentTokenBasedRememberMeServices(
 				SecurityUtils.secureRandomStringKey(), userDetailsService, rememberMeTokenService);
@@ -198,14 +196,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationSuccessHandler authenticationSuccessHandler() {
 		return new OAuth2AuthenticationSuccessHandler();
 	}
-
+	
 	/**
 	 * @return Security filter to handle Google OAuth logins.
 	 * @throws Exception
 	 */
-	@Bean
-	@GoogleOauth2
-	protected Filter googleOAuthProcessingFilter() throws Exception {
+	@Bean @GoogleOauth2
+	protected Filter googleOAuthProcessingFilter() throws Exception {		
 		OAuth2AuthenticationProcessingFilter filter = 
 				new OAuth2AuthenticationProcessingFilter("/auth/google");
 		filter.setRememberMeServices(rememberMeServices());

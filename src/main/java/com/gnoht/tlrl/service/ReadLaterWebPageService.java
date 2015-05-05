@@ -2,13 +2,13 @@ package com.gnoht.tlrl.service;
 
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SearchResultPage;
+import com.gnoht.tlrl.service.support.ManageableService;
 
 
 public interface ReadLaterWebPageService extends ManageableService<String, ReadLaterWebPage> {

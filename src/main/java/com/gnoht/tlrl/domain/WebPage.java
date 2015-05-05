@@ -1,9 +1,7 @@
 package com.gnoht.tlrl.domain;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -18,7 +16,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Temporal;
@@ -62,7 +59,7 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 			cascade={CascadeType.MERGE, CascadeType.PERSIST})
 	private Set<ReadLater> readLaters = new HashSet<ReadLater>();
 
-	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
+	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH}, optional=false)
 	@JoinColumn(name="user_id")
 	private User user;
 	

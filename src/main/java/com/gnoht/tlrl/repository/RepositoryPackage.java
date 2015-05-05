@@ -1,7 +1,7 @@
 package com.gnoht.tlrl.repository;
 
 /**
- * Marker for Repository package.
+ * Marker for "repository" package.
  */
 public interface RepositoryPackage {
 

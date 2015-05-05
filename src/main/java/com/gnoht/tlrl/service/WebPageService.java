@@ -2,6 +2,7 @@ package com.gnoht.tlrl.service;
 
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.service.support.ManageableService;
 
 public interface WebPageService extends ManageableService<Long, WebPage> {
 

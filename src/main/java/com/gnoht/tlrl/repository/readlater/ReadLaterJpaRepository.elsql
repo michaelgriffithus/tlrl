@@ -1,0 +1,251 @@
+--
+-- SQL for ReadLaterRepository
+--
+
+-- ========================================
+-- Fragment for joining Tags to ReadLaters (via read_later_tags mapping table). 
+-- ========================================
+@NAME(_JoinForTags)
+  LEFT JOIN read_later_tags rlt0 ON rlt0.read_later_id = rl.id AND rlt0.idx = 0 
+  LEFT JOIN read_later_tags rlt1 ON rlt1.read_later_id = rl.id AND rlt1.idx = 1
+  LEFT JOIN read_later_tags rlt2 ON rlt2.read_later_id = rl.id AND rlt2.idx = 2
+  LEFT JOIN read_later_tags rlt3 ON rlt3.read_later_id = rl.id AND rlt3.idx = 3
+  LEFT JOIN read_later_tags rlt4 ON rlt4.read_later_id = rl.id AND rlt4.idx = 4
+
+
+-- ========================================
+-- Fragment for selecting ReadLaters and their tags
+-- ========================================
+@NAME(_BaseReadLaterQuery)
+  SELECT rl.id, rl.title, rl.user_id, u.name AS user_name, rl.shared, rl.description, rl.date_created, rl.read_later_status, 
+     rlt0.tag_id AS tag0, rlt1.tag_id AS tag1, rlt2.tag_id AS tag2, rlt3.tag_id AS tag3, rlt4.tag_id AS tag4,
+     w.id AS webpageId, w.url
+    FROM tlrl_user u, webpage w, read_later rl
+      @INCLUDE(_JoinForTags)
+   WHERE w.id = rl.webpage_id AND u.id = rl.user_id
+
+
+-- ========================================
+-- Fragment for paging and sorting on "findAll" queries
+-- ========================================
+@NAME(_FindAllPaging)
+  LIMIT :pageSize OFFSET :page
+
+
+-- ========================================
+-- @userId id of User to filter by
+-- ========================================
+@NAME(_FindAllFilters)
+  @AND(:userId)
+    rl.user_id = :userId
+  @AND(:shared = FALSE)
+    rl.shared = FALSE
+  @AND(:shared = TRUE)
+    rl.shared = TRUE
+  @AND(:readLaterStatus)
+    rl.read_later_status = 'UNREAD'
+
+
+-- ========================================
+-- Query for ReadLaters by the WebPage they reference
+-- ========================================
+@NAME(FindReadLatersByWebPage)
+  (SELECT 'W' AS type, w.id, w.title, w.url, w.user_id, u.name AS user_name, w.description, true AS shared, rl.date_created,
+        NULL AS tag0, NULL AS tag1, NULL AS tag2, NULL AS tag3, NULL AS tag4, w.id AS webpageId, refCount
+     FROM tlrl_user u, read_later rl, (
+           SELECT MIN(id) AS id 
+             FROM read_later 
+            WHERE webpage_id = :webPageId) AS first_rl, webpage w 
+        LEFT OUTER JOIN (
+              SELECT webpage_id, COUNT(id)-1 AS refCount 
+                FROM read_later 
+               WHERE webpage_id = :webPageId AND shared = TRUE 
+               GROUP BY (webpage_id)) refc ON refc.webpage_id = w.id 
+    WHERE w.id = :webPageId 
+      AND first_rl.id = rl.id AND rl.user_id = u.id) 
+  UNION 
+  (SELECT 'R' AS type, rl.id, rl.title, w.url, rl.user_id, u.name AS user_name, rl.description, rl.shared, rl.date_created, 
+        rlt0.tag_id AS tag0, rlt1.tag_id AS tag1, rlt2.tag_id AS tag2, rlt3.tag_id AS tag3, rlt4.tag_id AS tag4, w.id AS webpageId, 1 AS refCount 
+     FROM tlrl_user u, webpage w, read_later rl 
+         @INCLUDE(_JoinForTags)
+    WHERE rl.shared = TRUE AND w.id = :webPageId AND w.id = rl.webpage_id AND u.id = rl.user_id) 
+  ORDER BY type DESC, id DESC 
+
+
+-- ========================================
+-- Builds a list of tags to include
+-- ========================================
+@NAME(_InclusiveTagLoop)
+  (
+    @LOOP(:tagCount)
+      rlt.tag_id = :tag@LOOPINDEX
+      @LOOPJOIN OR
+  )
+
+-- ========================================
+-- Builds a list of tags to exclude 
+-- ========================================
+@NAME(_ExclusiveTagLoop)
+  (
+    @LOOP(:tagCount)
+      rlt.tag_id != :tag@LOOPINDEX
+      @LOOPJOIN AND
+  )
+
+-- ========================================
+-- Query all ReadLaters filtered by the specified User. This query only
+-- gets called for non-owners making the call. Tags can be applied to filter
+-- the results
+--
+-- @userId id of User to filter by
+-- ========================================
+@NAME(FindAllQuery)
+  @INCLUDE(_BaseReadLaterQuery)
+  @IF(:hasTags = FALSE)
+    @INCLUDE(_FindAllFilters)
+    @IF(:untagged)
+      AND rlt0.read_later_id IS NULL
+  @IF(:hasTags)
+    AND rl.id IN (
+      SELECT read_later_id FROM (
+        SELECT rlt.read_later_id, COUNT(rlt.read_later_id)
+          FROM read_later rl, read_later_tags rlt
+         WHERE rl.id = rlt.read_later_id
+           @INCLUDE(_FindAllFilters) 
+           AND @INCLUDE(_InclusiveTagLoop) 
+         GROUP BY rlt.read_later_id) AS t
+       WHERE t.count = :tagCount)
+  ORDER BY date_created DESC, rl.id DESC 
+  @INCLUDE(_FindAllPaging)
+
+
+-- ========================================
+-- Query to find popular ReadLaters. 
+-- 
+-- @pageSize size to limit returned results
+-- ========================================
+@NAME(FindPopularQuery)
+  SELECT w.url, w.id, w.title, url.count AS refCount, w.description, rl.date_created
+    FROM webpage w, read_later rl
+      LEFT JOIN (
+        SELECT url, COUNT(url), MIN(rl.id) AS read_later_id
+          FROM read_later rl, webpage w 
+         WHERE rl.shared = TRUE 
+           AND rl.webpage_id = w.id 
+         GROUP BY w.url
+      ) AS url ON url.read_later_id = rl.id, tlrl_user u
+   WHERE rl.shared = TRUE
+     AND u.id = rl.user_id
+     AND url.count IS NOT NULL 
+     AND rl.webpage_id = w.id
+   ORDER BY refCount DESC, rl.date_created DESC LIMIT :pageSize
+
+
+-- ========================================
+-- Query related tags for popular ReadLaters
+-- ========================================
+@NAME(FindPopularRelatedTagsQuery)
+  SELECT tag_id, COUNT(tag_id)
+    FROM read_later_tags rlt, read_later rl
+   WHERE rl.shared = TRUE 
+     AND rl.id = rlt.read_later_id
+   GROUP BY tag_id
+   ORDER BY count DESC LIMIT :pageSize
+
+   
+-- ========================================
+-- Query for most recent ReadLaters
+--
+-- @pageSize size to limit returned results
+-- ========================================
+@NAME(FindRecentQuery)
+  @INCLUDE(_BaseReadLaterQuery)
+    AND rl.shared = TRUE
+  ORDER BY rl.date_created DESC, rl.id DESC LIMIT :pageSize
+
+
+-- ========================================
+-- Query related tags for "recent" query
+-- ========================================
+@NAME(FindRecentRelatedTagsQuery)
+  SELECT tag_id, COUNT(tag_id) AS count
+    FROM read_later_tags rlt, read_later rl 
+   WHERE rl.shared = TRUE 
+     AND rl.id = rlt.read_later_id
+   GROUP BY tag_id
+
+
+-- ========================================
+-- Stats query
+-- ========================================
+@NAME(StatsQuery)
+  @INCLUDE(AllTagsQuery)
+  UNION
+  @INCLUDE(CountQuery)
+  @IF(:hasTags = TRUE)
+    UNION
+    @INCLUDE(RelatedTagsQuery)
+
+
+-- ========================================
+-- Query count for "findAll" query
+-- ========================================
+@NAME(CountQuery)
+  SELECT 'TOTAL' AS type, 'Total ReadLaters' AS name, COUNT(rl.id)
+  @IF(:hasTags = FALSE)
+    FROM read_later rl
+    @IF(:untagged = TRUE)
+        LEFT OUTER JOIN read_later_tags rlt ON rlt.read_later_id = rl.id AND rlt.idx = 0
+   @WHERE 
+    @INCLUDE(_FindAllFilters)
+    @AND(:untagged = TRUE)
+      rlt.read_later_id IS NULL    
+  @IF(:hasTags = TRUE)
+    FROM (
+       SELECT * FROM (
+           SELECT rlt.read_later_id AS id, COUNT(rlt.read_later_id) 
+             FROM read_later rl, read_later_tags rlt 
+            WHERE rl.id = rlt.read_later_id
+              @INCLUDE(_FindAllFilters)
+              AND @INCLUDE(_InclusiveTagLoop) 
+            GROUP BY rlt.read_later_id) AS t
+        WHERE t.count = :tagCount) AS rl
+
+
+
+-- ========================================
+-- Query related tags for "findAll" query
+-- ========================================
+@NAME(RelatedTagsQuery)
+  SELECT 'RELATED' AS type, rlt.tag_id AS name, COUNT(rlt.tag_id)
+  @IF(:hasTags = FALSE)
+    FROM read_later rl, read_later_tags rlt
+   WHERE rl.id = rlt.read_later_id
+    @INCLUDE(_FindAllFilters)
+  @IF(:hasTags = TRUE)
+    FROM (
+       SELECT * FROM (
+           SELECT rlt.read_later_id AS id, COUNT(rlt.read_later_id) 
+             FROM read_later rl, read_later_tags rlt 
+            WHERE rl.id = rlt.read_later_id
+              @INCLUDE(_FindAllFilters)
+              AND @INCLUDE(_InclusiveTagLoop)
+            GROUP BY rlt.read_later_id) AS t 
+        WHERE t.count = :tagCount
+     ) AS rl
+       INNER JOIN read_later_tags rlt ON rlt.read_later_id = rl.id
+   WHERE @INCLUDE(_ExclusiveTagLoop) 
+   GROUP BY rlt.tag_id 
+
+
+
+-- ========================================
+-- Query all tags
+-- ========================================
+@NAME(AllTagsQuery)
+  SELECT 'ALL' AS type, rlt.tag_id AS name, COUNT(rlt.tag_id)
+    FROM read_later rl, read_later_tags rlt
+   WHERE rl.id = rlt.read_later_id 
+     @INCLUDE(_FindAllFilters)
+   GROUP BY rlt.tag_id
+

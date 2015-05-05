@@ -13,20 +13,18 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="tlrl_user")
-public class User extends Managed<Long, User>{
+public class User extends Managed<Long>{
 
 	private static final long serialVersionUID = -8669637638091978788L;
 	
@@ -50,11 +48,6 @@ public class User extends Managed<Long, User>{
 	@JoinColumn(name="role_id", nullable=false)
 	private Role role;
 
-	@JsonIgnore
-	@OneToMany(targetEntity=OAuthToken.class, fetch=FetchType.EAGER)
-	@JoinColumn(name="user_id", referencedColumnName="id")
-	private List<OAuthToken> oauthTokens = new ArrayList<OAuthToken>();
-	
 	public Long getId() {
 		return id;
 	}
@@ -85,7 +78,7 @@ public class User extends Managed<Long, User>{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	@Override
+	@Deprecated
 	public User update(User from) {
 		this.enabled = from.enabled;
 		return this;

@@ -18,7 +18,10 @@
 				$.ajax({
 					type: 'POST',
 					url: '/api/urls',
-					data: JSON.stringify({url: decodeURIComponent(attrs.url), titlr: decodeURIComponent(attrs.title)}),
+					data: JSON.stringify({
+						url: decodeURIComponent(attrs.url),
+						content: decodeURIComponent(attrs.content),
+						title: decodeURIComponent(attrs.title)}),
 					contentType: "application/json; charset=utf-8",
 					dataType: 'json',
 					success: function(resp) {

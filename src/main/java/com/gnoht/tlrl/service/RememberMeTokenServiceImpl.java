@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
 import com.gnoht.tlrl.domain.RememberMeToken;
 import com.gnoht.tlrl.repository.RememberMeTokenRepository;
+import com.gnoht.tlrl.service.support.ManagedService;
 
 /**
  * {@link RememberMeTokenService} implementation that also supports Spring 

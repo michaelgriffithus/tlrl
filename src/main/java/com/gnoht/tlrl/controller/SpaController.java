@@ -1,7 +1,5 @@
 package com.gnoht.tlrl.controller;
 
-import java.security.Principal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -27,7 +25,7 @@ public class SpaController {
 	 * @param model use to set the currently authenticated User 
 	 * @return view name of SPA resource
 	 */
-	@RequestMapping(value={"/urls/**", "/@*/**"})
+	@RequestMapping(value={"/urls/**", "/@*/**", "/urls", "/url/**", "/search", "/popular", "/recent"})
 	public String app(@CurrentUser User user, Model model) {
 		if(user != null) { 
 			LOG.debug("Adding model attribute user={}", user);

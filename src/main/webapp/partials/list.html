@@ -39,7 +39,7 @@
 				</div>
 				<p x-ng-hide="hasFilters('untagged')">
 					<span x-ng-repeat="tag in tags.selected">
-						<span class="tag"><a x-ng-click="removeTag(tag)">{{tag}} &#215;</a></span>
+						<span class="tag"><a x-ng-click="removeTag(tag)">{{tag}} <small><i class="fa fa-times"></i></small></a></span>
 					</span>
 				</p>
 				<div class="related-well" x-ng-hide="hasFilters('untagged')">

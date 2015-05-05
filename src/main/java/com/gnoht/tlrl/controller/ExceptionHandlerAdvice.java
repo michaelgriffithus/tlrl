@@ -18,14 +18,24 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.gnoht.tlrl.domain.ValidationError;
 
-@ControllerAdvice(basePackageClasses= { DefaultExceptionHandler.class })
-public class DefaultExceptionHandler {
+/**
+ * {@link ControllerAdvice} that handles Exceptions for all controllers. 
+ */
+@ControllerAdvice(basePackageClasses= { ExceptionHandlerAdvice.class })
+public class ExceptionHandlerAdvice {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultExceptionHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
 	
 	@Resource(name="messageSourceAccessor")
 	private MessageSourceAccessor messageSource;
 
+	/**
+	 * Generic handler for validation errors, parsing errors returning container
+	 * of errors and their associated messages.
+	 * 
+	 * @param ex the caught exception
+	 * @return
+	 */
 	@ExceptionHandler(value=MethodArgumentNotValidException.class)
 	@ResponseStatus(value=HttpStatus.BAD_REQUEST)
 	@ResponseBody
@@ -37,12 +47,10 @@ public class DefaultExceptionHandler {
 	private ValidationError parseFieldErrors(List<FieldError> fieldErrors) {
 		ValidationError validationError = new ValidationError();
 		for(FieldError fieldError: fieldErrors) {
+			LOG.debug("Has field error: {}", fieldError);
 			validationError.addFieldError(fieldError.getField(), messageSource.getMessage(fieldError));
 		}
 		return validationError;
 	}
 	
-	public void setMessageSource(MessageSourceAccessor messageSource) {
-		this.messageSource = messageSource;
-	}
 }

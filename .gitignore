@@ -12,11 +12,17 @@
 hs_err_pid*
 
 .classpath
+
 .DS_Store
 .git
 .project
+.springBeans
 .settings
 target
 
 # exclude static files from third party libs
 src/main/webapp/static/lib
+
+*.crt
+*.key
+*.csr

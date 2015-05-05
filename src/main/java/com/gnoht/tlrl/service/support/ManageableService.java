@@ -1,4 +1,4 @@
-package com.gnoht.tlrl.service;
+package com.gnoht.tlrl.service.support;
 
 import java.io.Serializable;
 
@@ -7,10 +7,10 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.gnoht.tlrl.domain.Manageable;
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
+import com.gnoht.tlrl.domain.support.Manageable;
 
-public interface ManageableService<ID extends Serializable, T extends Manageable<ID, T>> {
+public interface ManageableService<ID extends Serializable, T extends Manageable<ID>> {
 	
 	public Long count();
 	

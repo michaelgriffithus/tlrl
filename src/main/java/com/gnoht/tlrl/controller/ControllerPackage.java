@@ -1,7 +1,7 @@
 package com.gnoht.tlrl.controller;
 
 /**
- * Marker for com.gnoht.tlrl.controller package
+ * Marker for "controller" package.
  */
 public interface ControllerPackage {
 

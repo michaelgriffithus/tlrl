@@ -869,7 +869,7 @@ hr {
 	color: #999;
 	font-size: 85%;
 }
-.tag > a {
+.tag > a, .tagged a {
 	font-size: 95%;
 	display: inline-block;
 	background-color: #eee;
@@ -878,6 +878,11 @@ hr {
 	margin: 2px 4px 2px 0px;
 	border-radius: 1px;
 }
+.tag > a:hover {
+	text-decoration: none;
+	background-color: #ddd;
+}
+
 
 .btn, input[type="submit"], .btn-success, .btn-default, .btn-warn, .btn-danger, .btn[disabled] {
 	width:auto;

@@ -3,12 +3,15 @@ package com.gnoht.tlrl.config;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import com.gnoht.tlrl.domain.DomainPackage;
@@ -46,5 +49,11 @@ public class RepositoryConfig {
 		dataSource.setPassword(env.getRequiredProperty("spring.datasource.password"));
 		dataSource.setJdbcUrl(env.getRequiredProperty("spring.datasource.url"));
 		return dataSource;
+	}
+	
+	@Bean
+	@Autowired
+	public SolrTemplate solrTemplate(SolrServer server) throws Exception {
+		return new SolrTemplate(server);
 	}
 }

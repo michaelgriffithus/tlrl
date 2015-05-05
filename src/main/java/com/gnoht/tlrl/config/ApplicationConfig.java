@@ -2,8 +2,6 @@ package com.gnoht.tlrl.config;
 
 import javax.annotation.Resource;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.env.Environment;
-import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -31,16 +28,6 @@ public class ApplicationConfig {
 		// true);
 		return converter;
 	}
-
-//	@Bean
-//	public SolrServer solrServer() {
-//		return new HttpSolrServer(env.getRequiredProperty("spring.data.solr.host"));
-//	}
-//
-//	@Bean
-//	public SolrTemplate solrTemplate(SolrServer server) throws Exception {
-//		return new SolrTemplate(server);
-//	}
 
 	/**
 	 * Returns a {@link MessageSourceAccessor} instance configured to use

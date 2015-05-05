@@ -81,7 +81,7 @@ public class SignUpController {
 	 * @return
 	 */
 	@RequestMapping(value="/signup", method=RequestMethod.POST)
-	public String doSignUp(@CurrentUser User currentUser, @ModelAttribute @Valid User newUser,
+	public String doSignUp(@CurrentUser User currentUser, @ModelAttribute("user") @Valid User newUser,
 			BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Model model) {
 		LOG.info("Starting doSignUp(): currentUser={}, user={}", currentUser, newUser);
 		
@@ -104,12 +104,6 @@ public class SignUpController {
 		
 		return showSignUp(newUser, model);
 	}
-	
-	@RequestMapping(value="/api/users/current", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody User getCurrentUserName(@CurrentUser User currentUser) {
-		return currentUser;
-	}
-	
 	
 	private String showSignUp(User user, Model model) {
 		model.addAttribute("user", user);

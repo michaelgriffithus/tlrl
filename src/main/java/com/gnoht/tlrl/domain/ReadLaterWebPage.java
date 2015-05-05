@@ -10,9 +10,10 @@ import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gnoht.tlrl.domain.support.Managed;
 
 @SolrDocument
-public class ReadLaterWebPage extends Managed<String, ReadLaterWebPage>{
+public class ReadLaterWebPage extends Managed<String>{
 
 	private static final long serialVersionUID = 2870120910769823172L;
 
@@ -71,7 +72,6 @@ public class ReadLaterWebPage extends Managed<String, ReadLaterWebPage>{
 	public String getId() {
 		return id;
 	}
-	@Override
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -162,7 +162,7 @@ public class ReadLaterWebPage extends Managed<String, ReadLaterWebPage>{
 		this.readLaterStatus = readLaterStatus;
 	}
 
-	@Override
+	@Deprecated
 	public ReadLaterWebPage update(ReadLaterWebPage from) {
 		this.dateModified = new Date();
 		this.description = from.getDescription();

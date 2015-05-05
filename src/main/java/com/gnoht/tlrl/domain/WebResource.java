@@ -4,10 +4,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 public abstract class WebResource<C,ID extends Serializable, T extends WebResource<C, ID, T>>
-		extends Managed<ID, T> {
+		extends Managed<ID> {
 
 	private static final long serialVersionUID = -4700053364051467620L;
 

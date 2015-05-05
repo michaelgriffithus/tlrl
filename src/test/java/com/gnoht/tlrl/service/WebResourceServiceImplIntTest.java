@@ -23,8 +23,8 @@ import com.gnoht.tlrl.domain.WebResource;
 @ActiveProfiles("test")
 public class WebResourceServiceImplIntTest {
 
-	@Autowired
-	private WebPageService webResourceService;
+	@Autowired WebPageService webResourceService;
+	@Autowired UserService userService;
 	
 	@Test
 	public void findOrCreateShouldFindExisting() {
@@ -46,8 +46,7 @@ public class WebResourceServiceImplIntTest {
 	@Test
 	public void findOrCreateShouldCreate() {
 		// given
-		User user = new User();
-		user.setId(1L);
+		User user = userService.findById(1L);
 		WebPage toSave = new WebPage("http://yahoo.com");
 		toSave.setUser(user);
 		

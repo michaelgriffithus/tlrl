@@ -13,7 +13,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -30,13 +29,14 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="read_later")
 @Table(uniqueConstraints={
 	@UniqueConstraint(columnNames={"user_id", "webpage_id"})
 })
-public class ReadLater extends Managed<Long, ReadLater> {
+public class ReadLater extends Managed<Long> {
 
 	private static final long serialVersionUID = -1718561876002831254L;
 	
@@ -193,7 +193,7 @@ public class ReadLater extends Managed<Long, ReadLater> {
 		dateModified = new Date();
 	}
 
-	@Override
+	@Deprecated
 	public ReadLater update(ReadLater from) {
 		this.title = from.title;
 		this.shared = from.shared;

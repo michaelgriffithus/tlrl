@@ -255,7 +255,7 @@ angular.module('tlrl', [
 			// TODO: use md5 to check if dirty
 			elevateAndNormalizeTags(readLater)
 			if(readLater.tags.length > 5) {
-				window.alert("You may only have 5 tags max")
+				window.alert("You may have up to 5 tags max")
 			} else {
 				TLRLService.update({id: readLater.id}, {
 						description: readLater.description,

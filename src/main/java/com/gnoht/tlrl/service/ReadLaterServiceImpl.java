@@ -7,26 +7,21 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gnoht.tlrl.controller.Filters;
+import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.ReadLater;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
-import com.gnoht.tlrl.domain.SharedStatus;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.repository.ManageResultPage;
-import com.gnoht.tlrl.repository.ReadLaterJpaRepository;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
-import com.gnoht.tlrl.repository.WebPageJpaRepository;
+import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
 
 
 @Service("tlrlService")
@@ -87,28 +82,28 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 
 	@Override
 	public ResultPage<ReadLater> findAllByOwnerAndTagged(
-				User owner, Filters filters, Set<String> tags, Pageable pageable) {
+				User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable) {
 		
-		LOG.debug("Starting findAllByOwnerAndTagged(): owner={}, filters={}, tags={}", owner, filters, tags);
+		LOG.debug("Starting findAllByOwnerAndTagged(): owner={}, filters={}, tags={}", owner, readLaterQueryFilter, tags);
 		
 		ReadLaterStats stats = readLaterRepository.
-				findReadLaterStatsByOwnerAndTagged(owner, filters, tags);
+				findReadLaterStatsByOwnerAndTagged(owner, readLaterQueryFilter, tags);
 		List<ReadLater> readLaters = readLaterRepository.
-				findAllByOwnerAndTagged(owner, filters, tags, pageable);
+				findAllByOwnerAndTagged(owner, readLaterQueryFilter, tags, pageable);
 		return new ManageResultPage(new PageImpl<ReadLater>(
 				readLaters, pageable, stats.getTotalReadLaters()), stats, pageable);
 	}
 
 	@Override
 	public ResultPage<ReadLater> findAllByOwnerAndUntagged(
-				User owner, Filters filters, Pageable pageable) {
+				User owner, ReadLaterQueryFilter readLaterQueryFilter, Pageable pageable) {
 		
-		LOG.debug("Starting findAllByOwnerAndUntagged(): owner={}, filters={}", owner, filters);
+		LOG.debug("Starting findAllByOwnerAndUntagged(): owner={}, filters={}", owner, readLaterQueryFilter);
 		
 		ReadLaterStats stats = readLaterRepository.
-				findReadLaterStatsByOwnerAndUntagged(owner, filters);
+				findReadLaterStatsByOwnerAndUntagged(owner, readLaterQueryFilter);
 		List<ReadLater> readLaters = readLaterRepository.
-				findAllByOwnerAndUntagged(owner, filters, pageable);
+				findAllByOwnerAndUntagged(owner, readLaterQueryFilter, pageable);
 		return new ManageResultPage(new PageImpl<ReadLater>(
 				readLaters, pageable, stats.getTotalReadLaters()), stats, pageable);
 	}

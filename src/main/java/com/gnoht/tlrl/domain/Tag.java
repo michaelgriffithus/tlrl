@@ -7,10 +7,11 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="tag")
-public class Tag extends Managed<String, Tag>
+public class Tag extends Managed<String>
 		implements Comparable<Tag> {
 
 	private static final long serialVersionUID = -8835168755690542165L;
@@ -43,11 +44,11 @@ public class Tag extends Managed<String, Tag>
 	public String getId() {
 		return id;
 	}
-	@Override
+
 	public void setId(String id) {
 		this.id = id;
 	}
-	@Override
+	@Deprecated
 	public Tag update(Tag from) {
 		return null;
 	}

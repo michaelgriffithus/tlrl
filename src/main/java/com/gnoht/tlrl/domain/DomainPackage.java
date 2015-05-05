@@ -1,7 +1,7 @@
 package com.gnoht.tlrl.domain;
 
 /**
- * Marker for com.gnoht.tlrl.domain package.
+ * Marker for "domain" package.
  */
 public interface DomainPackage {
 

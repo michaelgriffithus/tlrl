@@ -13,6 +13,7 @@ import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.repository.ReadLaterWebPageSolrRepository;
 import com.gnoht.tlrl.repository.SearchResultPage;
+import com.gnoht.tlrl.service.support.ManagedService;
 
 @Service("readLaterWebPageService")
 public class ReadLaterWebPageServiceImpl extends 
