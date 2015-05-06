@@ -78,11 +78,15 @@ public class User extends Managed<Long>{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	@Deprecated
-	public User update(User from) {
-		this.enabled = from.enabled;
-		return this;
+	
+	
+	
+	public static User withName(String name) {
+		User user = new User();
+		user.name = name;
+		return user;
 	}
+	
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()

@@ -52,6 +52,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import com.gnoht.tlrl.config.OAuth2SecurityConfig.GoogleOauth2;
@@ -78,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
-	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/api/users/current"};
+	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/@**", "/api/users/current"};
 	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
 	public static final String[] SECURED_POST_URLS = {"/api/urls", "/api/urls/**"};
 	public static final String[] SECURED_PUT_URLS = {"/api/urls/**"};
@@ -138,12 +139,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
 				.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
 		.and()
-			.csrf().disable() // TODO: remove after test
+			//.csrf().disable() // TODO: remove after test
 			.logout()
 				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET
 				// http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf-logout
-				.logoutUrl(SIGNOUT_URL) 
+				.logoutRequestMatcher(new AntPathRequestMatcher(SIGNOUT_URL))
 				.logoutSuccessUrl(SIGNIN_URL)
 		.and()
 			.addFilterAfter(oAuth2ClientContextFilter, ExceptionTranslationFilter.class)

@@ -53,6 +53,7 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 	public void setUp() {
 		mockMvc = MockMvcBuilders
 			.webAppContextSetup(context)
+			.addFilters(springSecurityFilterChain)
 			.apply(SecurityMockMvcConfigurers.springSecurity(springSecurityFilterChain))
 			.build();
 		
@@ -99,6 +100,7 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 			.thenThrow(DataIntegrityViolationException.class);
 		
 		mockMvc.perform(post("/signup")
+				.with(csrf())
 				.param("name", "blah")
 				.with(authentication(auth)))
 			.andDo(print())
