@@ -62,7 +62,9 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 	
 	@Test
 	public void signUpShouldRedirectToSignOut() throws Exception {
-		mockMvc.perform(get("/signup").with(authentication(null)))
+		mockMvc.perform(get("/signup")
+				.with(csrf())
+				.with(authentication(null)))
 			.andDo(print())
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("http://localhost/"));

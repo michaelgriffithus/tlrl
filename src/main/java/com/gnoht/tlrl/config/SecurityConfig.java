@@ -79,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
-	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/", "/api/users/current"};
+	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/api/users/current"};
 	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
 	public static final String[] SECURED_POST_URLS = {"/api/urls", "/api/urls/**"};
 	public static final String[] SECURED_PUT_URLS = {"/api/urls/**"};
@@ -109,18 +109,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-		.httpBasic()
-			.authenticationEntryPoint(delegatingAuthenticationEntryPoint())
-		.and()
-			.exceptionHandling()
-				.accessDeniedPage(SIGNUP_URL)
-		.and()
-			//.anonymous().disable() 
 			.authorizeRequests()
+				.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
+				.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
+				.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
+				.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
+				.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
 				//URLs for all users
 				.antMatchers(
 							"/recent",
-							"/@**",
+							"/@*",
 							"/popular",
 							"/help",
 							"/about",
@@ -128,18 +126,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							AUTH_CATCHALL_URL,
 							SIGNOUT_URL,
 							SIGNIN_URL)
-					.access("!hasRole('"+ UNCONFIRMED_ROLE_ID +"')")
-				//URLS for users with 'unconfirmed' role	
-				.antMatchers( 
-							SIGNUP_URL)
-					.hasRole(UNCONFIRMED_ROLE_ID)
-				//URLs for users with 'user' role		
-				.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
+					.permitAll()
 		.and()
-			//.csrf().disable() // TODO: remove after test
 			.logout()
 				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET
@@ -150,7 +138,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.addFilterAfter(oAuth2ClientContextFilter, ExceptionTranslationFilter.class)
 			.addFilterBefore(googleOAuthProcessingFilter(), FilterSecurityInterceptor.class)
 		.rememberMe()
-			.rememberMeServices(rememberMeServices());
+			.rememberMeServices(rememberMeServices())
+		.and()
+			.httpBasic()
+				.authenticationEntryPoint(delegatingAuthenticationEntryPoint())
+		.and()
+			.exceptionHandling()
+				.accessDeniedPage(SIGNIN_URL);
 		
 		
 	}

@@ -11,7 +11,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.stereotype.Controller;
@@ -20,8 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gnoht.tlrl.config.SecurityConfig;
 import com.gnoht.tlrl.domain.AlreadySignedUpException;
 import com.gnoht.tlrl.domain.Role;
 import com.gnoht.tlrl.domain.User;
@@ -55,15 +54,15 @@ public class SignUpController {
 	 * proper "USER" role, just send them on their way. Everyone else, just 
 	 * invalidate their session just in case and send them to sign-in page.
 	 * 
-	 * @param unconfirmedUser 
+	 * @param authUserToSignUp 
 	 * @param model
 	 * @return
 	 */
 	@RequestMapping(value="/signup", method=RequestMethod.GET)
-	public String signUp(@CurrentUser User unconfirmedUser, Model model) {
-		LOG.info("Starting signUp(): unconfirmedUser={}, email={}", unconfirmedUser, unconfirmedUser.getEmail());
-		if(hasRole(unconfirmedUser, ROLE_UNCONFIRMED)) {
-			return showSignUp(unconfirmedUser, model);
+	public String signUp(@CurrentUser User authUserToSignUp, Model model) {
+		LOG.info("Starting signUp(): authUserToSignUp={}", authUserToSignUp);
+		if(hasRole(authUserToSignUp, ROLE_UNCONFIRMED)) {
+			return showSignUp(authUserToSignUp, model);
 		} else {
 			return "redirect:/signout";
 		}
@@ -72,8 +71,8 @@ public class SignUpController {
 	/**
 	 * Sign up the submitted {@link User}. 
 	 * 
-	 * @param currentUser the current User in the security context we trying to sign up
-	 * @param newUser incoming user info we want to use for sign up process
+	 * @param authUserToSignUp the current User in the security context we trying to sign up
+	 * @param newUser command encapsulating the user info needed for signup
 	 * @param bindingResult 
 	 * @param request
 	 * @param response
@@ -81,21 +80,21 @@ public class SignUpController {
 	 * @return
 	 */
 	@RequestMapping(value="/signup", method=RequestMethod.POST)
-	public String doSignUp(@CurrentUser User currentUser, @ModelAttribute("user") @Valid User newUser,
+	public String doSignUp(@CurrentUser User authUserToSignUp, @ModelAttribute("user") @Valid User newUser,
 			BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response, Model model) {
-		LOG.info("Starting doSignUp(): currentUser={}, user={}", currentUser, newUser);
+		LOG.info("Starting doSignUp(): currentUser={}, user={}", authUserToSignUp, newUser);
 		
-		newUser.setEmail(currentUser.getEmail());
+		newUser.setEmail(authUserToSignUp.getEmail());
 		
 		if(!bindingResult.hasErrors()) {
 			try {
-				currentUser = userService.signUpUser(newUser);
-				reloadAuthentication(currentUser, request, response);
-				return "redirect:/@" + currentUser.getName();
+				authUserToSignUp = userService.signUpUser(newUser);
+				reloadAuthentication(authUserToSignUp, request, response);
+				return "redirect:/@" + authUserToSignUp.getName();
 				
 			} catch(AlreadySignedUpException e) {
 				bindingResult.rejectValue("email", "user.error.alreadySignedUp",
-						new String[]{currentUser.getEmail()}, e.getMessage());
+						new String[]{authUserToSignUp.getEmail()}, e.getMessage());
 			} catch(DataIntegrityViolationException e) {
 				bindingResult.rejectValue("name", "user.error.nameExists",
 					new String[]{newUser.getName()}, e.getMessage());
@@ -120,4 +119,5 @@ public class SignUpController {
 		SecurityContextHolder.getContext().setAuthentication(authToken);
 		rememberMeServices.loginSuccess(request, response, authToken);
 	}
+	
 }

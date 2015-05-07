@@ -81,14 +81,4 @@ public class SecurityConfigIntTest {
 			});
 	}
 	
-	@Test
-	public void shouldRedirectToSignupView() throws Exception  {
-		User unconfirmedUser = new User();
-		unconfirmedUser.setEmail("xyz@acme.com");
-		unconfirmedUser.setRole(SecurityUtils.ROLE_UNCONFIRMED);
-		mockMvc.perform(get("/@").with(user(new OAuth2UserDetails(unconfirmedUser))))
-			.andDo(print())
-			.andExpect(forwardedUrl("/signup"));
-	}
-	
 }

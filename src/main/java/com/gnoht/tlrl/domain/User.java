@@ -43,7 +43,7 @@ public class User extends Managed<Long>{
 	@ManyToOne(targetEntity=Role.class, fetch=FetchType.EAGER, cascade={CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
 	@JoinColumn(name="role_id", nullable=false)
 	private Role role;
-
+	
 	public Long getId() {
 		return id;
 	}
