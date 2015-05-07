@@ -87,6 +87,7 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 		
 		mockMvc.perform(post("/signup")
 				.param("name", "blah")
+				.with(csrf())
 				.with(authentication(auth)))
 			.andDo(print())
 			.andExpect(model().attributeHasFieldErrorCode("user", "email", "user.error.alreadySignedUp"));
@@ -121,6 +122,7 @@ public class SignUpControllerIntTest extends AbstractControllerWithSecurityIntTe
 			.thenReturn((OAuth2UserDetails) auth.getDetails());
 		
 		mockMvc.perform(post("/signup")
+					.with(csrf())
 					.param("name", auth.getName())
 					.with(authentication(auth)))
 			.andDo(print())

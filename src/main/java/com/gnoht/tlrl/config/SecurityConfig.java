@@ -79,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
-	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/@**", "/api/users/current"};
+	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/", "/api/users/current"};
 	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
 	public static final String[] SECURED_POST_URLS = {"/api/urls", "/api/urls/**"};
 	public static final String[] SECURED_PUT_URLS = {"/api/urls/**"};
