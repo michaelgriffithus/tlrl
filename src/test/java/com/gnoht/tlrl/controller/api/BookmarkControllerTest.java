@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.gnoht.tlrl.controller.ReadLaterController;
 import com.gnoht.tlrl.controller.StandaloneControllerTest;
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.service.ReadLaterService;

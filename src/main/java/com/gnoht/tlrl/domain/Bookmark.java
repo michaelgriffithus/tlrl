@@ -1,12 +1,14 @@
 package com.gnoht.tlrl.domain;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,138 +18,197 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 
-import com.gnoht.tlrl.domain.support.ManagedAuditable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gnoht.tlrl.domain.support.Managed;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-/**
- * Class representing a saved URL of a web resource.
- */
 @Entity(name="bookmark")
 @Table(uniqueConstraints={
-	/* each user may have 1 bookmark per url */
-	@UniqueConstraint(columnNames={"url", "user_id"})	
+	@UniqueConstraint(columnNames={"user_id", "webpage_id"})
 })
-public class Bookmark extends ManagedAuditable<Long> {
+public class Bookmark extends Managed<Long> {
 
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -1718561876002831254L;
+	
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
-	
-	/* http://www.depesz.com/2010/03/02/charx-vs-varcharx-vs-varchar-vs-text/ */
-	@Column(columnDefinition="text", nullable=false, updatable=false)
-	private String url;
-	
-	@Column(columnDefinition="text", nullable=true, updatable=true)
+	private String title;
 	private String description;
 	
-	@Column(columnDefinition="text", nullable=true, updatable=true)
-	private String title;
+	@Column(name="shared", columnDefinition="boolean default false", nullable=false)
+	private boolean shared = SharedStatus.PRIVATE.status();
+
+	@Enumerated(EnumType.STRING)
+	@JsonProperty(value="status")
+	@Column(name="read_later_status", nullable=false)
+	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA;
+	
+	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebPage.class,
+			cascade={CascadeType.MERGE}, optional=false)
+	@JoinColumn(name="webpage_id")
+	@JsonIgnore
+	private WebPage webPage;
 	
 	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinTable(name="bookmark_tags",
 			joinColumns={@JoinColumn(name="bookmark_id")},
 			inverseJoinColumns={@JoinColumn(name="tag_id")})
 	@OrderColumn(name="idx")
-	@Size(max=5) /* a bookmark can have at most 5 tags */
-	private List<Tag> tags = new ArrayList<>();
+	@Size(max=5)
+	private List<Tag> tags = new ArrayList<Tag>();
 	
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
 	@JoinColumn(name="user_id")
+	@JsonIgnore
 	private User user;
 	
-	private Bookmark() {}
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dateCreated;
 	
-	/**
-	 * Returns a {@link Builder} for creating a new {@link Bookmark}.
-	 * @param url url referenced by this Bookmark instance.
-	 * @return an instance of Builder.
-	 */
-	public static Builder builder(String url) {
-		return new Builder(url);
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date dateModified;
+	
+	@Transient
+	private int refCount;
+	
+	public Bookmark() {}
+	
+	public Bookmark(User user, WebPage webPage) {
+		this.webPage = webPage;
+		this.user = user;
+		this.title = webPage.getTitle();
+		this.description = webPage.getDescription();
 	}
 	
-	/**
-	 * Returns a {@link Builder} for updating the passed in {@link Bookmark}.
-	 * 
-	 * @param bookmark to wrap {@link Builder} around.
-	 * @return an instance of Builder.
-	 */
-	public static Builder updater(Bookmark bookmark) {
-		return new Builder(bookmark);
+	public Bookmark(String url) {
+		this.webPage = new WebPage(user, url);
 	}
 	
-	@Override
 	public Long getId() {
 		return id;
 	}
-	public String getUrl() {
-		return url;
-	}
-	public String getDescription() {
-		return description;
+	public void setId(Long id) {
+		this.id = id;
 	}
 	public String getTitle() {
 		return title;
 	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
 	public List<Tag> getTags() {
-		return Collections.unmodifiableList(tags);
+		return tags;
+	}
+	public void setTags(List<Tag> tags) {
+		this.tags = tags;
 	}
 	public User getUser() {
 		return user;
 	}
-
-	/**
-	 * Simple implementation of builder pattern for creating
-	 * and updating a Bookmark.
-	 */
-	public static class Builder {
-		final Bookmark bookmark;
-		
-		private Builder(Bookmark bookmark) {
-			this.bookmark = bookmark;
-		}
-		private Builder(String url) {
-			this.bookmark = new Bookmark();
-			url(url);
-		}
-		public Builder url(String url) {
-			bookmark.url = url; return this;
-		}
-		public Builder id(Long id) {
-			bookmark.id = id; return this;
-		}
-		public Builder title(String title) {
-			bookmark.title = title; return this;
-		}
-		public Builder description(String description) {
-			bookmark.description = description; return this;
-		}
-		public Builder tag(Tag tag) {
-			bookmark.getTags().add(tag); return this;
-		}
-		public Builder tags(List<Tag> tags) {
-			bookmark.tags = tags; return this;
-		}
-		public Builder user(User user) {
-			bookmark.user = user; return this;
-		}
-		public Bookmark get() {
-			return bookmark;
-		}
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
+	//TODO: move to DTO
+	@Transient
+	@JsonProperty(value="userId")
+	public Long getUserId() {
+		return (user == null) ? null : user.getId();
+	}
+
+	@Transient
+	@JsonProperty(value="userName")
+	public String getUserName() {
+		return (user == null) ? null : user.getName();
+	}
+	
+	//TODO: move to DTO
+	public int getRefCount() {
+		return refCount;
+	}
+	public void setRefCount(int refCount) {
+		this.refCount = refCount;
+	}
+
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	public Date getDateModified() {
+		return dateModified;
+	}
+	public void setDateModified(Date dateModified) {
+		this.dateModified = dateModified;
+	}
+	public boolean isShared() {
+		return shared;
+	}
+	public void setShared(boolean shared) {
+		this.shared = shared;
+	}
+	public String getUrl() {
+		return (webPage == null ? null : webPage.getUrl());
+	}
+	public void setUrl(String url) {
+		this.webPage = new WebPage(url);
+	}
+	public WebPage getWebPage() {
+		return this.webPage;
+	}
+	public void setWebPage(WebPage webPage) {
+		this.webPage = webPage;
+	}
+	public ReadLaterStatus getReadLaterStatus() {
+		return readLaterStatus;
+	}
+	public void setReadLaterStatus(ReadLaterStatus readLaterStatus) {
+		this.readLaterStatus = readLaterStatus;
+	}
+	
+	@PrePersist
+	protected void onPersist() {
+		dateCreated = new Date();
+	}
+	
+	@PreUpdate
+	protected void onUpdate() {
+		dateModified = new Date();
+	}
+
+	@Deprecated
+	public Bookmark update(Bookmark from) {
+		this.title = from.title;
+		this.shared = from.shared;
+		this.description = from.getDescription();
+		this.tags = from.getTags();
+		return this;
+	}
+
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
-			.add("url", url)
+			.add("webPage", webPage.getId())
+			.add("shared", shared)
 			.add("title", title)
-			.add("description", description)
-			.add("tags.size", (tags != null ? tags.size() : ""))
-			.add("user", (user != null ? user.getName() : ""));
+			.add("tags", tags);
 	}
+	
 }

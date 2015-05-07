@@ -54,18 +54,18 @@ public class ReadLaterWebPage extends Managed<String>{
 	
 	public ReadLaterWebPage() {}
 	
-	public ReadLaterWebPage(ReadLater readLater) {
-		this.id = readLater.getId().toString();
-		this.dateCreated = readLater.getDateCreated();
-		this.dateModified = readLater.getDateModified();
-		this.description = readLater.getDescription();
-		this.setTags(readLater.getTags());
-		this.shared = readLater.isShared();
-		this.readLaterStatus = readLater.getReadLaterStatus();
-		this.title = readLater.getTitle();
-		this.url = readLater.getUrl();
-		this.userName = readLater.getUserName();
-		this.userId = readLater.getUserId();
+	public ReadLaterWebPage(Bookmark bookmark) {
+		this.id = bookmark.getId().toString();
+		this.dateCreated = bookmark.getDateCreated();
+		this.dateModified = bookmark.getDateModified();
+		this.description = bookmark.getDescription();
+		this.setTags(bookmark.getTags());
+		this.shared = bookmark.isShared();
+		this.readLaterStatus = bookmark.getReadLaterStatus();
+		this.title = bookmark.getTitle();
+		this.url = bookmark.getUrl();
+		this.userName = bookmark.getUserName();
+		this.userId = bookmark.getUserId();
 	}
 	
 	@Override

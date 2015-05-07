@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.gnoht.tlrl.config.RepositoryConfig;
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.domain.WebResource;
@@ -42,7 +42,7 @@ public class BookmarkRepositoryIntTest {
 		user.setId(1L);
 		
 		// given
-		ReadLater bookmark = new ReadLater();
+		Bookmark bookmark = new Bookmark();
 		bookmark.setWebPage(webPage);
 		bookmark.setUser(user);
 		

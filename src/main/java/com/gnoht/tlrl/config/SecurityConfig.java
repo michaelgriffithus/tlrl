@@ -51,6 +51,8 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -108,15 +110,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		DelegatingRequestMatcherHeaderWriter headerWriter =
+			new DelegatingRequestMatcherHeaderWriter(new RequestMatcher() {
+				@Override 
+				public boolean matches(HttpServletRequest request) {
+					String requestedURI = request.getRequestURI();
+					return !(requestedURI.equals("/bookmarklet-receiver.jsp"));
+				}
+			}, new XFrameOptionsHeaderWriter());
+		
 		http
-			.authorizeRequests()
-				.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
-				.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
-				.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
-				//URLs for all users
-				.antMatchers(
+			.headers()
+				/* Disable embedding in iframe if bookmarklet script, otherwise
+				 * add DENY X-Frame-Options for all other request */
+				.frameOptions().disable()
+				.addHeaderWriter(headerWriter)
+			.and()
+				.authorizeRequests()
+					.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
+					.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
+					//URLs for all users
+					.antMatchers(
 							"/recent",
 							"/@*",
 							"/popular",
@@ -128,6 +145,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							SIGNIN_URL)
 					.permitAll()
 		.and()
+			//.csrf().disable()
 			.logout()
 				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET

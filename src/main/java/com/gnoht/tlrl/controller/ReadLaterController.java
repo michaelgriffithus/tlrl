@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gnoht.tlrl.controller.support.TargetUser;
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
@@ -56,7 +56,7 @@ public class ReadLaterController {
 	}
 	
 	@RequestMapping(value="/urls", method=RequestMethod.GET)
-	public ResultPage<ReadLater> findAll(@CurrentUser User currentUser,
+	public ResultPage<Bookmark> findAll(@CurrentUser User currentUser,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable,
 			@RequestParam(required=false, value="tags") String[] tags) {
 		return readLaterService.findAllTagged(toSet(tags), pageable);
@@ -69,12 +69,12 @@ public class ReadLaterController {
 	}
 	
 	@RequestMapping(value="/recent", method=RequestMethod.GET)
-	public ResultPage<ReadLater> findRecent() {
+	public ResultPage<Bookmark> findRecent() {
 		return readLaterService.findRecent(new PageRequest(0, 50));
 	}
 	
 	@RequestMapping(value="/popular", method=RequestMethod.GET)
-	public ResultPage<ReadLater> findPopular(
+	public ResultPage<Bookmark> findPopular(
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
 		return readLaterService.findPopular(pageable);
 	}
@@ -100,7 +100,7 @@ public class ReadLaterController {
 	}
 	
 	/**
-	 * Handles all request for querying {@link ReadLater}s owned by a target 
+	 * Handles all request for querying {@link Bookmark}s owned by a target 
 	 * {@link User}. Note: this method is overloaded to handle the request
 	 * differently based on who is making the request. If caller and target User 
 	 * are same (private allowed), then additional filters may be applied (see below). 
@@ -117,7 +117,7 @@ public class ReadLaterController {
 	 * @return 
 	 */
 	@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
-	public ResultPage<ReadLater> findAllByUser(@CurrentUser User currentUser, @TargetUser("userName") User user, 
+	public ResultPage<Bookmark> findAllByUser(@CurrentUser User currentUser, @TargetUser("userName") User user, 
 			@RequestParam(value="filters", defaultValue="") ReadLaterQueryFilter ownerOnlyFilters, 
 			@RequestParam(value="tags", required=false) String[] tags,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
@@ -139,48 +139,48 @@ public class ReadLaterController {
 	}
 
 	@RequestMapping(value="/urls/{id}/status", method=RequestMethod.PUT)
-	public ReadLater setReadLaterStatus(@CurrentUser User currentUser,
-			@PathVariable("id") Long id, @RequestBody(required=true) ReadLater readLater) {
-		readLater.setUser(currentUser);
-		readLater.setId(id);
-		return readLaterService.updateReadLaterStatus(readLater);
+	public Bookmark setReadLaterStatus(@CurrentUser User currentUser,
+			@PathVariable("id") Long id, @RequestBody(required=true) Bookmark bookmark) {
+		bookmark.setUser(currentUser);
+		bookmark.setId(id);
+		return readLaterService.updateReadLaterStatus(bookmark);
 	}
 	
 	/**
-	 * Creates a new {@link ReadLater} and returns the newly created instance.
+	 * Creates a new {@link Bookmark} and returns the newly created instance.
 	 * @param webPage WebPage referenced by ReadLater.
 	 * @return newly created ReadLater instance
 	 */
 	@RequestMapping(value="/urls", method=RequestMethod.POST)
-	public ReadLater create(@CurrentUser User currentUser,
-			@Valid @RequestBody(required=true) ReadLater readLater) {
-		LOG.debug("Starting create(): readLater={}", readLater);
-		readLater.setUser(currentUser);
-		return readLaterService.findOrCreateReadLater(readLater);
+	public Bookmark create(@CurrentUser User currentUser,
+			@Valid @RequestBody(required=true) Bookmark bookmark) {
+		LOG.debug("Starting create(): readLater={}", bookmark);
+		bookmark.setUser(currentUser);
+		return readLaterService.findOrCreateReadLater(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.PUT)
-	public ReadLater update(@CurrentUser User currentUser, @PathVariable Long id,
-			@Valid @RequestBody(required=true) ReadLater readLater, BindingResult bindingResult) {
+	public Bookmark update(@CurrentUser User currentUser, @PathVariable Long id,
+			@Valid @RequestBody(required=true) Bookmark bookmark, BindingResult bindingResult) {
 		
 		if(bindingResult.hasFieldErrors("tags")) {
-			LOG.debug(readLater.getTags().size() + " tags detected, splicing list!");
-			readLater.setTags(readLater.getTags().subList(0, 5));
-			LOG.debug(readLater.getTags().size() + " tags after splicing!");
+			LOG.debug(bookmark.getTags().size() + " tags detected, splicing list!");
+			bookmark.setTags(bookmark.getTags().subList(0, 5));
+			LOG.debug(bookmark.getTags().size() + " tags after splicing!");
 		}
 		// check if user owns readlater
-		readLater.setId(id);
-		readLater.setUser(currentUser); //prevent spoofing
-		return readLaterService.updateReadLater(readLater);
+		bookmark.setId(id);
+		bookmark.setUser(currentUser); //prevent spoofing
+		return readLaterService.updateReadLater(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.DELETE)
-	public ReadLater delete(@CurrentUser User currentUser, @PathVariable Long id) {
-		ReadLater readLater = new ReadLater();
-		readLater.setId(id);
-		readLater.setUser(currentUser);
-		readLaterService.deleteReadLater(readLater);
-		return readLater;
+	public Bookmark delete(@CurrentUser User currentUser, @PathVariable Long id) {
+		Bookmark bookmark = new Bookmark();
+		bookmark.setId(id);
+		bookmark.setUser(currentUser);
+		readLaterService.deleteReadLater(bookmark);
+		return bookmark;
 	}
 	
 	//TODO: move to property editor

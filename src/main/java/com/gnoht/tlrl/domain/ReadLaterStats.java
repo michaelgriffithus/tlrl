@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Simple wrapper for stats about a Users collection of {@link ReadLater}s.
+ * Simple wrapper for stats about a Users collection of {@link Bookmark}s.
  */
 public class ReadLaterStats implements Serializable {
 

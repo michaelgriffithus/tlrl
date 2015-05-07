@@ -35,7 +35,7 @@
 		/* An overlay to show with login message */
 		tlrlOverlay = $('<div id="tlrl-overlay" class="tlrl-hide" style="display:none;position:fixed;left:0%;right:0%;top:0%;bottom:0%;z-index:99999;background:#111;opacity:0.5;"></div>').appendTo('#tlrl-container'),
 		/* iframe containing receiver code for our postMessage cross domain communication */
-		tlrlFrame = $('<iframe id="tlrl-frame" style="display:none;" src="' + window.__tlrlBaseUrl + '/static/bookmarklet-receiver.html?r=' + new Date().getTime() + '"></iframe>').appendTo('#tlrl-container');
+		tlrlFrame = $('<iframe id="tlrl-frame" style="display:none;" src="' + window.__tlrlBaseUrl + '/bookmarklet-receiver.jsp?r=' + new Date().getTime() + '"></iframe>').appendTo('#tlrl-container');
 
 	/* Show the login message */
 	function tlrlShowLogin(show) {

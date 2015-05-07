@@ -6,24 +6,24 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.Tag;
 
-public class SimpleResultPage implements ResultPage<ReadLater> {
+public class SimpleResultPage implements ResultPage<Bookmark> {
 
-	final List<ReadLater> contents;
+	final List<Bookmark> contents;
 	final Pageable pageable;
 	final ReadLaterStats stats;
 	
-	public SimpleResultPage(List<ReadLater> contents, ReadLaterStats stats, Pageable pageable) {
+	public SimpleResultPage(List<Bookmark> contents, ReadLaterStats stats, Pageable pageable) {
 		this.contents = contents;
 		this.pageable = pageable;
 		this.stats = stats;
 	}
 	
 	@Override
-	public final List<ReadLater> getContent() {
+	public final List<Bookmark> getContent() {
 		return Collections.unmodifiableList(contents);
 	}
 

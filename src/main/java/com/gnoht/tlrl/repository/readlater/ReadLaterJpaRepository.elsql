@@ -1,28 +1,28 @@
 --
--- SQL for ReadLaterRepository
+-- SQL for BookmarkRepository
 --
 
 -- ========================================
--- Fragment for joining Tags to ReadLaters (via read_later_tags mapping table). 
+-- Fragment for joining Tags to Bookmarks (via bookmark_tags mapping table). 
 -- ========================================
 @NAME(_JoinForTags)
-  LEFT JOIN read_later_tags rlt0 ON rlt0.read_later_id = rl.id AND rlt0.idx = 0 
-  LEFT JOIN read_later_tags rlt1 ON rlt1.read_later_id = rl.id AND rlt1.idx = 1
-  LEFT JOIN read_later_tags rlt2 ON rlt2.read_later_id = rl.id AND rlt2.idx = 2
-  LEFT JOIN read_later_tags rlt3 ON rlt3.read_later_id = rl.id AND rlt3.idx = 3
-  LEFT JOIN read_later_tags rlt4 ON rlt4.read_later_id = rl.id AND rlt4.idx = 4
+  LEFT JOIN bookmark_tags bt0 ON bt0.bookmark_id = b.id AND bt0.idx = 0 
+  LEFT JOIN bookmark_tags bt1 ON bt1.bookmark_id = b.id AND bt1.idx = 1
+  LEFT JOIN bookmark_tags bt2 ON bt2.bookmark_id = b.id AND bt2.idx = 2
+  LEFT JOIN bookmark_tags bt3 ON bt3.bookmark_id = b.id AND bt3.idx = 3
+  LEFT JOIN bookmark_tags bt4 ON bt4.bookmark_id = b.id AND bt4.idx = 4
 
 
 -- ========================================
--- Fragment for selecting ReadLaters and their tags
+-- Fragment for selecting Bookmarks and their tags
 -- ========================================
-@NAME(_BaseReadLaterQuery)
-  SELECT rl.id, rl.title, rl.user_id, u.name AS user_name, rl.shared, rl.description, rl.date_created, rl.read_later_status, 
-     rlt0.tag_id AS tag0, rlt1.tag_id AS tag1, rlt2.tag_id AS tag2, rlt3.tag_id AS tag3, rlt4.tag_id AS tag4,
+@NAME(_BaseBookmarkQuery)
+  SELECT b.id, b.title, b.user_id, u.name AS user_name, b.shared, b.description, b.date_created, b.read_later_status, 
+     bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4,
      w.id AS webpageId, w.url
-    FROM tlrl_user u, webpage w, read_later rl
+    FROM tlrl_user u, webpage w, bookmark b
       @INCLUDE(_JoinForTags)
-   WHERE w.id = rl.webpage_id AND u.id = rl.user_id
+   WHERE w.id = b.webpage_id AND u.id = b.user_id
 
 
 -- ========================================
@@ -37,38 +37,38 @@
 -- ========================================
 @NAME(_FindAllFilters)
   @AND(:userId)
-    rl.user_id = :userId
+    b.user_id = :userId
   @AND(:shared = FALSE)
-    rl.shared = FALSE
+    b.shared = FALSE
   @AND(:shared = TRUE)
-    rl.shared = TRUE
+    b.shared = TRUE
   @AND(:readLaterStatus)
-    rl.read_later_status = 'UNREAD'
+    b.read_later_status = 'UNREAD'
 
 
 -- ========================================
--- Query for ReadLaters by the WebPage they reference
+-- Query for Bookmarks by the WebPage they reference
 -- ========================================
-@NAME(FindReadLatersByWebPage)
-  (SELECT 'W' AS type, w.id, w.title, w.url, w.user_id, u.name AS user_name, w.description, true AS shared, rl.date_created,
+@NAME(FindBookmarksByWebPage)
+  (SELECT 'W' AS type, w.id, w.title, w.url, w.user_id, u.name AS user_name, w.description, true AS shared, b.date_created,
         NULL AS tag0, NULL AS tag1, NULL AS tag2, NULL AS tag3, NULL AS tag4, w.id AS webpageId, refCount
-     FROM tlrl_user u, read_later rl, (
+     FROM tlrl_user u, bookmark b, (
            SELECT MIN(id) AS id 
-             FROM read_later 
+             FROM bookmark 
             WHERE webpage_id = :webPageId) AS first_rl, webpage w 
         LEFT OUTER JOIN (
               SELECT webpage_id, COUNT(id)-1 AS refCount 
-                FROM read_later 
+                FROM bookmark 
                WHERE webpage_id = :webPageId AND shared = TRUE 
                GROUP BY (webpage_id)) refc ON refc.webpage_id = w.id 
     WHERE w.id = :webPageId 
-      AND first_rl.id = rl.id AND rl.user_id = u.id) 
+      AND first_rl.id = b.id AND b.user_id = u.id) 
   UNION 
-  (SELECT 'R' AS type, rl.id, rl.title, w.url, rl.user_id, u.name AS user_name, rl.description, rl.shared, rl.date_created, 
-        rlt0.tag_id AS tag0, rlt1.tag_id AS tag1, rlt2.tag_id AS tag2, rlt3.tag_id AS tag3, rlt4.tag_id AS tag4, w.id AS webpageId, 1 AS refCount 
-     FROM tlrl_user u, webpage w, read_later rl 
+  (SELECT 'R' AS type, b.id, b.title, w.url, b.user_id, u.name AS user_name, b.description, b.shared, b.date_created, 
+        bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4, w.id AS webpageId, 1 AS refCount 
+     FROM tlrl_user u, webpage w, bookmark b 
          @INCLUDE(_JoinForTags)
-    WHERE rl.shared = TRUE AND w.id = :webPageId AND w.id = rl.webpage_id AND u.id = rl.user_id) 
+    WHERE b.shared = TRUE AND w.id = :webPageId AND w.id = b.webpage_id AND u.id = b.user_id) 
   ORDER BY type DESC, id DESC 
 
 
@@ -78,7 +78,7 @@
 @NAME(_InclusiveTagLoop)
   (
     @LOOP(:tagCount)
-      rlt.tag_id = :tag@LOOPINDEX
+      bt.tag_id = :tag@LOOPINDEX
       @LOOPJOIN OR
   )
 
@@ -88,80 +88,80 @@
 @NAME(_ExclusiveTagLoop)
   (
     @LOOP(:tagCount)
-      rlt.tag_id != :tag@LOOPINDEX
+      bt.tag_id != :tag@LOOPINDEX
       @LOOPJOIN AND
   )
 
 -- ========================================
--- Query all ReadLaters filtered by the specified User. This query only
+-- Query all Bookmarks filtered by the specified User. This query only
 -- gets called for non-owners making the call. Tags can be applied to filter
 -- the results
 --
 -- @userId id of User to filter by
 -- ========================================
 @NAME(FindAllQuery)
-  @INCLUDE(_BaseReadLaterQuery)
+  @INCLUDE(_BaseBookmarkQuery)
   @IF(:hasTags = FALSE)
     @INCLUDE(_FindAllFilters)
     @IF(:untagged)
-      AND rlt0.read_later_id IS NULL
+      AND bt0.bookmark_id IS NULL
   @IF(:hasTags)
-    AND rl.id IN (
-      SELECT read_later_id FROM (
-        SELECT rlt.read_later_id, COUNT(rlt.read_later_id)
-          FROM read_later rl, read_later_tags rlt
-         WHERE rl.id = rlt.read_later_id
+    AND b.id IN (
+      SELECT bookmark_id FROM (
+        SELECT bt.bookmark_id, COUNT(bt.bookmark_id)
+          FROM bookmark b, bookmark_tags bt
+         WHERE b.id = bt.bookmark_id
            @INCLUDE(_FindAllFilters) 
            AND @INCLUDE(_InclusiveTagLoop) 
-         GROUP BY rlt.read_later_id) AS t
+         GROUP BY bt.bookmark_id) AS t
        WHERE t.count = :tagCount)
-  ORDER BY date_created DESC, rl.id DESC 
+  ORDER BY date_created DESC, b.id DESC 
   @INCLUDE(_FindAllPaging)
 
 
 -- ========================================
--- Query to find popular ReadLaters. 
+-- Query to find popular Bookmarks. 
 -- 
 -- @pageSize size to limit returned results
 -- ========================================
 @NAME(FindPopularQuery)
-  SELECT w.url, w.id, w.title, url.count AS refCount, w.description, rl.date_created
-    FROM webpage w, read_later rl
+  SELECT w.url, w.id, w.title, url.count AS refCount, w.description, b.date_created
+    FROM webpage w, bookmark b
       LEFT JOIN (
-        SELECT url, COUNT(url), MIN(rl.id) AS read_later_id
-          FROM read_later rl, webpage w 
-         WHERE rl.shared = TRUE 
-           AND rl.webpage_id = w.id 
+        SELECT url, COUNT(url), MIN(b.id) AS bookmark_id
+          FROM bookmark b, webpage w 
+         WHERE b.shared = TRUE 
+           AND b.webpage_id = w.id 
          GROUP BY w.url
-      ) AS url ON url.read_later_id = rl.id, tlrl_user u
-   WHERE rl.shared = TRUE
-     AND u.id = rl.user_id
+      ) AS url ON url.bookmark_id = b.id, tlrl_user u
+   WHERE b.shared = TRUE
+     AND u.id = b.user_id
      AND url.count IS NOT NULL 
-     AND rl.webpage_id = w.id
-   ORDER BY refCount DESC, rl.date_created DESC LIMIT :pageSize
+     AND b.webpage_id = w.id
+   ORDER BY refCount DESC, b.date_created DESC LIMIT :pageSize
 
 
 -- ========================================
--- Query related tags for popular ReadLaters
+-- Query related tags for popular Bookmarks
 -- ========================================
 @NAME(FindPopularRelatedTagsQuery)
   SELECT tag_id, COUNT(tag_id)
-    FROM read_later_tags rlt, read_later rl
-   WHERE rl.shared = TRUE 
-     AND rl.id = rlt.read_later_id
+    FROM bookmark_tags bt, bookmark b
+   WHERE b.shared = TRUE 
+     AND b.id = bt.bookmark_id
    GROUP BY tag_id
    ORDER BY count DESC LIMIT :pageSize
 
    
 -- ========================================
--- Query for most recent ReadLaters
+-- Query for most recent Bookmarks
 --
 -- @pageSize size to limit returned results
 -- ========================================
 @NAME(FindRecentQuery)
-  @INCLUDE(_BaseReadLaterQuery)
-    AND rl.shared = TRUE
-  ORDER BY rl.date_created DESC, rl.id DESC LIMIT :pageSize
+  @INCLUDE(_BaseBookmarkQuery)
+    AND b.shared = TRUE
+  ORDER BY b.date_created DESC, b.id DESC LIMIT :pageSize
 
 
 -- ========================================
@@ -169,9 +169,9 @@
 -- ========================================
 @NAME(FindRecentRelatedTagsQuery)
   SELECT tag_id, COUNT(tag_id) AS count
-    FROM read_later_tags rlt, read_later rl 
-   WHERE rl.shared = TRUE 
-     AND rl.id = rlt.read_later_id
+    FROM bookmark_tags bt, bookmark b
+   WHERE b.shared = TRUE 
+     AND b.id = bt.bookmark_id
    GROUP BY tag_id
 
 
@@ -191,25 +191,25 @@
 -- Query count for "findAll" query
 -- ========================================
 @NAME(CountQuery)
-  SELECT 'TOTAL' AS type, 'Total ReadLaters' AS name, COUNT(rl.id)
+  SELECT 'TOTAL' AS type, 'Total Bookmarks' AS name, COUNT(b.id)
   @IF(:hasTags = FALSE)
-    FROM read_later rl
+    FROM bookmark b
     @IF(:untagged = TRUE)
-        LEFT OUTER JOIN read_later_tags rlt ON rlt.read_later_id = rl.id AND rlt.idx = 0
+        LEFT OUTER JOIN bookmark_tags bt ON bt.bookmark_id = b.id AND bt.idx = 0
    @WHERE 
     @INCLUDE(_FindAllFilters)
     @AND(:untagged = TRUE)
-      rlt.read_later_id IS NULL    
+      bt.bookmark_id IS NULL    
   @IF(:hasTags = TRUE)
     FROM (
        SELECT * FROM (
-           SELECT rlt.read_later_id AS id, COUNT(rlt.read_later_id) 
-             FROM read_later rl, read_later_tags rlt 
-            WHERE rl.id = rlt.read_later_id
+           SELECT bt.bookmark_id AS id, COUNT(bt.bookmark_id) 
+             FROM bookmark b, bookmark_tags bt 
+            WHERE b.id = bt.bookmark_id
               @INCLUDE(_FindAllFilters)
               AND @INCLUDE(_InclusiveTagLoop) 
-            GROUP BY rlt.read_later_id) AS t
-        WHERE t.count = :tagCount) AS rl
+            GROUP BY bt.bookmark_id) AS t
+        WHERE t.count = :tagCount) AS b
 
 
 
@@ -217,25 +217,25 @@
 -- Query related tags for "findAll" query
 -- ========================================
 @NAME(RelatedTagsQuery)
-  SELECT 'RELATED' AS type, rlt.tag_id AS name, COUNT(rlt.tag_id)
+  SELECT 'RELATED' AS type, bt.tag_id AS name, COUNT(bt.tag_id)
   @IF(:hasTags = FALSE)
-    FROM read_later rl, read_later_tags rlt
-   WHERE rl.id = rlt.read_later_id
+    FROM bookmark b, bookmark_tags bt
+   WHERE b.id = bt.bookmark_id
     @INCLUDE(_FindAllFilters)
   @IF(:hasTags = TRUE)
     FROM (
        SELECT * FROM (
-           SELECT rlt.read_later_id AS id, COUNT(rlt.read_later_id) 
-             FROM read_later rl, read_later_tags rlt 
-            WHERE rl.id = rlt.read_later_id
+           SELECT bt.bookmark_id AS id, COUNT(bt.bookmark_id) 
+             FROM bookmark b, bookmark_tags bt 
+            WHERE b.id = bt.bookmark_id
               @INCLUDE(_FindAllFilters)
               AND @INCLUDE(_InclusiveTagLoop)
-            GROUP BY rlt.read_later_id) AS t 
+            GROUP BY bt.bookmark_id) AS t 
         WHERE t.count = :tagCount
-     ) AS rl
-       INNER JOIN read_later_tags rlt ON rlt.read_later_id = rl.id
+     ) AS b
+       INNER JOIN bookmark_tags bt ON bt.bookmark_id = b.id
    WHERE @INCLUDE(_ExclusiveTagLoop) 
-   GROUP BY rlt.tag_id 
+   GROUP BY bt.tag_id 
 
 
 
@@ -243,9 +243,9 @@
 -- Query all tags
 -- ========================================
 @NAME(AllTagsQuery)
-  SELECT 'ALL' AS type, rlt.tag_id AS name, COUNT(rlt.tag_id)
-    FROM read_later rl, read_later_tags rlt
-   WHERE rl.id = rlt.read_later_id 
+  SELECT 'ALL' AS type, bt.tag_id AS name, COUNT(bt.tag_id)
+    FROM bookmark b, bookmark_tags bt
+   WHERE b.id = bt.bookmark_id 
      @INCLUDE(_FindAllFilters)
-   GROUP BY rlt.tag_id
+   GROUP BY bt.tag_id
 

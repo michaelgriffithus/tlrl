@@ -55,9 +55,9 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 	private Set<Tag> tags = new HashSet<Tag>();
 	
 	@OneToMany(mappedBy="webPage", fetch=FetchType.LAZY,
-			targetEntity=ReadLater.class,
+			targetEntity=Bookmark.class,
 			cascade={CascadeType.MERGE, CascadeType.PERSIST})
-	private Set<ReadLater> readLaters = new HashSet<ReadLater>();
+	private Set<Bookmark> bookmarks = new HashSet<Bookmark>();
 
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH}, optional=false)
 	@JoinColumn(name="user_id")
@@ -95,11 +95,11 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 	public String getUrl() {
 		return url;
 	}
-	public Set<ReadLater> getReadLaters() {
-		return readLaters;
+	public Set<Bookmark> getReadLaters() {
+		return bookmarks;
 	}
-	public void setReadLaters(Set<ReadLater> readLaters) {
-		this.readLaters = readLaters;
+	public void setReadLaters(Set<Bookmark> bookmarks) {
+		this.bookmarks = bookmarks;
 	}
 	public void setUrl(String url) {
 		this.url = url;

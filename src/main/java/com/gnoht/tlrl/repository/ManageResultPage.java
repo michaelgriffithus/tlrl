@@ -6,24 +6,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.Tag;
 
-public class ManageResultPage implements ResultPage<ReadLater> {
+public class ManageResultPage implements ResultPage<Bookmark> {
 
-	private Page<ReadLater> page;
+	private Page<Bookmark> page;
 	private final Pageable pageable;
 	private final ReadLaterStats stats;
 	
-	public ManageResultPage(Page<ReadLater> page, ReadLaterStats stats, Pageable pageable) {
+	public ManageResultPage(Page<Bookmark> page, ReadLaterStats stats, Pageable pageable) {
 		this.page = page;
 		this.pageable = pageable;
 		this.stats = stats;
 	}
 	
 	@Override
-	public List<ReadLater> getContent() {
+	public List<Bookmark> getContent() {
 		return page.getContent();
 	}
 

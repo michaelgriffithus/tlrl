@@ -1,15 +1,15 @@
 package com.gnoht.tlrl.controller;
 
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.SharedStatus;
 
 /**
- * Object holding filter attributes for {@link ReadLater} queries.
+ * Object holding filter attributes for {@link Bookmark} queries.
  */
 public class ReadLaterQueryFilter {
 
-	/** For filtering tagged vs. untagged {@link ReadLater}s */
+	/** For filtering tagged vs. untagged {@link Bookmark}s */
 	private boolean untagged = false;
 	
 	/** For filtering ReadLater status. Defaults to NA (not applicable) */

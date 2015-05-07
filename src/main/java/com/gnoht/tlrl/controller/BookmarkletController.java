@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.security.CurrentUser;
@@ -29,9 +29,9 @@ public class BookmarkletController {
 	public String addFromBookmarklet(@CurrentUser User currentUser, @RequestParam(required=true) String url, 
 			@RequestParam(required=false) String title, RedirectAttributes redirectAttributes) {
 		LOG.debug("Starting add(): user={}, url={}, title={}", currentUser, url, title);
-		ReadLater readLater = new ReadLater(currentUser, new WebPage(currentUser, url));
-		readLater = readLaterService.findOrCreateReadLater(readLater);
-		redirectAttributes.addFlashAttribute("readLater", readLater);
+		Bookmark bookmark = new Bookmark(currentUser, new WebPage(currentUser, url));
+		bookmark = readLaterService.findOrCreateReadLater(bookmark);
+		redirectAttributes.addFlashAttribute("readLater", bookmark);
 		return "redirect:/bm/add/complete";
 	}
 	

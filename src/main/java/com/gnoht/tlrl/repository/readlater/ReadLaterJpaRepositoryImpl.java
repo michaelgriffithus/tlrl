@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
-import com.gnoht.tlrl.domain.ReadLater;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
@@ -46,7 +46,7 @@ public class ReadLaterJpaRepositoryImpl
 			of(ElSqlConfig.DEFAULT, ReadLaterJpaRepository.class);
 	
 	@Override
-	public List<ReadLater> findPopular(Pageable pageable) {
+	public List<Bookmark> findPopular(Pageable pageable) {
 		LOG.debug("Starting findPopular: pageable={}", pageable);
 		return namedParameterJdbcTemplate.query(bundle.getSql("FindPopularQuery"), 
 				defaultSqlParameterSource, popularReadLaterRowMapper);
@@ -62,7 +62,7 @@ public class ReadLaterJpaRepositoryImpl
 	}
 
 	@Override
-	public List<ReadLater> findRecent(final Pageable pageable) {
+	public List<Bookmark> findRecent(final Pageable pageable) {
 		String sql = bundle.getSql("FindRecentQuery"); 
 		return namedParameterJdbcTemplate.query(
 				sql, defaultSqlParameterSource, publicReadLaterRowMapper);
@@ -80,21 +80,21 @@ public class ReadLaterJpaRepositoryImpl
 	}
 
 	@Override
-	public List<ReadLater> findAllByTags(Set<String> tags, Pageable pageable) {
+	public List<Bookmark> findAllByTags(Set<String> tags, Pageable pageable) {
 		SqlParameterSource paramSource = forByTagsQueries(tags, pageable);
 		return namedParameterJdbcTemplate.query(
 				bundle.getSql("FindAllQuery", paramSource), paramSource, publicReadLaterRowMapper);
 	}
 	
 	@Override
-	public List<ReadLater> findAllByUserAndTags(User user, Set<String> tags, Pageable pageable) {
+	public List<Bookmark> findAllByUserAndTags(User user, Set<String> tags, Pageable pageable) {
 		SqlParameterSource paramSource = forByUserAndTagsQueries(user.getId(), tags, pageable);
 		return namedParameterJdbcTemplate.query(
 				bundle.getSql("FindAllQuery", paramSource),  paramSource, publicReadLaterRowMapper);
 	}
 
 	@Override
-	public List<ReadLater> findAllByOwnerAndTagged(User owner, 
+	public List<Bookmark> findAllByOwnerAndTagged(User owner, 
 			ReadLaterQueryFilter queryFilter, Set<String> tags, Pageable pageable) 
 	{
 		SqlParameterSource paramSource = forByOwnerAndTaggedQueries(owner.getId(), tags, queryFilter, pageable);
@@ -103,7 +103,7 @@ public class ReadLaterJpaRepositoryImpl
 	}
 
 	@Override
-	public List<ReadLater> findAllByOwnerAndUntagged(User owner, 
+	public List<Bookmark> findAllByOwnerAndUntagged(User owner, 
 			ReadLaterQueryFilter queryFilter, Pageable pageable) 
 	{
 		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), queryFilter, pageable); 
@@ -139,30 +139,30 @@ public class ReadLaterJpaRepositoryImpl
 	/**
 	 * Maps a row of {@link ResultSet} data to a ReadLater.
 	 */
-	class SimpleReadLaterRowMapper implements RowMapper<ReadLater> {
+	class SimpleReadLaterRowMapper implements RowMapper<Bookmark> {
 		
 		@Override
-		public ReadLater mapRow(ResultSet rs, int arg1) throws SQLException {
-			ReadLater readLater = new ReadLater();
-			readLater.setId(rs.getLong("id"));
-			readLater.setDescription(rs.getString("description"));
-			readLater.setTitle(rs.getString("title"));
-			readLater.setDateCreated(rs.getTimestamp("date_created"));
-			return readLater;
+		public Bookmark mapRow(ResultSet rs, int arg1) throws SQLException {
+			Bookmark bookmark = new Bookmark();
+			bookmark.setId(rs.getLong("id"));
+			bookmark.setDescription(rs.getString("description"));
+			bookmark.setTitle(rs.getString("title"));
+			bookmark.setDateCreated(rs.getTimestamp("date_created"));
+			return bookmark;
 		}
 		
 		/**
 		 * 
 		 * @param tagName
 		 * @param rs
-		 * @param readLater
+		 * @param bookmark
 		 * @throws SQLException
 		 */
-		void getTagColumn(String tagName, ResultSet rs, ReadLater readLater) 
+		void getTagColumn(String tagName, ResultSet rs, Bookmark bookmark) 
 				throws SQLException {
 			String tagId = rs.getString(tagName);
 			if(tagId != null) {
-				readLater.getTags().add(new Tag(tagId));
+				bookmark.getTags().add(new Tag(tagId));
 			}
 		}
 	};
@@ -173,11 +173,11 @@ public class ReadLaterJpaRepositoryImpl
 	 */
 	class PrivateReadLaterRowMapper extends PublicReadLaterRowMapper {
 		@Override
-		public ReadLater mapRow(ResultSet rs, int rowNum) throws SQLException {
-			ReadLater readLater = super.mapRow(rs, rowNum);
-			readLater.setShared(rs.getBoolean("shared"));
-			readLater.setReadLaterStatus(ReadLaterStatus.valueOf(rs.getString("read_later_status")));
-			return readLater;
+		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Bookmark bookmark = super.mapRow(rs, rowNum);
+			bookmark.setShared(rs.getBoolean("shared"));
+			bookmark.setReadLaterStatus(ReadLaterStatus.valueOf(rs.getString("read_later_status")));
+			return bookmark;
 		}
 	};
 	
@@ -187,7 +187,7 @@ public class ReadLaterJpaRepositoryImpl
 	 */
 	class PublicReadLaterRowMapper extends SimpleReadLaterRowMapper {
 		@Override
-		public ReadLater mapRow(ResultSet rs, int rowNum) throws SQLException {
+		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
 			User user = new User();
 			user.setId(rs.getLong("user_id"));
 			user.setName(rs.getString("user_name"));
@@ -195,14 +195,14 @@ public class ReadLaterJpaRepositoryImpl
 			WebPage webPage = new WebPage(rs.getString("url"));
 			webPage.setId(rs.getLong("webpageId"));
 			
-			ReadLater readLater = super.mapRow(rs, rowNum);
-			readLater.setWebPage(webPage);
-			getTagColumn("tag0", rs, readLater);
-			getTagColumn("tag1", rs, readLater);
-			getTagColumn("tag2", rs, readLater);
-			getTagColumn("tag3", rs, readLater);
-			getTagColumn("tag4", rs, readLater);
-			return readLater;
+			Bookmark bookmark = super.mapRow(rs, rowNum);
+			bookmark.setWebPage(webPage);
+			getTagColumn("tag0", rs, bookmark);
+			getTagColumn("tag1", rs, bookmark);
+			getTagColumn("tag2", rs, bookmark);
+			getTagColumn("tag3", rs, bookmark);
+			getTagColumn("tag4", rs, bookmark);
+			return bookmark;
 		}
 	};
 
@@ -210,18 +210,18 @@ public class ReadLaterJpaRepositoryImpl
 	 * {@link RowMapper} implementation that maps result set data
 	 * from "find popular" queries.
 	 */
-	protected final RowMapper<ReadLater> popularReadLaterRowMapper = new SimpleReadLaterRowMapper() {
+	protected final RowMapper<Bookmark> popularReadLaterRowMapper = new SimpleReadLaterRowMapper() {
 		@Override
-		public ReadLater mapRow(ResultSet rs, int rowNum) throws SQLException {
-			ReadLater readLater = super.mapRow(rs, rowNum);
-			readLater.setRefCount(rs.getInt("refCount"));
-			return readLater;
+		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Bookmark bookmark = super.mapRow(rs, rowNum);
+			bookmark.setRefCount(rs.getInt("refCount"));
+			return bookmark;
 		}
 	};
 	
 	
-	protected final RowMapper<ReadLater> privateReadLaterRowMapper = new PrivateReadLaterRowMapper();
-	protected final RowMapper<ReadLater> publicReadLaterRowMapper = new PublicReadLaterRowMapper();
+	protected final RowMapper<Bookmark> privateReadLaterRowMapper = new PrivateReadLaterRowMapper();
+	protected final RowMapper<Bookmark> publicReadLaterRowMapper = new PublicReadLaterRowMapper();
 	
 	/**
 	 * 
