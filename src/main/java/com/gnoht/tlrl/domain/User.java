@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -24,7 +25,8 @@ public class User extends Managed<Long>{
 
 	private static final long serialVersionUID = -8669637638091978788L;
 	
-	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+	@Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_seq")
+	@SequenceGenerator(sequenceName="user_id_seq", initialValue=1, name="user_seq")
 	private Long id;
 
 	@Column(unique=true)

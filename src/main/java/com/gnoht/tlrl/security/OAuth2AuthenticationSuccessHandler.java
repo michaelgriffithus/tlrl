@@ -28,7 +28,7 @@ public class OAuth2AuthenticationSuccessHandler implements
 			DefaultSavedRequest savedRequest = (DefaultSavedRequest) 
 					request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
 			response.sendRedirect(savedRequest == null ? 
-					"/@" + auth.getName() + "/urls" : savedRequest.getRedirectUrl());
+					"/@" + auth.getName() : savedRequest.getRedirectUrl());
 		}
 	}
 }

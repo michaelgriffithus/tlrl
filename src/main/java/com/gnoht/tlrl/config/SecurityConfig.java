@@ -81,7 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
-	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**", "/api/users/current"};
+	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**"};
 	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
 	public static final String[] SECURED_POST_URLS = {"/api/urls", "/api/urls/**"};
 	public static final String[] SECURED_PUT_URLS = {"/api/urls/**"};
@@ -105,6 +105,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					"/favicon.ico",
 					"/static/**",
 					"/scripts/**",
+					"/partials/**",
 					"/views/**");
 	}
 
@@ -135,7 +136,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 					//URLs for all users
 					.antMatchers(
 							"/recent",
-							"/@*",
+							"/@**",
 							"/popular",
 							"/help",
 							"/about",
@@ -145,7 +146,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							SIGNIN_URL)
 					.permitAll()
 		.and()
-			//.csrf().disable()
 			.logout()
 				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET

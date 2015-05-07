@@ -58,7 +58,6 @@ public class OAuth2AuthenticationProvider
 	 */
 	@Override
 	public boolean supports(Class<?> authClass) {
-		System.out.println("============= supports?");
 		return OAuth2Authentication.class.isAssignableFrom(authClass);
 	}
 }

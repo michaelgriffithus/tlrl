@@ -115,6 +115,11 @@ angular.module('tlrl', [
 .config(['$routeProvider', '$locationProvider', '$httpProvider', 
     function($routeProvider, $locationProvider, $httpProvider) {
 	//$httpProvider.interceptors.push('securityInterceptor');
+	$locationProvider.html5Mode({
+		enabled: true,
+		requireBase: false
+	});
+	
 	var listRoute = {
 			templateUrl: '/partials/list.html',
 			controller: 'urlsCtrl',
@@ -142,10 +147,6 @@ angular.module('tlrl', [
 			reloadOnSearch: true})
 		.when('/:user', listRoute);
 	
-	$locationProvider.html5Mode({
-		enabled: true,
-		requireBase: false
-	})
 }])
 /**
  * Base controller providing common functionality.

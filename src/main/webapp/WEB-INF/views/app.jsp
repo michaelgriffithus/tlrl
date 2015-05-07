@@ -4,8 +4,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en" data-ng-app="tlrl">
 <head>
-	<sec:csrfMetaTags />
-	${_csrf.token}
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +11,9 @@
 	<!-- link type="text/css" href="/static/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" -->
 	<link type="text/css" href="/static/lib/fontawesome/css/font-awesome.min.css" rel="stylesheet">
 	<link type="text/css" href="/static/css/tlrl.css" rel="stylesheet">
-	
+	<script>
+	window.history.replaceState("", document.title, window.location.pathname + window.location.search)
+	</script>
 </head>
 <body>
 	<div class="container">
@@ -35,13 +35,16 @@
 	<script type="text/javascript" src="/static/js/modules.js"></script>
 	<script type="text/javascript">
 	<c:choose>
-		<c:when test="${user eq null}">
-			var currentUser = null;
-		</c:when>
-		<c:otherwise>
-			var currentUser = {name: "${user.name}"};
-		</c:otherwise>
+	<c:when test="${user eq null}"> 
+		var currentUser = null;</c:when>
+	<c:otherwise>
+		var currentUser = {name: "${user.name}"};
+	</c:otherwise>
 	</c:choose>
+		var _tlrlHeaders = {
+		  "${_csrf.headerName}":"${_csrf.token}"
+		}
+		
 	</script>
 </body>
 </html>

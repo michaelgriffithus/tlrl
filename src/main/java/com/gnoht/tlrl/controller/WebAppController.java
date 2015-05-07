@@ -37,7 +37,7 @@ public class WebAppController {
 	 * @param user
 	 * @return view name to generic home page or redirect to user's home.
 	 */
-	@RequestMapping(value={"", "/"}, method=RequestMethod.GET)
+	@RequestMapping(value={"/"}, method=RequestMethod.GET)
 	public String home(@CurrentUser User user) {
 		LOG.info("Starting home(): user={}", user);
 		if(user == null) {
