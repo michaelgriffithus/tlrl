@@ -6,8 +6,8 @@
 angular.module('tlrlServices', ['ngResource'])
 .factory('TLRLService', ['$resource', function($resource) {
 		return $resource('/api/:user/urls/:id', {}, {
-			'update': {method: 'PUT'},
-			'updateStatus': {method: 'PUT', url: '/api/urls/:id/status'},
+			'update': {method: 'PUT', headers: _tlrlHeaders },
+			'updateStatus': {method: 'PUT', url: '/api/urls/:id/status', headers: _tlrlHeaders },
 			'search': {method: 'GET', url: '/api/:user/search', isArray: false},
 			'tags': {method: 'GET', url: '/api/tags', isArray: false},
 			'query': {method: 'GET', isArray: false},
