@@ -39,7 +39,7 @@
   @AND(:userId)
     b.user_id = :userId
   @AND(:shared = FALSE)
-    b.shared = FALSE
+    b.shared = @VALUE(:shared)
   @AND(:shared = TRUE)
     b.shared = TRUE
   @AND(:readLaterStatus)

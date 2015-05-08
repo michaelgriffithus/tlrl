@@ -75,18 +75,20 @@ public class ReadLaterSqlParameterSource
 			}
 		}
 		
-		if(userId != null) 
+		if(userId != null) {
 			addValue(USER_ID_PARAM, userId);
-		
-		if(filter != null) {
-			if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
-				addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+			if(filter != null) {
+				if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
+					addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+				}
+				
+				if(filter.getSharedStatus() == SharedStatus.PUBLIC)
+					addValue(SHARED_STATUS_PARAM, true);
+				else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
+					addValue(SHARED_STATUS_PARAM, false);
 			}
-			
-			if(filter.getSharedStatus() == SharedStatus.PUBLIC)
-				addValue(SHARED_STATUS_PARAM, true);
-			else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
-				addValue(SHARED_STATUS_PARAM, false);
+		} else {
+			addValue(SHARED_STATUS_PARAM, true);
 		}
 	}
 	
@@ -126,7 +128,10 @@ public class ReadLaterSqlParameterSource
 			final Set<String> tags, 
 			final Pageable pageable) 
 	{
-		return new ReadLaterSqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
+		ReadLaterSqlParameterSource sqlParameterSource = 
+				new ReadLaterSqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
+		sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+		return sqlParameterSource;
 	}
 	
 	/**

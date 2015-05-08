@@ -6,13 +6,13 @@
 					<div class="attr ellipsis text-muted">{{readLater.url}}</div>
 					<div class="attr desc" x-ng-bind-html="(readLater.description || readLater.content)"></div>
 					<div class="attr">
-						<span class="tag" x-ng-repeat="tag in readLater.tags"><a x-ng-href="{{(targetUser ? '/' + targetUser.atName : '')}}/urls?t={{tag.id}}">{{tag.id}}</a></span>
+						<span class="tag" x-ng-repeat="tag in readLater.tags"><a x-ng-href="{{(targetUser ? '/' + targetUser.atName : '')}}?t={{tag.id}}">{{tag.id}}</a></span>
 					</div>
 					<div>
 						<div class="text-muted">
 								{{readLater.dateCreated | dateFormat }}
 							<span class="spacer">&middot;</span>
-							<span x-ng-hide="isManageable"> by <a x-ng-href="/@{{readLater.userName}}/urls">{{readLater.userName}}</a></span>
+							<span x-ng-hide="isManageable"> by <a x-ng-href="/@{{readLater.userName}}">{{readLater.userName}}</a></span>
 							<span x-ng-show="isManageable">
 								<i class="fa" x-ng-class="readLater.shared ? 'fa-unlock-alt' : 'fa-lock'"></i> shared 
 							</span>

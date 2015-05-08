@@ -14,7 +14,7 @@
 					<li x-ng-repeat="readLater in readLaters" id="{{readLater.id}}" class="li-item">
 					<div class="rl-view">
 						<div class="attr">
-							<a x-ng-href="{{readLater.url}}"><span x-ng-bind-html="(readLater.title || readLater.url)"></span></a> <a href="/url/{{readLater.id}}"><span class="badge"> {{readLater.refCount}}</span></a> </div>
+							<a x-ng-href="{{readLater.url}}"><span x-ng-bind-html="(readLater.title || readLater.url)"></span></a> <a href="/urls/{{readLater.id}}"><span class="badge"> {{readLater.refCount}}</span></a> </div>
 						<div class="attr ellipsis text-muted">{{readLater.url}}</div>
 						<div class="attr desc" x-ng-bind-html="(readLater.description || readLater.content)"></div>
 						<div class="attr">{{readLater.tagsFlattened}}</div>

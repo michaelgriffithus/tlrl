@@ -25,7 +25,7 @@ public class SpaController {
 	 * @param model use to set the currently authenticated User 
 	 * @return view name of SPA resource
 	 */
-	@RequestMapping(value={"/@**", "/search", "/popular", "/recent"})
+	@RequestMapping(value={"/@*", "/@*/*", "/search", "/urls/**", "/popular", "/recent"})
 	public String app(@CurrentUser User user, Model model) {
 		if(user != null) { 
 			LOG.debug("Adding model attribute user={}", user);

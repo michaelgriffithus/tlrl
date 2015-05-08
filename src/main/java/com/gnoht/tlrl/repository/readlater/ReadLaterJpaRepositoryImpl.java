@@ -56,7 +56,7 @@ public class ReadLaterJpaRepositoryImpl
 	public WebPage findAllByWebPage(final Long webPageId) {
 		LOG.debug("Starting findAllByWebPage: webPageId={}", webPageId);
 		SqlParameterSource paramSource = new MapSqlParameterSource("webPageId", webPageId);
-		return namedParameterJdbcTemplate.query(bundle.getSql("FindReadLatersByWebPage", 
+		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebPage", 
 				paramSource), paramSource, webPageReadLaterResultSetExtractor);
 		//return webPageReadLatersMappingSqlQuery.findWebPageReadLaters(webPageId);
 	}
@@ -82,8 +82,8 @@ public class ReadLaterJpaRepositoryImpl
 	@Override
 	public List<Bookmark> findAllByTags(Set<String> tags, Pageable pageable) {
 		SqlParameterSource paramSource = forByTagsQueries(tags, pageable);
-		return namedParameterJdbcTemplate.query(
-				bundle.getSql("FindAllQuery", paramSource), paramSource, publicReadLaterRowMapper);
+		LOG.debug("sql={}", bundle.getSql("FindAllQuery", paramSource));
+		return namedParameterJdbcTemplate.query(bundle.getSql("FindAllQuery", paramSource), paramSource, publicReadLaterRowMapper);
 	}
 	
 	@Override
@@ -197,6 +197,7 @@ public class ReadLaterJpaRepositoryImpl
 			
 			Bookmark bookmark = super.mapRow(rs, rowNum);
 			bookmark.setWebPage(webPage);
+			bookmark.setUser(user);
 			getTagColumn("tag0", rs, bookmark);
 			getTagColumn("tag1", rs, bookmark);
 			getTagColumn("tag2", rs, bookmark);

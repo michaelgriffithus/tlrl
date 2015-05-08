@@ -59,10 +59,11 @@ public class ReadLaterController {
 	public ResultPage<Bookmark> findAll(@CurrentUser User currentUser,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable,
 			@RequestParam(required=false, value="tags") String[] tags) {
+		LOG.info("Starting findAll: ");
 		return readLaterService.findAllTagged(toSet(tags), pageable);
 	}
 	
-	@RequestMapping(value="/url/{id}", method=RequestMethod.GET)
+	@RequestMapping(value="/urls/{id}", method=RequestMethod.GET)
 	public WebPage findAllByWebpage(@PathVariable(value="id") Long id,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
 		return readLaterService.findAllByWebPage(id);

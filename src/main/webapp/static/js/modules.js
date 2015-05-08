@@ -13,7 +13,7 @@ angular.module('tlrlServices', ['ngResource'])
 			'query': {method: 'GET', isArray: false},
 			'recent': {method: 'GET', url: '/api/recent', isArray: false},
 			'popular': {method: 'GET', url: '/api/popular', isArray: false},
-			'webpage': {method: 'GET', url: '/api/url/:id', isArray: false}
+			'webpage': {method: 'GET', url: '/api/urls/:id', isArray: false}
 		});
 }])
 //.factory('securityInterceptor', ['$q', '$window', function ($q, $window) {
@@ -126,7 +126,7 @@ angular.module('tlrl', [
 			reloadOnSearch: true
 	}
 	$routeProvider
-		.when('/url/:webpageId', {
+		.when('/urls/:webpageId', {
 			templateUrl: '/partials/webpage.html',
 			controller: 'webpageCtrl'
 		})
@@ -140,7 +140,7 @@ angular.module('tlrl', [
 			controller: 'popularCtrl',
 			reloadOnSearch: true
 		})
-		.when('/:user?/urls', listRoute)
+		.when('/urls', listRoute)
 		.when('/:user?/search', {
 			templateUrl: '/partials/search.html',
 			controller: 'searchCtrl',
@@ -524,7 +524,7 @@ angular.module('tlrl', [
 	angular.extend(this, $controller('baseCtrl', {$scope: $scope}))
 	
 	$scope.term = $routeParams.q;
-	
+	console.log("in search ctrl")
 	$scope.searchReadLaters = function(request) {
 		TLRLService.search({user: $scope.getTargetUserAtName(), q: request.term, page: 
 			request.page, sort: request.sort, tags: request.tags},
