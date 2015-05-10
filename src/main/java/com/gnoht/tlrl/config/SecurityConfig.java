@@ -75,8 +75,6 @@ import com.gnoht.tlrl.service.RememberMeTokenService;
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
-
 	public static final String SIGNIN_URL = "/";
 	public static final String SIGNUP_URL = "/signup";
 	public static final String SIGNOUT_URL = "/signout";
@@ -111,21 +109,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		DelegatingRequestMatcherHeaderWriter headerWriter =
-			new DelegatingRequestMatcherHeaderWriter(new RequestMatcher() {
-				@Override 
-				public boolean matches(HttpServletRequest request) {
-					String requestedURI = request.getRequestURI();
-					return !(requestedURI.equals("/bookmarklet-receiver.jsp"));
-				}
-			}, new XFrameOptionsHeaderWriter());
 		
 		http
 			.headers()
-				/* Disable embedding in iframe if bookmarklet script, otherwise
+				/* Allow embedding in iframe if bookmarklet script, otherwise
 				 * add DENY X-Frame-Options for all other request */
 				.frameOptions().disable()
-				.addHeaderWriter(headerWriter)
+				.addHeaderWriter(new DelegatingRequestMatcherHeaderWriter(
+						new NonBookmarkletRequestMatcher(), new XFrameOptionsHeaderWriter()))
 			.and()
 				.authorizeRequests()
 					.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
@@ -163,8 +154,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.and()
 			.exceptionHandling()
 				.accessDeniedPage(SIGNIN_URL);
-		
-		
 	}
 	
 	/**
@@ -224,11 +213,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		filter.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 		return filter;
 	}
-	
+
+	/**
+	 * {@link RequestMatcher} that checks if request is not for bookmarklet.
+	 */
+	private static class NonBookmarkletRequestMatcher implements RequestMatcher {
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			return !request.getRequestURI().equals("/bookmarklet-receiver.jsp");
+		}
+	}
+
 	/**
 	 * {@link RequestMatcher} that checks requested url to a list of secured urls.
 	 */
-	final class SecuredRequestMatcher implements RequestMatcher {
+	private class SecuredRequestMatcher implements RequestMatcher {
 		final Map<String, String[]> securedMethodToUrlMap;
 		
 		public SecuredRequestMatcher() {
