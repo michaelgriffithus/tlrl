@@ -396,14 +396,14 @@ angular.module('tlrl', [
 
 	$scope.pageHeading = function() {
 		var path = $location.path();
-		if(path.indexOf('/url/') == 0) {
+		if(path.indexOf('/urls/') == 0) {
 			return 'Bookmark details';
 		} else if(path.indexOf('/recent') == 0) {
 			return 'Recent bookmarks';
 		} else if(path.indexOf('/popular') == 0) {
 			return 'Popular bookmarks';
 		} else {
-			var targetLink = $sce.trustAsHtml('<a href="' + ($scope.targetUser ? '/@' + ($scope.isManageable ? $scope.currentUser.name : $scope.targetUser.name) : "") + '/urls">' +
+			var targetLink = $sce.trustAsHtml('<a href="/' + ($scope.targetUser ? '@' + ($scope.isManageable ? $scope.currentUser.name : $scope.targetUser.name) : "urls") + '">' +
 				($scope.targetUser ? ($scope.isManageable ? "my" : $scope.targetUser.name + "'s") : "everyone's") + '</a>');
 			if(path.indexOf('/search') != -1) 
 				return 'Searching ' + targetLink + ' bookmarks';

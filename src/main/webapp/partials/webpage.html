@@ -17,7 +17,7 @@
 							<div class="attr ellipsis text-muted">{{webPage.url}}</div>
 							<div class="attr desc" x-ng-bind-html="webPage.description"></div>
 							<div class="text-muted" style="margin-top: 10px;">added {{webPage.dateCreated | dateFormat}} by 
-								<a x-ng-href="/@{{webPage.user.name}}/urls">{{webPage.user.name}}</a></div>
+								<a x-ng-href="/@{{webPage.user.name}}">{{webPage.user.name}}</a></div>
 						</div>
 					</li>
 					<li x-ng-show="(webPage.refCount > 0)"><h4 class="text-muted">also added by {{webPage.refCount}} other{{(webPage.refCount > 1 ? 's' : '')}}</h4></li>
@@ -30,7 +30,7 @@
 							</div>
 							<div>
 								<div class="text-muted">{{readLater.dateCreated | dateFormat }}
-									by <a x-ng-href="/@{{readLater.userName}}/urls">{{readLater.userName}}</a>
+									by <a x-ng-href="/@{{readLater.userName}}">{{readLater.userName}}</a>
 								</div>
 							</div>
 						</div>
