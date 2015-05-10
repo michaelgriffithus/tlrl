@@ -6,9 +6,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.UserDeniedAuthorizationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 /**
@@ -28,9 +30,13 @@ public class OAuth2AuthenticationProcessingFilter extends
 	public Authentication attemptAuthentication(HttpServletRequest request,
 			HttpServletResponse response) throws AuthenticationException, IOException,
 			ServletException {
-		OAuth2AccessToken accessToken = oauthAuthenticationTokenService.getAccessToken();
-		Authentication authentication = oauthAuthenticationTokenService.getAuthentication(accessToken);
-		return getAuthenticationManager().authenticate(authentication);
+		try {
+			OAuth2AccessToken accessToken = oauthAuthenticationTokenService.getAccessToken();
+			Authentication authentication = oauthAuthenticationTokenService.getAuthentication(accessToken);
+			return getAuthenticationManager().authenticate(authentication);
+		} catch(OAuthException e) {
+			throw new AccessDeniedException("Unable to process OAuth authentication:", e);
+		} 
 	}
 
 	public void setOAuthAuthenticationTokenService(

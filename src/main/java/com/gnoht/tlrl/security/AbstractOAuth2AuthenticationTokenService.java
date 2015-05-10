@@ -13,13 +13,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.oauth2.client.OAuth2RestOperations;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.UserDeniedAuthorizationException;
 import org.springframework.security.oauth2.provider.token.RemoteTokenServices;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -68,17 +71,21 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 * 
 	 * @param accessToken
 	 * @return
+	 * @throws AuthenticationException 
 	 */
-	Map<String, Object> getTokenInfo(OAuth2AccessToken accessToken) {
+	Map<String, Object> getTokenInfo(OAuth2AccessToken accessToken) throws AuthenticationException {
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		// provider expects just raw token value
 		params.add(tokenName, accessToken.getValue()); 
-		
-    return restTemplate
-    	.exchange(getAuthorizationUrl(accessToken), HttpMethod.POST, 
-    		new HttpEntity<>(params, getValidationRequestHeader(clientId, clientSecret)), 
-    		new ParameterizedTypeReference<Map<String, Object>>() {})
-    	.getBody();
+		try {
+	    return restTemplate
+	      	.exchange(getAuthorizationUrl(accessToken), HttpMethod.POST, 
+	      		new HttpEntity<>(params, getValidationRequestHeader(clientId, clientSecret)), 
+	      		new ParameterizedTypeReference<Map<String, Object>>() {})
+	      	.getBody();
+		} catch(ResourceAccessException e) {
+			throw new OAuthException(e);
+		}
 	}
 
 	/**
@@ -110,7 +117,7 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 * @see com.gnoht.tlrl.security.OAuth2AuthenticationTokenService#getAuthentication()
 	 */
 	@Override
-	public OAuth2Authentication getAuthentication() {
+	public OAuth2Authentication getAuthentication() throws AuthenticationException {
 		return getAuthentication(getAccessToken());
 	}
 
@@ -119,7 +126,7 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 * 	org.springframework.security.oauth2.common.OAuth2AccessToken)
 	 */
 	@Override
-	public OAuth2Authentication getAuthentication(OAuth2AccessToken accessToken) {
+	public OAuth2Authentication getAuthentication(OAuth2AccessToken accessToken) throws AuthenticationException {
 		LOG.info("Starting getAuthentication(): accessToken={}", accessToken);
 		Map<String, Object> tokenInfo = getTokenInfo(accessToken);
 		return tokenConverter.extractAuthentication(tokenInfo);
@@ -129,9 +136,13 @@ public abstract class AbstractOAuth2AuthenticationTokenService implements
 	 * @see com.gnoht.tlrl.security.OAuth2AuthenticationTokenService#getAccessToken()
 	 */
 	@Override
-	public OAuth2AccessToken getAccessToken() {
+	public OAuth2AccessToken getAccessToken() throws AuthenticationException {
 		LOG.info("Starting getAccessToken()");
-		return restTemplate.getAccessToken();
+		try {
+			return restTemplate.getAccessToken();
+		} catch(UserDeniedAuthorizationException e) {
+			throw new OAuthException(e);
+		}
 	}
 
 	public String getBaseAuthorizationUrl() {

@@ -1,5 +1,6 @@
 package com.gnoht.tlrl.security;
 
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 /**
@@ -7,8 +8,8 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
  */
 public interface OAuth2AuthenticationTokenService {
 
-	OAuth2Authentication getAuthentication();
-	OAuth2Authentication getAuthentication(OAuth2AccessToken accessToken);
-	OAuth2AccessToken getAccessToken(); 
+	OAuth2Authentication getAuthentication() throws AuthenticationException;
+	OAuth2Authentication getAuthentication(OAuth2AccessToken accessToken) throws AuthenticationException;
+	OAuth2AccessToken getAccessToken() throws AuthenticationException; 
 	
 }

@@ -50,7 +50,9 @@ public class OAuth2SecurityConfig {
 	
 	@Bean @GoogleOauth2
   public OAuth2RestTemplate googleRestTemplate() {
-		return new OAuth2RestTemplate(googleOAuthResouce(), oauth2ClientContext);
+		OAuth2RestTemplate template = new OAuth2RestTemplate(googleOAuthResouce(), oauth2ClientContext);
+		System.out.println(template.getRequestFactory());
+		return template;
   }
 	
 	/**
