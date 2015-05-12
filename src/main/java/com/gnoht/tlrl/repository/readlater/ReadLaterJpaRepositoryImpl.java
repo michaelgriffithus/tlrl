@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -243,7 +244,7 @@ public class ReadLaterJpaRepositoryImpl
 					webPage.setUrl(rs.getString("url"));
 					webPage.setId(rs.getLong("webpageId"));
 					webPage.setDescription(rs.getString("description"));
-					webPage.setDateCreated(rs.getTimestamp("date_created"));
+					webPage.setDateCreated(new Date(rs.getTimestamp("date_created").getTime()));
 					webPage.setRefCount(rs.getInt("refCount"));
 					webPage.setTitle(rs.getString("title"));
 					webPageProcessed = true;

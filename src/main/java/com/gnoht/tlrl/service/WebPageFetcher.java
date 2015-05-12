@@ -17,7 +17,7 @@ import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
 
 @Service("webPageFetcher")
-public class WebPageFetcher implements WebResourceFetcher<WebPage> {
+public class WebPageFetcher implements WebResourceFetcher {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebPageFetcher.class);
 	

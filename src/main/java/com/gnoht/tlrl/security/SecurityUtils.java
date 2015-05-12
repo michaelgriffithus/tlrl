@@ -3,6 +3,7 @@ package com.gnoht.tlrl.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import com.gnoht.tlrl.domain.Role;
@@ -55,5 +56,14 @@ public final class SecurityUtils {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Retrieves the authenticated {@link User} currently in this context.
+	 * @return Authenticated user or null.
+	 */
+	public static User getCurrentUser() {
+		return (User) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
 	}
 }

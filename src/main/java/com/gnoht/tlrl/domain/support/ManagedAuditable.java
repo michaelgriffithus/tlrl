@@ -36,9 +36,16 @@ public abstract class ManagedAuditable<ID extends Serializable>
 	public Date getDateCreated() {
 		return dateCreated;
 	}
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	
 	@Override
 	public Date getDateModified() {
 		return dateModified;
+	}
+	public void setDateModified(Date dateModified) {
+		this.dateModified = dateModified;
 	}
 
 	@PrePersist

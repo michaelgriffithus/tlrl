@@ -1,0 +1,251 @@
+--
+-- SQL for BookmarkRepository
+--
+
+-- ========================================
+-- Fragment for joining Tags to Bookmarks (via bookmark_tags mapping table). 
+-- ========================================
+@NAME(_JoinForTags)
+  LEFT JOIN bookmark_tags bt0 ON bt0.bookmark_id = b.id AND bt0.idx = 0 
+  LEFT JOIN bookmark_tags bt1 ON bt1.bookmark_id = b.id AND bt1.idx = 1
+  LEFT JOIN bookmark_tags bt2 ON bt2.bookmark_id = b.id AND bt2.idx = 2
+  LEFT JOIN bookmark_tags bt3 ON bt3.bookmark_id = b.id AND bt3.idx = 3
+  LEFT JOIN bookmark_tags bt4 ON bt4.bookmark_id = b.id AND bt4.idx = 4
+
+
+-- ========================================
+-- Fragment for selecting Bookmarks and their tags
+-- ========================================
+@NAME(_BaseBookmarkQuery)
+  SELECT b.id, b.title, b.user_id, u.name AS user_name, b.shared, b.description, b.date_created, b.read_later_status, 
+     bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4,
+     w.id AS webresourceId, w.url
+    FROM tlrl_user u, webresource w, bookmark b
+      @INCLUDE(_JoinForTags)
+   WHERE w.id = b.webresource_id AND u.id = b.user_id
+
+
+-- ========================================
+-- Fragment for paging and sorting on "findAll" queries
+-- ========================================
+@NAME(_FindAllPaging)
+  LIMIT :pageSize OFFSET :page
+
+
+-- ========================================
+-- @userId id of User to filter by
+-- ========================================
+@NAME(_FindAllFilters)
+  @AND(:userId)
+    b.user_id = :userId
+  @AND(:shared = FALSE)
+    b.shared = @VALUE(:shared)
+  @AND(:shared = TRUE)
+    b.shared = TRUE
+  @AND(:readLaterStatus)
+    b.read_later_status = 'UNREAD'
+
+
+-- ========================================
+-- Query for Bookmarks by the webresource they reference
+-- ========================================
+@NAME(FindBookmarksByWebResource)
+  (SELECT 'W' AS type, w.id, w.title, w.url, w.user_id, u.name AS user_name, w.description, true AS shared, b.date_created,
+        NULL AS tag0, NULL AS tag1, NULL AS tag2, NULL AS tag3, NULL AS tag4, w.id AS webresourceId, refCount
+     FROM tlrl_user u, bookmark b, (
+           SELECT MIN(id) AS id 
+             FROM bookmark 
+            WHERE webresource_id = :webresourceId) AS first_rl, webresource w 
+        LEFT OUTER JOIN (
+              SELECT webresource_id, COUNT(id)-1 AS refCount 
+                FROM bookmark 
+               WHERE webresource_id = :webresourceId AND shared = TRUE 
+               GROUP BY (webresource_id)) refc ON refc.webresource_id = w.id 
+    WHERE w.id = :webresourceId 
+      AND first_rl.id = b.id AND b.user_id = u.id) 
+  UNION 
+  (SELECT 'R' AS type, b.id, b.title, w.url, b.user_id, u.name AS user_name, b.description, b.shared, b.date_created, 
+        bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4, w.id AS webresourceId, 1 AS refCount 
+     FROM tlrl_user u, webresource w, bookmark b 
+         @INCLUDE(_JoinForTags)
+    WHERE b.shared = TRUE AND w.id = :webresourceId AND w.id = b.webresource_id AND u.id = b.user_id) 
+  ORDER BY type DESC, id DESC 
+
+
+-- ========================================
+-- Builds a list of tags to include
+-- ========================================
+@NAME(_InclusiveTagLoop)
+  (
+    @LOOP(:tagCount)
+      bt.tag_id = :tag@LOOPINDEX
+      @LOOPJOIN OR
+  )
+
+-- ========================================
+-- Builds a list of tags to exclude 
+-- ========================================
+@NAME(_ExclusiveTagLoop)
+  (
+    @LOOP(:tagCount)
+      bt.tag_id != :tag@LOOPINDEX
+      @LOOPJOIN AND
+  )
+
+-- ========================================
+-- Query all Bookmarks filtered by the specified User. This query only
+-- gets called for non-owners making the call. Tags can be applied to filter
+-- the results
+--
+-- @userId id of User to filter by
+-- ========================================
+@NAME(FindAllQuery)
+  @INCLUDE(_BaseBookmarkQuery)
+  @IF(:hasTags = FALSE)
+    @INCLUDE(_FindAllFilters)
+    @IF(:untagged)
+      AND bt0.bookmark_id IS NULL
+  @IF(:hasTags)
+    AND b.id IN (
+      SELECT bookmark_id FROM (
+        SELECT bt.bookmark_id, COUNT(bt.bookmark_id)
+          FROM bookmark b, bookmark_tags bt
+         WHERE b.id = bt.bookmark_id
+           @INCLUDE(_FindAllFilters) 
+           AND @INCLUDE(_InclusiveTagLoop) 
+         GROUP BY bt.bookmark_id) AS t
+       WHERE t.count = :tagCount)
+  ORDER BY date_created DESC, b.id DESC 
+  @INCLUDE(_FindAllPaging)
+
+
+-- ========================================
+-- Query to find popular Bookmarks. 
+-- 
+-- @pageSize size to limit returned results
+-- ========================================
+@NAME(FindPopularQuery)
+  SELECT w.url, w.id, w.title, url.count AS refCount, w.description, b.date_created
+    FROM webresource w, bookmark b
+      LEFT JOIN (
+        SELECT url, COUNT(url), MIN(b.id) AS bookmark_id
+          FROM bookmark b, webresource w 
+         WHERE b.shared = TRUE 
+           AND b.webresource_id = w.id 
+         GROUP BY w.url
+      ) AS url ON url.bookmark_id = b.id, tlrl_user u
+   WHERE b.shared = TRUE
+     AND u.id = b.user_id
+     AND url.count IS NOT NULL 
+     AND b.webresource_id = w.id
+   ORDER BY refCount DESC, b.date_created DESC LIMIT :pageSize
+
+
+-- ========================================
+-- Query related tags for popular Bookmarks
+-- ========================================
+@NAME(FindPopularRelatedTagsQuery)
+  SELECT tag_id, COUNT(tag_id)
+    FROM bookmark_tags bt, bookmark b
+   WHERE b.shared = TRUE 
+     AND b.id = bt.bookmark_id
+   GROUP BY tag_id
+   ORDER BY count DESC LIMIT :pageSize
+
+   
+-- ========================================
+-- Query for most recent Bookmarks
+--
+-- @pageSize size to limit returned results
+-- ========================================
+@NAME(FindRecentQuery)
+  @INCLUDE(_BaseBookmarkQuery)
+    AND b.shared = TRUE
+  ORDER BY b.date_created DESC, b.id DESC LIMIT :pageSize
+
+
+-- ========================================
+-- Query related tags for "recent" query
+-- ========================================
+@NAME(FindRecentRelatedTagsQuery)
+  SELECT tag_id, COUNT(tag_id) AS count
+    FROM bookmark_tags bt, bookmark b
+   WHERE b.shared = TRUE 
+     AND b.id = bt.bookmark_id
+   GROUP BY tag_id
+
+
+-- ========================================
+-- Stats query
+-- ========================================
+@NAME(StatsQuery)
+  @INCLUDE(AllTagsQuery)
+  UNION
+  @INCLUDE(CountQuery)
+  @IF(:hasTags = TRUE)
+    UNION
+    @INCLUDE(RelatedTagsQuery)
+
+
+-- ========================================
+-- Query count for "findAll" query
+-- ========================================
+@NAME(CountQuery)
+  SELECT 'TOTAL' AS type, 'Total Bookmarks' AS name, COUNT(b.id)
+  @IF(:hasTags = FALSE)
+    FROM bookmark b
+    @IF(:untagged = TRUE)
+        LEFT OUTER JOIN bookmark_tags bt ON bt.bookmark_id = b.id AND bt.idx = 0
+   @WHERE 
+    @INCLUDE(_FindAllFilters)
+    @AND(:untagged = TRUE)
+      bt.bookmark_id IS NULL    
+  @IF(:hasTags = TRUE)
+    FROM (
+       SELECT * FROM (
+           SELECT bt.bookmark_id AS id, COUNT(bt.bookmark_id) 
+             FROM bookmark b, bookmark_tags bt 
+            WHERE b.id = bt.bookmark_id
+              @INCLUDE(_FindAllFilters)
+              AND @INCLUDE(_InclusiveTagLoop) 
+            GROUP BY bt.bookmark_id) AS t
+        WHERE t.count = :tagCount) AS b
+
+
+
+-- ========================================
+-- Query related tags for "findAll" query
+-- ========================================
+@NAME(RelatedTagsQuery)
+  SELECT 'RELATED' AS type, bt.tag_id AS name, COUNT(bt.tag_id)
+  @IF(:hasTags = FALSE)
+    FROM bookmark b, bookmark_tags bt
+   WHERE b.id = bt.bookmark_id
+    @INCLUDE(_FindAllFilters)
+  @IF(:hasTags = TRUE)
+    FROM (
+       SELECT * FROM (
+           SELECT bt.bookmark_id AS id, COUNT(bt.bookmark_id) 
+             FROM bookmark b, bookmark_tags bt 
+            WHERE b.id = bt.bookmark_id
+              @INCLUDE(_FindAllFilters)
+              AND @INCLUDE(_InclusiveTagLoop)
+            GROUP BY bt.bookmark_id) AS t 
+        WHERE t.count = :tagCount
+     ) AS b
+       INNER JOIN bookmark_tags bt ON bt.bookmark_id = b.id
+   WHERE @INCLUDE(_ExclusiveTagLoop) 
+   GROUP BY bt.tag_id 
+
+
+
+-- ========================================
+-- Query all tags
+-- ========================================
+@NAME(AllTagsQuery)
+  SELECT 'ALL' AS type, bt.tag_id AS name, COUNT(bt.tag_id)
+    FROM bookmark b, bookmark_tags bt
+   WHERE b.id = bt.bookmark_id 
+     @INCLUDE(_FindAllFilters)
+   GROUP BY bt.tag_id
+

@@ -14,7 +14,6 @@ import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebPage;
-import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)

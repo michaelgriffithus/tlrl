@@ -1,6 +1,5 @@
 package com.gnoht.tlrl.domain;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,16 +15,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="webpage")
-public class WebPage extends WebResource<String, Long, WebPage> {
+public class WebPage extends ManagedAuditable<Long> {
 	
 	private static final long serialVersionUID = 5423495253286527912L;
 	
@@ -62,12 +58,6 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH}, optional=false)
 	@JoinColumn(name="user_id")
 	private User user;
-	
-	@Temporal(TemporalType.DATE)
-	private Date dateCreated;
-	
-	@Temporal(TemporalType.DATE)
-	private Date dateModified;
 	
 	public WebPage() {}
 
@@ -128,31 +118,11 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
 	}
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-	public Date getDateModified() {
-		return dateModified;
-	}
-	public void setDateModified(Date dateModified) {
-		this.dateModified = dateModified;
-	}
 	public int getRefCount() {
 		return refCount;
 	}
 	public void setRefCount(int refCount) {
 		this.refCount = refCount;
-	}
-	@PrePersist
-	protected void onPersist() {
-		dateCreated = new Date();
-	}
-	@PreUpdate
-	protected void onUpdate() {
-		dateModified = new Date();
 	}
 	public boolean isFetched() {
 		return fetched;
@@ -161,10 +131,10 @@ public class WebPage extends WebResource<String, Long, WebPage> {
 		this.fetched = fetched;
 	}
 
-	@Override
 	public WebPage update(WebPage from) {
 		return this;
 	}
+	
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper();

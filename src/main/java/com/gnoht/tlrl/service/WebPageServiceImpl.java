@@ -23,7 +23,7 @@ public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpa
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebPageServiceImpl.class);
 	
-	@Resource private WebResourceFetcher<WebPage> resourceFetcher;
+	@Resource private WebResourceFetcher resourceFetcher;
 
 	@Inject
 	public WebPageServiceImpl(WebPageJpaRepository repository,
