@@ -19,7 +19,7 @@ import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={Application.class})

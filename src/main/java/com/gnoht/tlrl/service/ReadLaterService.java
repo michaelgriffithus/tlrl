@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ResultPage;
 
 public interface ReadLaterService {
@@ -32,5 +32,5 @@ public interface ReadLaterService {
 	public ResultPage<Bookmark> findRecent(Pageable pageable);
 	public ResultPage<Bookmark> findPopular(Pageable pageable);
 	
-	public WebPage findAllByWebPage(Long webPageId);
+	public WebResource findAllByWebPage(Long webPageId);
 }

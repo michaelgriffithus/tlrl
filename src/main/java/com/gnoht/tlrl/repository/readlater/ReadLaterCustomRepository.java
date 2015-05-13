@@ -9,7 +9,7 @@ import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 
 public interface ReadLaterCustomRepository {
 
@@ -29,6 +29,6 @@ public interface ReadLaterCustomRepository {
 	public ReadLaterStats findRecentTags();
 	public List<Bookmark> findRecent(Pageable pageable);
 	public List<Bookmark> findPopular(Pageable pageable);
-	public WebPage findAllByWebPage(Long webPageId);
+	public WebResource findAllByWebPage(Long webPageId);
 	
 }

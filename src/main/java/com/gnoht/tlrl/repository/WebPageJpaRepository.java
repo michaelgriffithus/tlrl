@@ -2,10 +2,10 @@ package com.gnoht.tlrl.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 
 public interface WebPageJpaRepository extends 
-		JpaRepository<WebPage, Long>{
+		JpaRepository<WebResource, Long>{
 
-	public WebPage findByUrl(String url);
+	public WebResource findByUrl(String url);
 }

@@ -1,6 +1,6 @@
 package com.gnoht.tlrl.repository;
 
-import com.gnoht.tlrl.domain.WebResourceNew;
+import com.gnoht.tlrl.domain.WebResource;
 
 public interface WebResourceCustomRepository {
 
@@ -10,5 +10,5 @@ public interface WebResourceCustomRepository {
 	 * @param id
 	 * @return
 	 */
-	WebResourceNew findOneById(Long id);
+	WebResource findOneById(Long id);
 }

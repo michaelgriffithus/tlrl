@@ -11,7 +11,7 @@ import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResourceNew;
+import com.gnoht.tlrl.domain.WebResource;
 
 public abstract class BookmarkRowMapper implements RowMapper<Bookmark> {
 
@@ -61,11 +61,12 @@ public abstract class BookmarkRowMapper implements RowMapper<Bookmark> {
 			user.setId(rs.getLong("user_id"));
 			user.setName(rs.getString("user_name"));
 			
-			WebResourceNew webResource = WebResourceNew.builder()
-					.id(rs.getLong("webresourceId"))
-					.user(user)
-					.url(rs.getString("url"))
-					.build();
+			WebResource webResource = new WebResource();
+//				.builder()
+//					.id(rs.getLong("webresourceId"))
+//					.user(user)
+//					.url(rs.getString("url"))
+//					.build();
 			
 			Bookmark bookmark = super.mapRow(rs, row);
 			//bookmark.setWebResource(webResource);

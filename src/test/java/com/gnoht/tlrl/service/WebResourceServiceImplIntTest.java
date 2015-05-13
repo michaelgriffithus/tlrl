@@ -2,10 +2,12 @@ package com.gnoht.tlrl.service;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -14,7 +16,8 @@ import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.security.OAuth2Authentication;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={Application.class})
@@ -24,36 +27,39 @@ public class WebResourceServiceImplIntTest {
 	@Autowired WebPageService webResourceService;
 	@Autowired UserService userService;
 	
-	@Test
-	public void findOrCreateShouldFindExisting() {
-		// given
-		WebPage existing = webResourceService.findById(1L);
-		assertNotNull("Existing webResource not found", existing);
-		
-		// when
-		WebPage toSave = new WebPage(existing.getUrl());
-			toSave.setUser(existing.getUser());
-		toSave = webResourceService.findOrCreate(toSave);
-		
-		//then
-		assertEquals("Should have existing id!", existing.getId(), toSave.getId());
-		assertEquals("Should have same create date!", 
-				existing.getDateCreated(), toSave.getDateCreated());
+	@Before
+	public void setUp() {
+		User user = userService.findByName("thong");
+		SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(user));
 	}
 	
 	@Test
-	public void findOrCreateShouldCreate() {
+	public void findByUrlOrCreateShouldFindExisting() {
 		// given
-		User user = userService.findById(1L);
-		WebPage toSave = new WebPage("http://yahoo.com");
-		toSave.setUser(user);
-		
-		assertNull(toSave.getId());
+		WebResource existing = webResourceService.findByUrl("http://losangeles.craigslist.org/");
+		assertNotNull("Existing webResource not found", existing);
 		
 		// when
-		//WebResource saved = webResourceService.findOrCreate(toSave);
+		WebResource newBookmark = webResourceService
+			.findByUrlOrCreate(existing.getUrl());
+		
+		//then
+		assertEquals("Should have existing id!", existing.getId(), newBookmark.getId());
+		assertEquals("Should have same create date!", 
+				existing.getDateCreated(), newBookmark.getDateCreated());
+	}
+	
+	@Test
+	public void findByUrlOrCreateShouldCreate() {
+		// given
+		String urlToCreate = "http://yahoo.com";
+		assertNull(webResourceService.findByUrl(urlToCreate));
+		
+		// when
+		WebResource saved = webResourceService.findByUrlOrCreate(urlToCreate);
 		
 		// then
-		//assertNotNull(saved.getId());
+		assertNotNull(webResourceService.findByUrl(urlToCreate));
+		assertNotNull(saved.getId());
 	}
 }

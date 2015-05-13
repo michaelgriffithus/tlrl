@@ -4,6 +4,8 @@ import static com.gnoht.tlrl.repository.BookmarkRowMapper.DEFAULT_ROW_MAPPER;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -14,8 +16,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResourceNew;
+import com.gnoht.tlrl.domain.WebResource;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
@@ -35,7 +38,7 @@ public class WebResourceRepositoryImpl
 	}
 	
 	@Override
-	public WebResourceNew findOneById(Long id) {
+	public WebResource findOneById(Long id) {
 		SqlParameterSource paramSource = new MapSqlParameterSource("webResourceId", id);
 		return jdbcOperations.query(elsql.getSql("FindBookmarksByWebResource", 
 				paramSource), paramSource, webResourceResultSetExtractor);
@@ -44,11 +47,12 @@ public class WebResourceRepositoryImpl
 	/**
 	 * 
 	 */
-	ResultSetExtractor<WebResourceNew> webResourceResultSetExtractor = 
-			new ResultSetExtractor<WebResourceNew>() {
+	ResultSetExtractor<WebResource> webResourceResultSetExtractor = 
+			new ResultSetExtractor<WebResource>() {
 		@Override
-		public WebResourceNew extractData(ResultSet rs) throws SQLException, DataAccessException {
-			WebResourceNew webResource = new WebResourceNew();
+		public WebResource extractData(ResultSet rs) throws SQLException, DataAccessException {
+			WebResource webResource = new WebResource();
+			List<Bookmark> bookmarks = new ArrayList<>();
 			int row = 0;
 			boolean mapped = false;
 			while(rs.next()) {
@@ -66,9 +70,10 @@ public class WebResourceRepositoryImpl
 					webResource.setTitle(rs.getString("title"));
 					mapped = true;
 				} else {
-					webResource.getBookmarks().add(DEFAULT_ROW_MAPPER.mapRow(rs, row++));
+					bookmarks.add(DEFAULT_ROW_MAPPER.mapRow(rs, row++));
 				}
 			}
+			webResource.setBookmarks(bookmarks);
 			return webResource;
 		}
 	};

@@ -26,7 +26,7 @@ import com.gnoht.tlrl.controller.support.TargetUser;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
 import com.gnoht.tlrl.security.CurrentUser;
@@ -36,9 +36,9 @@ import com.gnoht.tlrl.service.UserService;
 
 @RestController
 @RequestMapping(value="/api")
-public class ReadLaterController {
+public class BookmarkController {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BookmarkController.class);
 
 	@Resource private ReadLaterService readLaterService;
 	@Resource private ReadLaterJpaRepository repo;
@@ -64,7 +64,7 @@ public class ReadLaterController {
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.GET)
-	public WebPage findAllByWebpage(@PathVariable(value="id") Long id,
+	public WebResource findAllByWebpage(@PathVariable(value="id") Long id,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
 		return readLaterService.findAllByWebPage(id);
 	}

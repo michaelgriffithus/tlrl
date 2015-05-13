@@ -1,6 +1,9 @@
 package com.gnoht.tlrl.domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -21,8 +24,8 @@ import javax.persistence.Transient;
 import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-@Entity(name="webpage")
-public class WebPage extends ManagedAuditable<Long> {
+@Entity(name="webresource")
+public class WebResource extends ManagedAuditable<Long> {
 	
 	private static final long serialVersionUID = 5423495253286527912L;
 	
@@ -48,27 +51,27 @@ public class WebPage extends ManagedAuditable<Long> {
 	private byte[] content;
 	
 	@ManyToMany(targetEntity=Tag.class)
-	@JoinTable(name="webpage_tags", 
-			joinColumns={@JoinColumn(name="webpage_id")},
+	@JoinTable(name="webresource_tags", 
+			joinColumns={@JoinColumn(name="webresource_id")},
 			inverseJoinColumns={@JoinColumn(name="tag_id")})
 	private Set<Tag> tags = new HashSet<Tag>();
 	
-	@OneToMany(mappedBy="webPage", fetch=FetchType.LAZY,
+	@OneToMany(mappedBy="webResource", fetch=FetchType.LAZY,
 			targetEntity=Bookmark.class,
 			cascade={CascadeType.MERGE, CascadeType.PERSIST})
-	private Set<Bookmark> bookmarks = new HashSet<Bookmark>();
+	private Collection<Bookmark> bookmarks = new ArrayList<>();
 
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH}, optional=false)
 	@JoinColumn(name="user_id")
 	private User user;
 	
-	public WebPage() {}
+	public WebResource() {}
 
-	public WebPage(String url) {
+	public WebResource(String url) {
 		this(null, url);
 	}
 	
-	public WebPage(User user, String url) {
+	public WebResource(User user, String url) {
 		this.user = user;
 		this.url = url;
 	}
@@ -88,10 +91,10 @@ public class WebPage extends ManagedAuditable<Long> {
 	public String getUrl() {
 		return url;
 	}
-	public Set<Bookmark> getReadLaters() {
+	public Collection<Bookmark> getBookmarks() {
 		return bookmarks;
 	}
-	public void setReadLaters(Set<Bookmark> bookmarks) {
+	public void setBookmarks(List<Bookmark> bookmarks) {
 		this.bookmarks = bookmarks;
 	}
 	public void setUrl(String url) {
@@ -136,7 +139,7 @@ public class WebPage extends ManagedAuditable<Long> {
 		this.fetched = fetched;
 	}
 
-	public WebPage update(WebPage from) {
+	public WebResource update(WebResource from) {
 		return this;
 	}
 	

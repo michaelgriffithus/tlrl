@@ -17,7 +17,7 @@ import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ManageResultPage;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
@@ -35,35 +35,35 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 
 	@Override
 	public Bookmark findOrCreateReadLater(User user, String url) {
-		return findOrCreateReadLater(new Bookmark(user, new WebPage(user, url)));
+		return findOrCreateReadLater(new Bookmark(user, new WebResource(user, url)));
 	}
 	
 	@Transactional
 	public Bookmark findOrCreateReadLater(Bookmark bookmark) {
-		Bookmark existingReadLater = readLaterRepository.
-				findOneByUserAndWebPageUrl(bookmark.getUser(), bookmark.getUrl());
-		if(existingReadLater == null) {
-			WebPage webPage = webPageService.findOrCreate(bookmark.getUser(), bookmark.getUrl());
-			bookmark.setWebPage(webPage);
+		Bookmark existing = readLaterRepository.
+				findOneByUserAndWebResourceUrl(bookmark.getUser(), bookmark.getUrl());
+		if(existing == null) {
+			WebResource webResource = webPageService.findByUrlOrCreate(bookmark.getUrl());
+			bookmark.setWebPage(webResource);
 			
-			if(bookmark.getTitle() == null && webPage.getTitle() != null) { 
-				bookmark.setTitle(webPage.getTitle());
+			if(bookmark.getTitle() == null && webResource.getTitle() != null) { 
+				bookmark.setTitle(webResource.getTitle());
 			}
-			if(bookmark.getDescription() == null && webPage.getDescription() != null) {
-				bookmark.setDescription(webPage.getDescription());
+			if(bookmark.getDescription() == null && webResource.getDescription() != null) {
+				bookmark.setDescription(webResource.getDescription());
 			}
 				
-			existingReadLater = readLaterRepository.save(bookmark);
+			existing = readLaterRepository.save(bookmark);
 			
-			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existingReadLater);
-			readLaterWebPage.setContent(new String(webPage.getContent()));
+			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existing);
+			readLaterWebPage.setContent(new String(webResource.getContent()));
 			readLaterWebPageService.create(readLaterWebPage);
 		}
-		return existingReadLater;
+		return existing;
 	}
 
 	@Override
-	public WebPage findAllByWebPage(Long webPageId) {
+	public WebResource findAllByWebPage(Long webPageId) {
 		return readLaterRepository.findAllByWebPage(webPageId);
 	}
 

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 
 @Service("webPageFetcher")
 public class WebPageFetcher implements WebResourceFetcher {
@@ -26,10 +26,10 @@ public class WebPageFetcher implements WebResourceFetcher {
 	
 	//@Async
 	@Override
-	public WebPage fetch(WebPage webPage) {
-		LOG.info("Starting fetch(): {}", webPage);
+	public WebResource fetch(WebResource webResource) {
+		LOG.info("Starting fetch(): {}", webResource);
 		try {
-			Response response = Jsoup.connect(webPage.getUrl())
+			Response response = Jsoup.connect(webResource.getUrl())
 					.method(Method.GET)
 					.timeout(10000) //10secs
 					.userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1664.3 Safari/537.36")
@@ -39,26 +39,26 @@ public class WebPageFetcher implements WebResourceFetcher {
 			// parses response for title and text
 			Document document;
 			document = response.parse();
-			webPage.setTitle(document.title());
+			webResource.setTitle(document.title());
 			String content = Jsoup.clean(document.body().text(), Whitelist.basic());
-			webPage.setContent(content.getBytes());
+			webResource.setContent(content.getBytes());
 			// TODO: parse for meta description
-			webPage.setDescription(content == null || content.length() < 200 ? 
+			webResource.setDescription(content == null || content.length() < 200 ? 
 					content : content.substring(0,  200));
-			webPage.setFetched(true);
+			webResource.setFetched(true);
 		} catch (IOException e) {
-			LOG.error("Unable to parse {}", webPage.getUrl(), e);
-			webPage.setFetched(false);
+			LOG.error("Unable to parse {}", webResource.getUrl(), e);
+			webResource.setFetched(false);
 		}
-		webPageService.save(webPage);
-		return webPage;
+		webPageService.save(webResource);
+		return webResource;
 	}
 
 	@Override
-	public WebPage fetch(User user, String url) {
-		WebPage webPage = new WebPage(user, url);
-		fetch(webPage);
-		return webPage;
+	public WebResource fetch(User user, String url) {
+		WebResource webResource = new WebResource(user, url);
+		fetch(webResource);
+		return webResource;
 	}
 
 }

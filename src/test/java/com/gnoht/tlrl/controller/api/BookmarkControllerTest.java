@@ -16,7 +16,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.gnoht.tlrl.controller.ReadLaterController;
+import com.gnoht.tlrl.controller.BookmarkController;
 import com.gnoht.tlrl.controller.StandaloneControllerTest;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Tag;
@@ -27,7 +27,7 @@ import com.gnoht.tlrl.service.ReadLaterService;
  * {@link BookmarkController} unit test.
  */
 public class BookmarkControllerTest 
-		extends StandaloneControllerTest<ReadLaterController> {
+		extends StandaloneControllerTest<BookmarkController> {
 
 //	@Mock ReadLaterService bookmarkService;
 //	
@@ -160,7 +160,7 @@ public class BookmarkControllerTest
 //	}
 //	
 	@Override
-	protected ReadLaterController createController() {
-		return new ReadLaterController();
+	protected BookmarkController createController() {
+		return new BookmarkController();
 	}
 }

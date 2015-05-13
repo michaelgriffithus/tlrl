@@ -10,60 +10,44 @@ import org.springframework.stereotype.Service;
 
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 //import com.gnoht.tlrl.repository.WebPageMongoRepository;
 import com.gnoht.tlrl.repository.WebPageJpaRepository;
+import com.gnoht.tlrl.repository.WebResourceRepository;
+import com.gnoht.tlrl.security.SecurityUtils;
 //import com.gnoht.tlrl.domain.Tag;
 //import com.gnoht.tlrl.domain.WebPage;
 import com.gnoht.tlrl.service.support.ManagedService;
 
 @Service("webPageService")
-public class WebPageServiceImpl extends ManagedService<Long, WebPage, WebPageJpaRepository> 
+public class WebPageServiceImpl extends ManagedService<Long, WebResource, WebPageJpaRepository> 
 		implements WebPageService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(WebPageServiceImpl.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(WebPageServiceImpl.class);
 	
-	@Resource private WebResourceFetcher resourceFetcher;
-
 	@Inject
-	public WebPageServiceImpl(WebPageJpaRepository repository,
+	public WebPageServiceImpl(WebPageJpaRepository repository, 
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
 
 	@Override
-	public WebPage findOrCreate(WebPage webPage) {
-		LOG.debug("Starting findOrCreate(webPage={})", webPage);
-		WebPage found = getRepository().findByUrl(webPage.getUrl());
-		if(found == null) {
-			found = save(webPage);
-			LOG.debug("No webPage found, creating new entry!");
-			// calls async
-			found = resourceFetcher.fetch(webPage);
+	public WebResource findByUrlOrCreate(String url) {
+		LOG.info("Starting findOrCreate(): url={}", url);
+		WebResource webResource = findByUrl(url);
+		if(webResource == null) {
+			LOG.debug("No existing webResource found, creating new webResource.");
+			webResource = new WebResource();
+			webResource.setUrl(url);
+			webResource.setUser(SecurityUtils.getCurrentUser());
+			webResource = save(webResource);
 		}
-		LOG.debug("Leaving findOrCreate(): webPage={}", found);
-		return found;
+		return webResource;
 	}
 
 	@Override
-	public WebPage findOrCreate(User user, String url) {
-		LOG.debug("Starting findOrCreate(url={})", url);
-		return findOrCreate(new WebPage(user, url));
-	}
-
-	@Override
-	public WebPage findByUrl(String url) {
-		return getRepository().findByUrl(url);
-	}
-	
-	@Override
-	public WebPage update(WebPage updated)
-			throws ManageableNotFoundException {
-		WebPage webPage = findById(updated.getId());
-		if(webPage == null)
-			throw new ManageableNotFoundException(updated.getId());
-		webPage.update(updated);
-		webPage = save(webPage);
-		return webPage;
+	public WebResource findByUrl(String url) {
+		LOG.info("Starting findByUrl(): url={}", url);
+		return repository.findByUrl(url);
 	}
 }

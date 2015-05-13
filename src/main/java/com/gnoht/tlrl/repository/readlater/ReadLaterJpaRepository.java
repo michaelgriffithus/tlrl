@@ -12,7 +12,7 @@ import com.gnoht.tlrl.domain.User;
 public interface ReadLaterJpaRepository 
 		extends JpaRepository<Bookmark, Long>, ReadLaterCustomRepository {
 
-	public Bookmark findOneByUserAndWebPageUrl(User user, String url);
+	public Bookmark findOneByUserAndWebResourceUrl(User user, String url);
 	
 	@Async
 	public Future<List<Bookmark>> findByTitle(String title);

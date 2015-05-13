@@ -27,7 +27,7 @@ import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
@@ -54,7 +54,7 @@ public class ReadLaterJpaRepositoryImpl
 	}
 
 	@Override
-	public WebPage findAllByWebPage(final Long webPageId) {
+	public WebResource findAllByWebPage(final Long webPageId) {
 		LOG.debug("Starting findAllByWebPage: webPageId={}", webPageId);
 		SqlParameterSource paramSource = new MapSqlParameterSource("webPageId", webPageId);
 		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebPage", 
@@ -193,11 +193,11 @@ public class ReadLaterJpaRepositoryImpl
 			user.setId(rs.getLong("user_id"));
 			user.setName(rs.getString("user_name"));
 			
-			WebPage webPage = new WebPage(rs.getString("url"));
-			webPage.setId(rs.getLong("webpageId"));
+			WebResource webResource = new WebResource(rs.getString("url"));
+			webResource.setId(rs.getLong("webpageId"));
 			
 			Bookmark bookmark = super.mapRow(rs, rowNum);
-			bookmark.setWebPage(webPage);
+			bookmark.setWebPage(webResource);
 			bookmark.setUser(user);
 			getTagColumn("tag0", rs, bookmark);
 			getTagColumn("tag1", rs, bookmark);
@@ -228,10 +228,10 @@ public class ReadLaterJpaRepositoryImpl
 	/**
 	 * 
 	 */
-	ResultSetExtractor<WebPage> webPageReadLaterResultSetExtractor = new ResultSetExtractor<WebPage>() {
+	ResultSetExtractor<WebResource> webPageReadLaterResultSetExtractor = new ResultSetExtractor<WebResource>() {
 		@Override
-		public WebPage extractData(ResultSet rs) throws SQLException, DataAccessException {
-			WebPage webPage = new WebPage();
+		public WebResource extractData(ResultSet rs) throws SQLException, DataAccessException {
+			WebResource webResource = new WebResource();
 			int rowCount = 0;
 			boolean webPageProcessed = false;
 			while(rs.next()) {
@@ -240,20 +240,20 @@ public class ReadLaterJpaRepositoryImpl
 					User user = new User();
 					user.setId(rs.getLong("user_id"));
 					user.setName(rs.getString("user_name"));
-					webPage.setUser(user);
-					webPage.setUrl(rs.getString("url"));
-					webPage.setId(rs.getLong("webpageId"));
-					webPage.setDescription(rs.getString("description"));
-					webPage.setDateCreated(new Date(rs.getTimestamp("date_created").getTime()));
-					webPage.setRefCount(rs.getInt("refCount"));
-					webPage.setTitle(rs.getString("title"));
+					webResource.setUser(user);
+					webResource.setUrl(rs.getString("url"));
+					webResource.setId(rs.getLong("webpageId"));
+					webResource.setDescription(rs.getString("description"));
+					webResource.setDateCreated(new Date(rs.getTimestamp("date_created").getTime()));
+					webResource.setRefCount(rs.getInt("refCount"));
+					webResource.setTitle(rs.getString("title"));
 					webPageProcessed = true;
 				} else {
-					webPage.getReadLaters().add(
+					webResource.getBookmarks().add(
 						publicReadLaterRowMapper.mapRow(rs, rowCount++));
 				}
 			}
-			return webPage;
+			return webResource;
 		}
 	};
 	

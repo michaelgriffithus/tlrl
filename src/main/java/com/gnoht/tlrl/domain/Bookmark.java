@@ -35,7 +35,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="bookmark")
 @Table(uniqueConstraints={
-	@UniqueConstraint(columnNames={"user_id", "webpage_id"})
+	@UniqueConstraint(columnNames={"user_id", "webresource_id"})
 })
 public class Bookmark extends ManagedAuditable<Long> {
 
@@ -54,11 +54,11 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@Column(name="read_later_status", nullable=false)
 	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA;
 	
-	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebPage.class,
+	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebResource.class,
 			cascade={CascadeType.MERGE}, optional=false)
-	@JoinColumn(name="webpage_id")
+	@JoinColumn(name="webresource_id")
 	@JsonIgnore
-	private WebPage webPage;
+	private WebResource webResource;
 	
 	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinTable(name="bookmark_tags",
@@ -78,15 +78,15 @@ public class Bookmark extends ManagedAuditable<Long> {
 	
 	public Bookmark() {}
 	
-	public Bookmark(User user, WebPage webPage) {
-		this.webPage = webPage;
+	public Bookmark(User user, WebResource webResource) {
+		this.webResource = webResource;
 		this.user = user;
-		this.title = webPage.getTitle();
-		this.description = webPage.getDescription();
+		this.title = webResource.getTitle();
+		this.description = webResource.getDescription();
 	}
 	
 	public Bookmark(String url) {
-		this.webPage = new WebPage(user, url);
+		this.webResource = new WebResource(user, url);
 	}
 	
 	public Long getId() {
@@ -149,17 +149,17 @@ public class Bookmark extends ManagedAuditable<Long> {
 	}
 	
 	public String getUrl() {
-		return (webPage == null ? null : webPage.getUrl());
+		return (webResource == null ? null : webResource.getUrl());
 	}
 	public void setUrl(String url) {
-		this.webPage = new WebPage(url);
+		this.webResource = new WebResource(url);
 	}
 	
-	public WebPage getWebPage() {
-		return this.webPage;
+	public WebResource getWebPage() {
+		return this.webResource;
 	}
-	public void setWebPage(WebPage webPage) {
-		this.webPage = webPage;
+	public void setWebPage(WebResource webResource) {
+		this.webResource = webResource;
 	}
 	
 	public ReadLaterStatus getReadLaterStatus() {
@@ -181,7 +181,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
-			.add("webPage", webPage.getId())
+			.add("webPage", webResource.getId())
 			.add("shared", shared)
 			.add("title", title)
 			.add("tags", tags);

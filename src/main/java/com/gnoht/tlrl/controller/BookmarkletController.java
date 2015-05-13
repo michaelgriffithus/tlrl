@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebPage;
+import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.security.CurrentUser;
 import com.gnoht.tlrl.service.ReadLaterService;
 
@@ -29,7 +29,7 @@ public class BookmarkletController {
 	public String addFromBookmarklet(@CurrentUser User currentUser, @RequestParam(required=true) String url, 
 			@RequestParam(required=false) String title, RedirectAttributes redirectAttributes) {
 		LOG.debug("Starting add(): user={}, url={}, title={}", currentUser, url, title);
-		Bookmark bookmark = new Bookmark(currentUser, new WebPage(currentUser, url));
+		Bookmark bookmark = new Bookmark(currentUser, new WebResource(currentUser, url));
 		bookmark = readLaterService.findOrCreateReadLater(bookmark);
 		redirectAttributes.addFlashAttribute("readLater", bookmark);
 		return "redirect:/bm/add/complete";
