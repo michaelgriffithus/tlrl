@@ -30,13 +30,14 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gnoht.tlrl.domain.support.Managed;
+import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="bookmark")
 @Table(uniqueConstraints={
 	@UniqueConstraint(columnNames={"user_id", "webpage_id"})
 })
-public class Bookmark extends Managed<Long> {
+public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = -1718561876002831254L;
 	
@@ -71,12 +72,6 @@ public class Bookmark extends Managed<Long> {
 	@JoinColumn(name="user_id")
 	@JsonIgnore
 	private User user;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateCreated;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateModified;
 	
 	@Transient
 	private int refCount;
@@ -146,36 +141,27 @@ public class Bookmark extends Managed<Long> {
 		this.refCount = refCount;
 	}
 
-	public Date getDateCreated() {
-		return dateCreated;
-	}
-	public void setDateCreated(Date dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-	public Date getDateModified() {
-		return dateModified;
-	}
-	public void setDateModified(Date dateModified) {
-		this.dateModified = dateModified;
-	}
 	public boolean isShared() {
 		return shared;
 	}
 	public void setShared(boolean shared) {
 		this.shared = shared;
 	}
+	
 	public String getUrl() {
 		return (webPage == null ? null : webPage.getUrl());
 	}
 	public void setUrl(String url) {
 		this.webPage = new WebPage(url);
 	}
+	
 	public WebPage getWebPage() {
 		return this.webPage;
 	}
 	public void setWebPage(WebPage webPage) {
 		this.webPage = webPage;
 	}
+	
 	public ReadLaterStatus getReadLaterStatus() {
 		return readLaterStatus;
 	}
@@ -183,16 +169,6 @@ public class Bookmark extends Managed<Long> {
 		this.readLaterStatus = readLaterStatus;
 	}
 	
-	@PrePersist
-	protected void onPersist() {
-		dateCreated = new Date();
-	}
-	
-	@PreUpdate
-	protected void onUpdate() {
-		dateModified = new Date();
-	}
-
 	@Deprecated
 	public Bookmark update(Bookmark from) {
 		this.title = from.title;

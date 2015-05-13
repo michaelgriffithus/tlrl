@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -28,8 +29,13 @@ public class WebPage extends ManagedAuditable<Long> {
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@Column(unique=true)
+	@Column(columnDefinition="text", unique=true, nullable=false, updatable=false)
 	private String url;
+	
+	@Column(columnDefinition="text", nullable=true)
+	private String description;
+	
+	@Column(columnDefinition="text", nullable=true)
 	private String title;
 
 	@Column(name="fetched", columnDefinition="boolean default false", nullable=false)
@@ -38,11 +44,8 @@ public class WebPage extends ManagedAuditable<Long> {
 	@Transient
 	private int refCount;
 	
-	@Column(columnDefinition="TEXT")
-	private String description;
-	
-	@Column(columnDefinition="TEXT")
-	private String content;
+	@Column(nullable=true) @Lob
+	private byte[] content;
 	
 	@ManyToMany(targetEntity=Tag.class)
 	@JoinTable(name="webpage_tags", 
@@ -106,12 +109,14 @@ public class WebPage extends ManagedAuditable<Long> {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public String getContent() {
+	
+	public byte[] getContent() {
 		return content;
 	}
-	public void setContent(String content) {
+	public void setContent(byte[] content) {
 		this.content = content;
 	}
+
 	public Set<Tag> getTags() {
 		return tags;
 	}

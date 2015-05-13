@@ -38,6 +38,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 		return findOrCreateReadLater(new Bookmark(user, new WebPage(user, url)));
 	}
 	
+	@Transactional
 	public Bookmark findOrCreateReadLater(Bookmark bookmark) {
 		Bookmark existingReadLater = readLaterRepository.
 				findOneByUserAndWebPageUrl(bookmark.getUser(), bookmark.getUrl());
@@ -55,7 +56,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 			existingReadLater = readLaterRepository.save(bookmark);
 			
 			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existingReadLater);
-			readLaterWebPage.setContent(webPage.getContent());
+			readLaterWebPage.setContent(new String(webPage.getContent()));
 			readLaterWebPageService.create(readLaterWebPage);
 		}
 		return existingReadLater;

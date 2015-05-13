@@ -1,0 +1,15 @@
+--
+-- Populate with initial roles USER, ADMIN and UNCONFIRMED
+--
+INSERT INTO tlrl_role(id) 
+SELECT 'ROLE_USER' WHERE NOT EXISTS (
+	SELECT id FROM tlrl_role WHERE id = 'ROLE_USER');
+   
+INSERT INTO tlrl_role(id) 
+SELECT 'ROLE_UNCONFIRMED' WHERE NOT EXISTS (
+	SELECT id FROM tlrl_role WHERE id = 'ROLE_UNCONFIRMED');
+   
+INSERT INTO tlrl_role(id) 
+SELECT 'ROLE_ADMIN' WHERE NOT EXISTS (
+	SELECT id FROM tlrl_role WHERE id = 'ROLE_ADMIN');
+

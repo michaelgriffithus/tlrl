@@ -41,7 +41,7 @@ public class WebPageFetcher implements WebResourceFetcher {
 			document = response.parse();
 			webPage.setTitle(document.title());
 			String content = Jsoup.clean(document.body().text(), Whitelist.basic());
-			webPage.setContent(content);
+			webPage.setContent(content.getBytes());
 			// TODO: parse for meta description
 			webPage.setDescription(content == null || content.length() < 200 ? 
 					content : content.substring(0,  200));
