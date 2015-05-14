@@ -148,6 +148,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 		this.shared = shared;
 	}
 	
+	@JsonProperty
 	public String getUrl() {
 		return (webResource == null ? null : webResource.getUrl());
 	}
@@ -181,10 +182,12 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
-			.add("webPage", webResource.getId())
+			.add("webResource", webResource)
 			.add("shared", shared)
 			.add("title", title)
-			.add("tags", tags);
+			.add("tags", tags)
+			.add("description", description)
+			.add("url", getUrl());
 	}
 	
 }

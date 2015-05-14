@@ -56,7 +56,8 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 			existing = readLaterRepository.save(bookmark);
 			
 			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existing);
-			readLaterWebPage.setContent(new String(webResource.getContent()));
+			if(webResource.getContent() != null)
+				readLaterWebPage.setContent(new String(webResource.getContent()));
 			readLaterWebPageService.create(readLaterWebPage);
 		}
 		return existing;
@@ -77,6 +78,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 	@Override
 	public ResultPage<Bookmark> findPopular(Pageable pageable) {
 		List<Bookmark> bookmarks = readLaterRepository.findPopular(pageable);
+		
 		ReadLaterStats stats = readLaterRepository.findPopularTags();
 		return new SimpleResultPage(bookmarks, stats, pageable);
 	}

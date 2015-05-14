@@ -49,15 +49,16 @@ public class ReadLaterJpaRepositoryImpl
 	@Override
 	public List<Bookmark> findPopular(Pageable pageable) {
 		LOG.debug("Starting findPopular: pageable={}", pageable);
+		System.out.println("================ sql: " + bundle.getSql("FindPopularQuery"));
 		return namedParameterJdbcTemplate.query(bundle.getSql("FindPopularQuery"), 
 				defaultSqlParameterSource, popularReadLaterRowMapper);
 	}
 
 	@Override
-	public WebResource findAllByWebPage(final Long webPageId) {
-		LOG.debug("Starting findAllByWebPage: webPageId={}", webPageId);
-		SqlParameterSource paramSource = new MapSqlParameterSource("webPageId", webPageId);
-		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebPage", 
+	public WebResource findAllByWebPage(final Long webResourceId) {
+		LOG.debug("Starting findAllByWebPage: webResourceId={}", webResourceId);
+		SqlParameterSource paramSource = new MapSqlParameterSource("webResourceId", webResourceId);
+		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebResource", 
 				paramSource), paramSource, webPageReadLaterResultSetExtractor);
 		//return webPageReadLatersMappingSqlQuery.findWebPageReadLaters(webPageId);
 	}
@@ -149,6 +150,16 @@ public class ReadLaterJpaRepositoryImpl
 			bookmark.setDescription(rs.getString("description"));
 			bookmark.setTitle(rs.getString("title"));
 			bookmark.setDateCreated(rs.getTimestamp("date_created"));
+
+			User user = new User();
+			user.setId(rs.getLong("user_id"));
+			user.setName(rs.getString("user_name"));
+			bookmark.setUser(user);
+			
+			WebResource webResource = new WebResource(rs.getString("url"));
+			webResource.setId(rs.getLong("webresourceId"));
+			bookmark.setWebPage(webResource);
+			
 			return bookmark;
 		}
 		
@@ -189,16 +200,7 @@ public class ReadLaterJpaRepositoryImpl
 	class PublicReadLaterRowMapper extends SimpleReadLaterRowMapper {
 		@Override
 		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
-			User user = new User();
-			user.setId(rs.getLong("user_id"));
-			user.setName(rs.getString("user_name"));
-			
-			WebResource webResource = new WebResource(rs.getString("url"));
-			webResource.setId(rs.getLong("webpageId"));
-			
 			Bookmark bookmark = super.mapRow(rs, rowNum);
-			bookmark.setWebPage(webResource);
-			bookmark.setUser(user);
 			getTagColumn("tag0", rs, bookmark);
 			getTagColumn("tag1", rs, bookmark);
 			getTagColumn("tag2", rs, bookmark);
@@ -242,7 +244,7 @@ public class ReadLaterJpaRepositoryImpl
 					user.setName(rs.getString("user_name"));
 					webResource.setUser(user);
 					webResource.setUrl(rs.getString("url"));
-					webResource.setId(rs.getLong("webpageId"));
+					webResource.setId(rs.getLong("webresourceId"));
 					webResource.setDescription(rs.getString("description"));
 					webResource.setDateCreated(new Date(rs.getTimestamp("date_created").getTime()));
 					webResource.setRefCount(rs.getInt("refCount"));

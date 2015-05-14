@@ -21,6 +21,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
@@ -59,10 +61,12 @@ public class WebResource extends ManagedAuditable<Long> {
 	@OneToMany(mappedBy="webResource", fetch=FetchType.LAZY,
 			targetEntity=Bookmark.class,
 			cascade={CascadeType.MERGE, CascadeType.PERSIST})
+	@JsonIgnore
 	private Collection<Bookmark> bookmarks = new ArrayList<>();
 
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE, CascadeType.REFRESH}, optional=false)
 	@JoinColumn(name="user_id")
+	@JsonIgnore
 	private User user;
 	
 	public WebResource() {}
@@ -137,6 +141,18 @@ public class WebResource extends ManagedAuditable<Long> {
 	}
 	public void setFetched(boolean fetched) {
 		this.fetched = fetched;
+	}
+	//TODO: move to DTO
+	@Transient
+	@JsonProperty(value="userId")
+	public Long getUserId() {
+		return (user == null) ? null : user.getId();
+	}
+
+	@Transient
+	@JsonProperty(value="userName")
+	public String getUserName() {
+		return (user == null) ? null : user.getName();
 	}
 
 	public WebResource update(WebResource from) {
