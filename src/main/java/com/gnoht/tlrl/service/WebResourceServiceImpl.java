@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
@@ -20,13 +21,13 @@ import com.gnoht.tlrl.security.SecurityUtils;
 import com.gnoht.tlrl.service.support.ManagedService;
 
 @Service("webPageService")
-public class WebPageServiceImpl extends ManagedService<Long, WebResource, WebResourceRepository> 
-		implements WebPageService {
+public class WebResourceServiceImpl extends ManagedService<Long, WebResource, WebResourceRepository> 
+		implements WebResourceService {
 
-	protected static final Logger LOG = LoggerFactory.getLogger(WebPageServiceImpl.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(WebResourceServiceImpl.class);
 	
 	@Inject
-	public WebPageServiceImpl(WebResourceRepository repository, 
+	public WebResourceServiceImpl(WebResourceRepository repository, 
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
@@ -37,9 +38,7 @@ public class WebPageServiceImpl extends ManagedService<Long, WebResource, WebRes
 		WebResource webResource = findByUrl(url);
 		if(webResource == null) {
 			LOG.debug("No existing webResource found, creating new webResource.");
-			webResource = new WebResource();
-			webResource.setUrl(url);
-			webResource.setUser(SecurityUtils.getCurrentUser());
+			webResource = new WebResource(SecurityUtils.getCurrentUser(), url);
 			webResource = save(webResource);
 		}
 		return webResource;

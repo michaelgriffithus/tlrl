@@ -15,6 +15,7 @@ import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.security.OAuth2Authentication;
@@ -24,7 +25,7 @@ import com.gnoht.tlrl.security.OAuth2Authentication;
 @ActiveProfiles("test")
 public class WebResourceServiceImplIntTest {
 
-	@Autowired WebPageService webResourceService;
+	@Autowired WebResourceService webResourceService;
 	@Autowired UserService userService;
 	
 	@Before

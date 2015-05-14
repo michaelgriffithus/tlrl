@@ -30,7 +30,7 @@ public class BookmarkServiceImplIntTest {
 	ReadLaterService bookmarkService;
 
 	@Resource
-	WebPageService webResourceService;
+	WebResourceService webResourceService;
 	
 	User testUser = new User();
 

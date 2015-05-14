@@ -30,7 +30,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterServiceImpl.class);
 
 	@Resource private ReadLaterJpaRepository readLaterRepository;
-	@Resource private WebPageService webPageService;
+	@Resource private WebResourceService webResourceService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 
 	@Override
@@ -43,7 +43,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 		Bookmark existing = readLaterRepository.
 				findOneByUserAndWebResourceUrl(bookmark.getUser(), bookmark.getUrl());
 		if(existing == null) {
-			WebResource webResource = webPageService.findByUrlOrCreate(bookmark.getUrl());
+			WebResource webResource = webResourceService.findByUrlOrCreate(bookmark.getUrl());
 			bookmark.setWebPage(webResource);
 			
 			if(bookmark.getTitle() == null && webResource.getTitle() != null) { 

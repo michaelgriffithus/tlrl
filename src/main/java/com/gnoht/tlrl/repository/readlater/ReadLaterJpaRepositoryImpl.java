@@ -218,6 +218,10 @@ public class ReadLaterJpaRepositoryImpl
 		@Override
 		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Bookmark bookmark = super.mapRow(rs, rowNum);
+			String webResourceTitle = rs.getString("wtitle");
+			if(webResourceTitle != null) {
+				bookmark.setTitle(webResourceTitle);
+			}
 			bookmark.setRefCount(rs.getInt("refCount"));
 			return bookmark;
 		}

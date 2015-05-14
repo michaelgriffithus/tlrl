@@ -125,7 +125,7 @@
 -- @pageSize size to limit returned results
 -- ========================================
 @NAME(FindPopularQuery)
-  SELECT w.url, w.id, b.webresource_id as webResourceId, w.title, url.count AS refCount, b.user_id, u.name AS user_name, w.description, b.date_created
+  SELECT w.url, w.id, b.webresource_id as webResourceId, b.title, w.title AS wtitle, url.count AS refCount, b.user_id, u.name AS user_name, w.description, b.date_created
     FROM webresource w, bookmark b
       LEFT JOIN (
         SELECT url, COUNT(url), MIN(b.id) AS bookmark_id

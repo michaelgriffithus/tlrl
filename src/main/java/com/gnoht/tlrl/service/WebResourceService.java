@@ -1,12 +1,13 @@
 package com.gnoht.tlrl.service;
 
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.service.support.ManageableService;
 
 /**
  * Service interface for {@link WebResource}s.
  */
-public interface WebPageService extends ManageableService<Long, WebResource> {
+public interface WebResourceService extends ManageableService<Long, WebResource> {
 
 	/**
 	 * Find {@link WebResource} with matching url, creating one if it doesn't already 

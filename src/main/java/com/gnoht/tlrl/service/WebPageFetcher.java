@@ -21,7 +21,7 @@ public class WebPageFetcher implements WebResourceFetcher {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebPageFetcher.class);
 	
-	@Resource private WebPageService webPageService;
+	@Resource private WebResourceService webResourceService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	
 	//@Async
@@ -50,7 +50,7 @@ public class WebPageFetcher implements WebResourceFetcher {
 			LOG.error("Unable to parse {}", webResource.getUrl(), e);
 			webResource.setFetched(false);
 		}
-		webPageService.save(webResource);
+		webResourceService.save(webResource);
 		return webResource;
 	}
 
