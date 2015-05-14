@@ -28,7 +28,7 @@ import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ResultPage;
-import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
+import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 import com.gnoht.tlrl.security.CurrentUser;
 import com.gnoht.tlrl.service.ReadLaterService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
@@ -41,7 +41,7 @@ public class BookmarkController {
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkController.class);
 
 	@Resource private ReadLaterService readLaterService;
-	@Resource private ReadLaterJpaRepository repo;
+	@Resource private BookmarkRepository repo;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	@Resource private UserService userService;
 	

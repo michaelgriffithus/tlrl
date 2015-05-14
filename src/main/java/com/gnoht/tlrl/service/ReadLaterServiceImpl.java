@@ -21,7 +21,7 @@ import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ManageResultPage;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
-import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
+import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 
 
 @Service("tlrlService")
@@ -29,7 +29,7 @@ public class ReadLaterServiceImpl implements ReadLaterService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterServiceImpl.class);
 
-	@Resource private ReadLaterJpaRepository readLaterRepository;
+	@Resource private BookmarkRepository readLaterRepository;
 	@Resource private WebResourceService webResourceService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 

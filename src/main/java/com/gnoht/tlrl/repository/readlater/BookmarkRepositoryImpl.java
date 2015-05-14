@@ -31,12 +31,12 @@ import com.gnoht.tlrl.domain.WebResource;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
-import static com.gnoht.tlrl.repository.readlater.ReadLaterSqlParameterSource.*;
+import static com.gnoht.tlrl.repository.readlater.BookmarkRepositorySqlParameterSource.*;
 
-public class ReadLaterJpaRepositoryImpl 
-		implements ReadLaterCustomRepository {
+public class BookmarkRepositoryImpl 
+		implements BookmarkCustomRepository {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterJpaRepositoryImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BookmarkRepositoryImpl.class);
 	
 	@Resource private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	
@@ -44,7 +44,7 @@ public class ReadLaterJpaRepositoryImpl
 	private static SqlParameterSource defaultSqlParameterSource = forPageableQueries(defaultPageable);
 	
 	private ElSqlBundle bundle = ElSqlBundle.
-			of(ElSqlConfig.DEFAULT, ReadLaterJpaRepository.class);
+			of(ElSqlConfig.DEFAULT, BookmarkRepository.class);
 	
 	@Override
 	public List<Bookmark> findPopular(Pageable pageable) {

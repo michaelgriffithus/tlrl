@@ -14,7 +14,7 @@ import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
-import com.gnoht.tlrl.repository.readlater.ReadLaterJpaRepository;
+import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={RepositoryConfig.class})
@@ -25,7 +25,7 @@ public class BookmarkRepositoryIntTest {
 	Environment env;
 	
 	@Autowired
-	private ReadLaterJpaRepository readLaterRepository;
+	private BookmarkRepository readLaterRepository;
 	
 	@Test
 	public void repositoryShouldNotBeNull() {

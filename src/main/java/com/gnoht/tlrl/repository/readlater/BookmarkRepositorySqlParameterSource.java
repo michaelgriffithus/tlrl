@@ -14,7 +14,7 @@ import com.gnoht.tlrl.domain.SharedStatus;
  * {@link SqlParameterSource} implementation holding named SQL parameters 
  * for all "findAll*" queries.
  */
-public class ReadLaterSqlParameterSource 
+public class BookmarkRepositorySqlParameterSource 
 		extends MapSqlParameterSource {
 
 	/** Flag indicating query filter untagged is applied */
@@ -34,13 +34,13 @@ public class ReadLaterSqlParameterSource
 	static final Long NULL_USERID = null;  
 	static final ReadLaterQueryFilter NULL_QUERYFILTER = null;
 	
-	private ReadLaterSqlParameterSource(Pageable pageable) {
+	private BookmarkRepositorySqlParameterSource(Pageable pageable) {
 		addValue(PAGE_PARAM, pageable.getOffset());
 		addValue(PAGE_SIZE_PARAM, pageable.getPageSize());
 	}
 
 	@Override
-	public ReadLaterSqlParameterSource addValue(String paramName, Object value) {
+	public BookmarkRepositorySqlParameterSource addValue(String paramName, Object value) {
 		super.addValue(paramName, value);
 		return this;
 	}
@@ -53,7 +53,7 @@ public class ReadLaterSqlParameterSource
 	 * @param filter
 	 * @param pageable
 	 */
-	private ReadLaterSqlParameterSource(
+	private BookmarkRepositorySqlParameterSource(
 			final Long userId, 
 			final Set<String> tags, 
 			final ReadLaterQueryFilter filter, 
@@ -98,8 +98,8 @@ public class ReadLaterSqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	public static ReadLaterSqlParameterSource forPageableQueries(final Pageable pageable) {
-		return new ReadLaterSqlParameterSource(pageable);
+	public static BookmarkRepositorySqlParameterSource forPageableQueries(final Pageable pageable) {
+		return new BookmarkRepositorySqlParameterSource(pageable);
 	}
 
 	/**
@@ -109,11 +109,11 @@ public class ReadLaterSqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	public static ReadLaterSqlParameterSource forByTagsQueries(
+	public static BookmarkRepositorySqlParameterSource forByTagsQueries(
 			final Set<String> tags, 
 			final Pageable pageable) 
 	{
-		return new ReadLaterSqlParameterSource(NULL_USERID, tags, NULL_QUERYFILTER, pageable);
+		return new BookmarkRepositorySqlParameterSource(NULL_USERID, tags, NULL_QUERYFILTER, pageable);
 	}
 	
 	/**
@@ -123,13 +123,13 @@ public class ReadLaterSqlParameterSource
 	 * @param tags
 	 * @param pageable
 	 */
-	public static ReadLaterSqlParameterSource forByUserAndTagsQueries(
+	public static BookmarkRepositorySqlParameterSource forByUserAndTagsQueries(
 			final Long userId, 
 			final Set<String> tags, 
 			final Pageable pageable) 
 	{
-		ReadLaterSqlParameterSource sqlParameterSource = 
-				new ReadLaterSqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
+		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+				new BookmarkRepositorySqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
 		sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
 		return sqlParameterSource;
 	}
@@ -143,13 +143,13 @@ public class ReadLaterSqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	public static ReadLaterSqlParameterSource forByOwnerAndTaggedQueries(
+	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQueries(
 			final Long userId,
 			final Set<String> tags,
 			final ReadLaterQueryFilter queryFilter,
 			final Pageable pageable) 
 	{
-		return new ReadLaterSqlParameterSource(userId, tags, queryFilter, pageable);
+		return new BookmarkRepositorySqlParameterSource(userId, tags, queryFilter, pageable);
 	}
 	
 	/**
@@ -160,12 +160,12 @@ public class ReadLaterSqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	public static ReadLaterSqlParameterSource forByOwnerUntaggedQueries(
+	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQueries(
 			final Long userId,
 			final ReadLaterQueryFilter filter,
 			final Pageable pageable) 
 	{
-		return new ReadLaterSqlParameterSource(userId, NULL_TAGS, filter, pageable);
+		return new BookmarkRepositorySqlParameterSource(userId, NULL_TAGS, filter, pageable);
 	}
 	
 }

@@ -9,8 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 
-public interface ReadLaterJpaRepository 
-		extends JpaRepository<Bookmark, Long>, ReadLaterCustomRepository {
+public interface BookmarkRepository 
+		extends JpaRepository<Bookmark, Long>, BookmarkCustomRepository {
 
 	public Bookmark findOneByUserAndWebResourceUrl(User user, String url);
 	

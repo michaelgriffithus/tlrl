@@ -11,7 +11,7 @@ import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
 
-public interface ReadLaterCustomRepository {
+public interface BookmarkCustomRepository {
 
 	public List<Bookmark> findAllByUserAndTags(User user, Set<String> tags, Pageable pageable);
 	public List<Bookmark> findAllByTags(Set<String> tags, Pageable pageable);
