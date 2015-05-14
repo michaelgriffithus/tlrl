@@ -10,7 +10,7 @@ import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ResultPage;
 
-public interface ReadLaterService {
+public interface BookmarkService {
 
 	public Bookmark findOrCreateReadLater(User user, String url);
 	

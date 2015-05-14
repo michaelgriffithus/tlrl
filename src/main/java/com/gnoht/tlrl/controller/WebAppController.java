@@ -14,8 +14,10 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import com.gnoht.tlrl.config.SecurityConfig;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.security.CurrentUser;
+import com.gnoht.tlrl.security.SecurityUtils;
 
 /**
  * Controller for managing request to the non API/SPA portions of the 
@@ -40,10 +42,12 @@ public class WebAppController {
 	@RequestMapping(value={"/"}, method=RequestMethod.GET)
 	public String home(@CurrentUser User user) {
 		LOG.info("Starting home(): user={}", user);
-		if(user == null) {
-			return "index";
-		} else {
-			return "redirect:/@" + user.getName();
+		if(user != null) {
+			if(SecurityUtils.hasRole(user, SecurityUtils.ROLE_USER))
+				return "redirect:/@" + user.getName();
+			if(SecurityUtils.hasRole(user, SecurityUtils.ROLE_UNCONFIRMED))
+				return "redirect:" + SecurityConfig.SIGNUP_URL;
 		}
+		return "index";
 	}
 }

@@ -27,7 +27,7 @@ import com.gnoht.tlrl.domain.WebResource;
 public class BookmarkServiceImplIntTest {
 
 	@Resource
-	ReadLaterService bookmarkService;
+	BookmarkService bookmarkService;
 
 	@Resource
 	WebResourceService webResourceService;

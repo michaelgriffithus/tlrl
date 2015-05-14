@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.security.CurrentUser;
+import com.gnoht.tlrl.security.SecurityUtils;
 
 /**
  * Controller for managing request to the our SPA (single page application).
@@ -27,7 +28,7 @@ public class SpaController {
 	 */
 	@RequestMapping(value={"/@*", "/@*/*", "/search", "/urls/**", "/popular", "/recent"})
 	public String app(@CurrentUser User user, Model model) {
-		if(user != null) { 
+		if(SecurityUtils.hasRole(user, SecurityUtils.ROLE_USER)) { 
 			LOG.debug("Adding model attribute user={}", user);
 			model.addAttribute("user", user);
 		}

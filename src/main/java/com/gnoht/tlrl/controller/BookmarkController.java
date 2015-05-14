@@ -30,7 +30,7 @@ import com.gnoht.tlrl.domain.WebResource;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 import com.gnoht.tlrl.security.CurrentUser;
-import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.BookmarkService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.gnoht.tlrl.service.UserService;
 
@@ -40,7 +40,7 @@ public class BookmarkController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkController.class);
 
-	@Resource private ReadLaterService readLaterService;
+	@Resource private BookmarkService bookmarkService;
 	@Resource private BookmarkRepository repo;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	@Resource private UserService userService;
@@ -60,24 +60,24 @@ public class BookmarkController {
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable,
 			@RequestParam(required=false, value="tags") String[] tags) {
 		LOG.info("Starting findAll: ");
-		return readLaterService.findAllTagged(toSet(tags), pageable);
+		return bookmarkService.findAllTagged(toSet(tags), pageable);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.GET)
 	public WebResource findAllByWebpage(@PathVariable(value="id") Long id,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
-		return readLaterService.findAllByWebPage(id);
+		return bookmarkService.findAllByWebPage(id);
 	}
 	
 	@RequestMapping(value="/recent", method=RequestMethod.GET)
 	public ResultPage<Bookmark> findRecent() {
-		return readLaterService.findRecent(new PageRequest(0, 50));
+		return bookmarkService.findRecent(new PageRequest(0, 50));
 	}
 	
 	@RequestMapping(value="/popular", method=RequestMethod.GET)
 	public ResultPage<Bookmark> findPopular(
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
-		return readLaterService.findPopular(pageable);
+		return bookmarkService.findPopular(pageable);
 	}
 	
 	/**
@@ -129,13 +129,13 @@ public class BookmarkController {
 		if(!isOwner(currentUser, user)) {
 			LOG.debug("In non owner block");
 			/* public/non owner queries can only filter by tags */
-			return readLaterService.findAllByUserAndTagged(user, toSet(tags), pageable);
+			return bookmarkService.findAllByUserAndTagged(user, toSet(tags), pageable);
 		} else {
 			LOG.debug("In owner block");
 			/* private/owner queries can filter by tags and optional untagged, shared, status */
 			return (ownerOnlyFilters.isUntagged() ? 
-					readLaterService.findAllByOwnerAndUntagged(currentUser, ownerOnlyFilters, pageable) :
-				readLaterService.findAllByOwnerAndTagged(currentUser, ownerOnlyFilters, toSet(tags), pageable));
+					bookmarkService.findAllByOwnerAndUntagged(currentUser, ownerOnlyFilters, pageable) :
+				bookmarkService.findAllByOwnerAndTagged(currentUser, ownerOnlyFilters, toSet(tags), pageable));
 		}
 	}
 
@@ -144,7 +144,7 @@ public class BookmarkController {
 			@PathVariable("id") Long id, @RequestBody(required=true) Bookmark bookmark) {
 		bookmark.setUser(currentUser);
 		bookmark.setId(id);
-		return readLaterService.updateReadLaterStatus(bookmark);
+		return bookmarkService.updateReadLaterStatus(bookmark);
 	}
 	
 	/**
@@ -157,7 +157,7 @@ public class BookmarkController {
 			@Valid @RequestBody(required=true) Bookmark bookmark) {
 		LOG.debug("Starting create(): readLater={}", bookmark);
 		bookmark.setUser(currentUser);
-		return readLaterService.findOrCreateReadLater(bookmark);
+		return bookmarkService.findOrCreateReadLater(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.PUT)
@@ -172,7 +172,7 @@ public class BookmarkController {
 		// check if user owns readlater
 		bookmark.setId(id);
 		bookmark.setUser(currentUser); //prevent spoofing
-		return readLaterService.updateReadLater(bookmark);
+		return bookmarkService.updateReadLater(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.DELETE)
@@ -180,7 +180,7 @@ public class BookmarkController {
 		Bookmark bookmark = new Bookmark();
 		bookmark.setId(id);
 		bookmark.setUser(currentUser);
-		readLaterService.deleteReadLater(bookmark);
+		bookmarkService.deleteReadLater(bookmark);
 		return bookmark;
 	}
 	

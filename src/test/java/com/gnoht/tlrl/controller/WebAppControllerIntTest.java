@@ -49,7 +49,7 @@ import com.gnoht.tlrl.repository.ReadLaterWebPageSolrRepository;
 import com.gnoht.tlrl.security.OAuth2AuthenticationUserDetailsService;
 import com.gnoht.tlrl.security.OAuth2UserDetails;
 import com.gnoht.tlrl.security.SecurityUtils;
-import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.BookmarkService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.gnoht.tlrl.service.UserService;
 

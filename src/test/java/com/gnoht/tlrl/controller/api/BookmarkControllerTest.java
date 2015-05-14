@@ -21,7 +21,7 @@ import com.gnoht.tlrl.controller.StandaloneControllerTest;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.BookmarkService;
 
 /**
  * {@link BookmarkController} unit test.

@@ -13,7 +13,7 @@ import com.gnoht.tlrl.config.OAuth2SecurityConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.SecurityConfig;
 import com.gnoht.tlrl.config.WebMvcConfig;
-import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.BookmarkService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.gnoht.tlrl.service.RememberMeTokenService;
 import com.gnoht.tlrl.service.UserService;
@@ -28,7 +28,7 @@ public class MockApplicationForControllerTesting {
 		SpringApplication.run(MockApplicationForControllerTesting.class, args);
 	}
 	
-	@Mock ReadLaterService bookmarkService;
+	@Mock BookmarkService bookmarkService;
 	@Mock UserService userService;
 	@Mock RememberMeTokenService rememberMeTokenService;
 	@Mock ReadLaterWebPageService readLaterWebPageService;
@@ -43,7 +43,7 @@ public class MockApplicationForControllerTesting {
 	}
 	
 	@Bean
-	public ReadLaterService bookmarkService() {
+	public BookmarkService bookmarkService() {
 		return bookmarkService;
 	}
 	

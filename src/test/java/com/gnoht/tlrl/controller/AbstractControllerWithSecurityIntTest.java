@@ -27,7 +27,7 @@ import com.gnoht.tlrl.domain.Role;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.security.OAuth2Authentication;
 import com.gnoht.tlrl.security.OAuth2UserDetails;
-import com.gnoht.tlrl.service.ReadLaterService;
+import com.gnoht.tlrl.service.BookmarkService;
 import com.gnoht.tlrl.service.RememberMeTokenService;
 import com.gnoht.tlrl.service.UserService;
 import com.gnoht.tlrl.test.config.MockApplicationForControllerTesting;

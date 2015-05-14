@@ -25,9 +25,9 @@ import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 
 
 @Service("tlrlService")
-public class ReadLaterServiceImpl implements ReadLaterService {
+public class BookmarkServiceImpl implements BookmarkService {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ReadLaterServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BookmarkServiceImpl.class);
 
 	@Resource private BookmarkRepository readLaterRepository;
 	@Resource private WebResourceService webResourceService;
