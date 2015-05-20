@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -34,15 +34,15 @@ public class BookmarkRepositoryIntTest {
 	
 	@Test
 	public void shouldSaveBookmark() {
-		WebResource webResource = new WebResource("http://yahoo.com");
-		webResource.setId(1L);
+		WebUrl webUrl = new WebUrl("http://yahoo.com");
+		webUrl.setId(1L);
 		
 		User user = new User();
 		user.setId(1L);
 		
 		// given
 		Bookmark bookmark = new Bookmark();
-		bookmark.setWebPage(webResource);
+		bookmark.setWebPage(webUrl);
 		bookmark.setUser(user);
 		
 		assertNull("Id should be null!", bookmark.getId());

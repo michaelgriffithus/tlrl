@@ -13,7 +13,7 @@ angular.module('tlrlServices', ['ngResource'])
 			'query': {method: 'GET', isArray: false},
 			'recent': {method: 'GET', url: '/api/recent', isArray: false},
 			'popular': {method: 'GET', url: '/api/popular', isArray: false},
-			'webpage': {method: 'GET', url: '/api/urls/:id', isArray: false}
+			'popularDetails': {method: 'GET', url: '/api/urls/:id', isArray: false}
 		});
 }])
 //.factory('securityInterceptor', ['$q', '$window', function ($q, $window) {
@@ -126,9 +126,9 @@ angular.module('tlrl', [
 			reloadOnSearch: true
 	}
 	$routeProvider
-		.when('/urls/:webpageId', {
-			templateUrl: '/partials/webpage.html',
-			controller: 'webpageCtrl'
+		.when('/urls/:webUrlId', {
+			templateUrl: '/partials/popular-details.html',
+			controller: 'popularDetailsCtrl'
 		})
 		.when('/recent', {
 			templateUrl: '/partials/recent.html',
@@ -397,7 +397,7 @@ angular.module('tlrl', [
 	$scope.pageHeading = function() {
 		var path = $location.path();
 		if(path.indexOf('/urls/') == 0) {
-			return 'Bookmark details';
+			return 'Popular bookmark details';
 		} else if(path.indexOf('/recent') == 0) {
 			return 'Recent bookmarks';
 		} else if(path.indexOf('/popular') == 0) {
@@ -473,18 +473,22 @@ angular.module('tlrl', [
 	
 	
 }])
-.controller('webpageCtrl', ['$scope', '$routeParams', '$location', 'TLRLService', '$controller', 
+.controller('popularDetailsCtrl', ['$scope', '$routeParams', '$location', 'TLRLService', '$controller', 
     function($scope, $routeParams, $location, TLRLService, $controller) {
 	angular.extend(this, $controller('baseCtrl', {$scope: $scope}))
 	
-	$scope.findWebPage = function() {
-		TLRLService.webpage({id: $routeParams.webpageId}, function(webPage) {
-			$scope.webPage = webPage;
+	console.log("inside popularDetailsCtrl")
+	
+	function popularDetails() {
+		TLRLService.popularDetails({id: $routeParams.webUrlId}, function(resp) {
+			$scope.webUrl = resp.content[0];
+			console.log(resp.content.slice(1))
+			$scope.bookmarks = resp.content.slice(1);
 		}, $scope.handleError);
 	}
 	
 	$scope.handleRouteChanges = function() {
-		$scope.findWebPage();
+		popularDetails();
 	}
 	
 }])

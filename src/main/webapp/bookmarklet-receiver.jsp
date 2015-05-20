@@ -20,7 +20,6 @@
 			 */
 			if(attrs.tlrl) {
 				
-				console.log(_tlrlHeaders)
 				$.ajax({
 					type: 'POST',
 					url: '/api/urls',

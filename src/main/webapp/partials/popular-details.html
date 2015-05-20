@@ -13,24 +13,23 @@
 	 			<ul class="list-unstyled push-up">
 	 				<li class="li-item">
 	 					<div class="wp-view">
-		 					<div class="attr title"><a x-ng-href="{{webPage.url}}"><span x-ng-bind-html="(webPage.title || webPage.url)"></span></a></div>
-							<div class="attr ellipsis text-muted">{{webPage.url}}</div>
-							<div class="attr desc" x-ng-bind-html="webPage.description"></div>
-							<div class="text-muted" style="margin-top: 10px;">added {{webPage.dateCreated | dateFormat}} by 
-								<a x-ng-href="/@{{webPage.user.name}}">{{webPage.user.name}}</a></div>
+		 					<div class="attr title"><a x-ng-href="{{webUrl.url}}"><span x-ng-bind-html="webUrl.title"></span></a></div>
+							<div class="attr ellipsis text-muted">{{webUrl.url}}</div>
+							<div class="attr desc" x-ng-bind-html="webUrl.description"></div>
+							<div class="text-muted" style="margin-top: 10px;">added {{webUrl.dateCreated | dateFormat}} by 
+								<a x-ng-href="/@{{webUrl.userName}}">{{webUrl.userName}}</a></div>
 						</div>
 					</li>
-					<li x-ng-show="(webPage.refCount > 0)"><h4 class="text-muted">also added by {{webPage.refCount}} other{{(webPage.refCount > 1 ? 's' : '')}}</h4></li>
-					<li x-ng-repeat="readLater in webPage.readLaters" id="{{readLater.id}}" class="li-item" 
-							x-ng-if="readLater.userName != webPage.user.name">
+					<li><h4 class="text-muted">also added by {{bookmarks.length}} other{{(bookmarks.length == 1 ? '' : 's')}}</h4></li>
+					<li x-ng-repeat="bookmark in bookmarks" id="{{bookmark.id}}" class="li-item">
 						<div class="rl-view">
-							<div class="attr desc" x-ng-bind-html="(readLater.description || readLater.content)"></div>
+							<div class="attr desc" x-ng-bind-html="(bookmark.description || bookmark.title)"></div>
 							<div class="attr">
-								<span class="tag" x-ng-repeat="tag in readLater.tags"><a x-ng-href="{{(targetUser ? '/' + targetUser.atName : '')}}/urls?t={{tag.id}}">{{tag.id}}</a></span>
+								<span class="tag" x-ng-repeat="tag in bookmark.tags"><a x-ng-href="{{(targetUser ? '/' + targetUser.atName : '')}}/urls?t={{tag.id}}">{{tag.id}}</a></span>
 							</div>
 							<div>
-								<div class="text-muted">{{readLater.dateCreated | dateFormat }}
-									by <a x-ng-href="/@{{readLater.userName}}">{{readLater.userName}}</a>
+								<div class="text-muted">{{bookmark.dateCreated | dateFormat }}
+									by <a x-ng-href="/@{{bookmark.userName}}">{{bookmark.userName}}</a>
 								</div>
 							</div>
 						</div>

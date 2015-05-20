@@ -1,9 +1,9 @@
-(function(e,a,h,f,c,b,d) { 
+(function(e,a,h,f,c,b,d) {
 	/* Make sure we have jQuery loaded */
-	if(!(f=e.jQuery) || h(f)) {
+	//if(!(f=e.jQuery) || h(f)) {
 		c=a.createElement("script");
 		c.type="text/javascript";
-		c.src=window.__tlrlBaseUrl + "/static/lib/jquery/dist/jquery.min.js";
+		c.src=e.__tlrlBaseUrl + "/static/lib/jquery/dist/jquery.min.js";
 		c.onload = c.onreadystatechange = function() {
 			if(!b && (!(d=this.readyState) || d=="loaded" || d=="complete")) {
 				h((f=e.jQuery).noConflict(1),b=1);
@@ -16,7 +16,7 @@
 				node.appendChild(c);
 			}
 		}
-	}
+	//}
 })(window,document,function($,L) {
 	/* Common properties for our alert/msg divs */
 	var tlrlMsgStyle = 'display:none;font-size:16px;position:fixed;top:10px;right:10px;z-index:100000;border-radius:3px;width:320px;padding:10px 10px 20px 10px;border: 1px solid #ddd;';	
@@ -89,7 +89,6 @@
 	 * of bookmarklet can skip reloading this sender and just call tlrlPost.
 	 */
 	window.tlrlPost = function () {
-		console.log(encodeURIComponent($(document).attr('body')))
 		tlrlFrame[0].contentWindow.postMessage('tlrl=addReadLater&url=' +
 				encodeURIComponent(window.location.href) + '&content=' +
 				encodeURIComponent($(document).text().replace(/\s{2,}/g, ' ')) + '&title=' +
@@ -111,6 +110,7 @@
 		});
 		//post our request
 		window.tlrlPost();
-	})
+	});
+
 
 });

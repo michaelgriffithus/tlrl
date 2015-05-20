@@ -19,10 +19,10 @@
 @NAME(_BaseBookmarkQuery)
   SELECT b.id, b.title, b.user_id, u.name AS user_name, b.shared, b.description, b.date_created, b.read_later_status, 
      bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4,
-     w.id AS webresourceId, w.url
-    FROM tlrl_user u, webresource w, bookmark b
+     w.id AS weburlId, w.url
+    FROM tlrl_user u, weburl w, bookmark b
       @INCLUDE(_JoinForTags)
-   WHERE w.id = b.webresource_id AND u.id = b.user_id
+   WHERE w.id = b.weburl_id AND u.id = b.user_id
 
 
 -- ========================================
@@ -47,28 +47,34 @@
 
 
 -- ========================================
--- Query for Bookmarks by the WebResource they reference
+-- Query for Bookmarks by the WebUrl they reference
 -- ========================================
-@NAME(FindBookmarksByWebResource)
-  (SELECT 'W' AS type, w.id, w.title, w.url, w.user_id, u.name AS user_name, w.description, true AS shared, b.date_created,
-        NULL AS tag0, NULL AS tag1, NULL AS tag2, NULL AS tag3, NULL AS tag4, w.id AS webresourceId, refCount
+@NAME(FindBookmarksByWebUrl)
+  (SELECT 'W' AS type, w.id, b.title, w.url, b.user_id, u.name AS user_name, w.description, true AS shared, b.date_created,
+        NULL AS tag0, NULL AS tag1, NULL AS tag2, NULL AS tag3, NULL AS tag4, w.id AS weburlId, refCount
      FROM tlrl_user u, bookmark b, (
            SELECT MIN(id) AS id 
              FROM bookmark 
-            WHERE webresource_id = :webResourceId) AS first_rl, webresource w 
+            WHERE weburl_id = :weburlId) AS first_rl, weburl w 
         LEFT OUTER JOIN (
-              SELECT webresource_id, COUNT(id)-1 AS refCount 
+              SELECT weburl_id, COUNT(id)-1 AS refCount 
                 FROM bookmark 
-               WHERE webresource_id = :webResourceId AND shared = TRUE 
-               GROUP BY (webresource_id)) refc ON refc.webresource_id = w.id 
-    WHERE w.id = :webResourceId 
+               WHERE weburl_id = :weburlId AND shared = TRUE 
+               GROUP BY (weburl_id)) refc ON refc.weburl_id = w.id 
+    WHERE w.id = :weburlId 
       AND first_rl.id = b.id AND b.user_id = u.id) 
   UNION 
   (SELECT 'R' AS type, b.id, b.title, w.url, b.user_id, u.name AS user_name, b.description, b.shared, b.date_created, 
-        bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4, w.id AS webresourceId, 1 AS refCount 
-     FROM tlrl_user u, webresource w, bookmark b 
+        bt0.tag_id AS tag0, bt1.tag_id AS tag1, bt2.tag_id AS tag2, bt3.tag_id AS tag3, bt4.tag_id AS tag4, w.id AS weburlId, 1 AS refCount 
+     FROM tlrl_user u, weburl w, (
+        SELECT MIN(id) AS id FROM bookmark WHERE weburl_id = :weburlId
+     ) AS first_b, bookmark b 
          @INCLUDE(_JoinForTags)
-    WHERE b.shared = TRUE AND w.id = :webResourceId AND w.id = b.webresource_id AND u.id = b.user_id) 
+    WHERE b.shared = TRUE 
+      AND first_b.id != b.id
+      AND w.id = :weburlId 
+      AND w.id = b.weburl_id 
+      AND u.id = b.user_id) 
   ORDER BY type DESC, id DESC 
 
 
@@ -125,19 +131,19 @@
 -- @pageSize size to limit returned results
 -- ========================================
 @NAME(FindPopularQuery)
-  SELECT w.url, w.id, b.webresource_id as webResourceId, b.title, w.title AS wtitle, url.count AS refCount, b.user_id, u.name AS user_name, w.description, b.date_created
-    FROM webresource w, bookmark b
+  SELECT w.url, w.id, b.weburl_id as weburlId, b.title, w.title AS wtitle, url.count AS refCount, b.user_id, u.name AS user_name, w.description, b.date_created
+    FROM weburl w, bookmark b
       LEFT JOIN (
         SELECT url, COUNT(url), MIN(b.id) AS bookmark_id
-          FROM bookmark b, webresource w 
+          FROM bookmark b, weburl w 
          WHERE b.shared = TRUE 
-           AND b.webresource_id = w.id 
+           AND b.weburl_id = w.id 
          GROUP BY w.url
       ) AS url ON url.bookmark_id = b.id, tlrl_user u
    WHERE b.shared = TRUE
      AND u.id = b.user_id
      AND url.count IS NOT NULL 
-     AND b.webresource_id = w.id
+     AND b.weburl_id = w.id
    ORDER BY refCount DESC, b.date_created DESC LIMIT :pageSize
 
 

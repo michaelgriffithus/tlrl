@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -31,12 +32,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gnoht.tlrl.domain.support.Managed;
 import com.gnoht.tlrl.domain.support.ManagedAuditable;
+import com.gnoht.tlrl.repository.BookmarkListener;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 @Entity(name="bookmark")
 @Table(uniqueConstraints={
-	@UniqueConstraint(columnNames={"user_id", "webresource_id"})
+	@UniqueConstraint(columnNames={"user_id", "weburl_id"})
 })
+@EntityListeners(BookmarkListener.class)
 public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = -1718561876002831254L;
@@ -47,18 +50,18 @@ public class Bookmark extends ManagedAuditable<Long> {
 	private String description;
 	
 	@Column(name="shared", columnDefinition="boolean default false", nullable=false)
-	private boolean shared = SharedStatus.PRIVATE.status();
+	private boolean shared = false;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty(value="status")
 	@Column(name="read_later_status", nullable=false)
 	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA;
 	
-	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebResource.class,
+	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebUrl.class,
 			cascade={CascadeType.MERGE}, optional=false)
-	@JoinColumn(name="webresource_id")
+	@JoinColumn(name="weburl_id")
 	@JsonIgnore
-	private WebResource webResource;
+	private WebUrl webUrl;
 	
 	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinTable(name="bookmark_tags",
@@ -78,15 +81,15 @@ public class Bookmark extends ManagedAuditable<Long> {
 	
 	public Bookmark() {}
 	
-	public Bookmark(User user, WebResource webResource) {
-		this.webResource = webResource;
+	public Bookmark(User user, WebUrl webUrl) {
+		this.webUrl = webUrl;
 		this.user = user;
-		this.title = webResource.getTitle();
-		this.description = webResource.getDescription();
+		this.title = webUrl.getTitle();
+		this.description = webUrl.getDescription();
 	}
 	
 	public Bookmark(String url) {
-		this.webResource = new WebResource(user, url);
+		this.webUrl = new WebUrl(user, url);
 	}
 	
 	public Long getId() {
@@ -150,17 +153,17 @@ public class Bookmark extends ManagedAuditable<Long> {
 	
 	@JsonProperty
 	public String getUrl() {
-		return (webResource == null ? null : webResource.getUrl());
+		return (webUrl == null ? null : webUrl.getUrl());
 	}
 	public void setUrl(String url) {
-		this.webResource = new WebResource(url);
+		this.webUrl = new WebUrl(url);
 	}
 	
-	public WebResource getWebPage() {
-		return this.webResource;
+	public WebUrl getWebPage() {
+		return this.webUrl;
 	}
-	public void setWebPage(WebResource webResource) {
-		this.webResource = webResource;
+	public void setWebPage(WebUrl webUrl) {
+		this.webUrl = webUrl;
 	}
 	
 	public ReadLaterStatus getReadLaterStatus() {
@@ -182,7 +185,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
-			.add("webResource", webResource)
+			.add("webResource", webUrl)
 			.add("shared", shared)
 			.add("title", title)
 			.add("tags", tags)
@@ -190,4 +193,11 @@ public class Bookmark extends ManagedAuditable<Long> {
 			.add("url", getUrl());
 	}
 	
+	/**
+	 * Class indicating whether this {@link Bookmark} should be added to the 
+	 * "read later" queue.
+	 */
+	public static enum ReadLater {
+		NA, UNREAD, READ;
+	}
 }

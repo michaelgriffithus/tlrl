@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.ManageResultPage;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
@@ -30,44 +31,43 @@ public class BookmarkServiceImpl implements BookmarkService {
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkServiceImpl.class);
 
 	@Resource private BookmarkRepository readLaterRepository;
-	@Resource private WebResourceService webResourceService;
+	@Resource private WebUrlService webUrlService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 
 	@Override
 	public Bookmark findOrCreateReadLater(User user, String url) {
-		return findOrCreateReadLater(new Bookmark(user, new WebResource(user, url)));
+		return findOrCreateReadLater(new Bookmark(user, new WebUrl(user, url)));
 	}
 	
 	@Transactional
 	public Bookmark findOrCreateReadLater(Bookmark bookmark) {
 		Bookmark existing = readLaterRepository.
-				findOneByUserAndWebResourceUrl(bookmark.getUser(), bookmark.getUrl());
+				findOneByUserAndWebUrlUrl(bookmark.getUser(), bookmark.getUrl());
 		if(existing == null) {
-			WebResource webResource = webResourceService.findByUrlOrCreate(bookmark.getUrl());
-			bookmark.setWebPage(webResource);
+			WebUrl webUrl = webUrlService.findByUrlOrCreate(bookmark.getUrl());
+			bookmark.setWebPage(webUrl);
 			
-			if(bookmark.getTitle() == null && webResource.getTitle() != null) { 
-				bookmark.setTitle(webResource.getTitle());
+			if(bookmark.getTitle() == null && webUrl.getTitle() != null) { 
+				bookmark.setTitle(webUrl.getTitle());
 			}
-			if(bookmark.getDescription() == null && webResource.getDescription() != null) {
-				bookmark.setDescription(webResource.getDescription());
+			if(bookmark.getDescription() == null && webUrl.getDescription() != null) {
+				bookmark.setDescription(webUrl.getDescription());
 			}
 				
 			existing = readLaterRepository.save(bookmark);
 			
 			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existing);
-			if(webResource.getContent() != null)
-				readLaterWebPage.setContent(new String(webResource.getContent()));
+//			if(webResource.getContent() != null)
+//				readLaterWebPage.setContent(new String(webResource.getContent()));
 			readLaterWebPageService.create(readLaterWebPage);
 		}
 		return existing;
 	}
 
-	@Override
-	public WebResource findAllByWebPage(Long webPageId) {
-		return readLaterRepository.findAllByWebPage(webPageId);
+	public Page<Bookmark> findPopularByWebUrl(Long id) {
+		return readLaterRepository.findPopularByWebUrl(id);
 	}
-
+	
 	@Override
 	public ResultPage<Bookmark> findRecent(Pageable pageable) {
 		List<Bookmark> bookmarks = readLaterRepository.findRecent(pageable);

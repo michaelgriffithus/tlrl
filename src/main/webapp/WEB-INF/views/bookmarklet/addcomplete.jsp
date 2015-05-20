@@ -15,7 +15,7 @@
 <div class="grid">
 	<div class="grid__col grid__col--1-of-12"></div>
 	<div class="grid__col grid__col--10-of-12">
-		<p style="background-color:#fcf8e3;padding: 5px;" class="lead"><a href="${readLater.url}">${readLater.title}</a>
+		<p style="background-color:#fcf8e3;padding: 5px;" class="lead"><a href="${bookmark.url}">${bookmark.title}</a>
 		<br>
 		has been saved to your bookmarks!
 		</p>

@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -26,7 +27,7 @@ import com.gnoht.tlrl.controller.support.TargetUser;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 import com.gnoht.tlrl.security.CurrentUser;
@@ -64,9 +65,9 @@ public class BookmarkController {
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.GET)
-	public WebResource findAllByWebpage(@PathVariable(value="id") Long id,
+	public Page<Bookmark> findAllByWebpage(@PathVariable(value="id") Long id,
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
-		return bookmarkService.findAllByWebPage(id);
+		return bookmarkService.findPopularByWebUrl(id);
 	}
 	
 	@RequestMapping(value="/recent", method=RequestMethod.GET)

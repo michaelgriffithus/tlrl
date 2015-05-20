@@ -18,27 +18,28 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
 /**
- * Provides custom {@link WebResourceRepository} 
+ * Provides custom {@link WebUrlRepository} 
  */
-public class WebResourceRepositoryImpl 
-			implements WebResourceCustomRepository {
+public class WebUrlRepositoryImpl 
+			implements WebUrlCustomRepository {
 
 	private final NamedParameterJdbcOperations jdbcOperations;
 	private final ElSqlBundle elsql;
 	
 	@Inject
-	public WebResourceRepositoryImpl(NamedParameterJdbcOperations jdbcOperations) {
+	public WebUrlRepositoryImpl(NamedParameterJdbcOperations jdbcOperations) {
 		this.jdbcOperations = jdbcOperations;
-		this.elsql = ElSqlBundle.of(ElSqlConfig.DEFAULT, WebResourceRepository.class);
+		this.elsql = ElSqlBundle.of(ElSqlConfig.DEFAULT, BookmarkRepository.class);
 	}
 	
 	@Override
-	public WebResource findOneById(Long id) {
+	public WebUrl findOneById(Long id) {
 		SqlParameterSource paramSource = new MapSqlParameterSource("webResourceId", id);
 		return jdbcOperations.query(elsql.getSql("FindBookmarksByWebResource", 
 				paramSource), paramSource, webResourceResultSetExtractor);
@@ -47,11 +48,11 @@ public class WebResourceRepositoryImpl
 	/**
 	 * 
 	 */
-	ResultSetExtractor<WebResource> webResourceResultSetExtractor = 
-			new ResultSetExtractor<WebResource>() {
+	ResultSetExtractor<WebUrl> webResourceResultSetExtractor = 
+			new ResultSetExtractor<WebUrl>() {
 		@Override
-		public WebResource extractData(ResultSet rs) throws SQLException, DataAccessException {
-			WebResource webResource = new WebResource();
+		public WebUrl extractData(ResultSet rs) throws SQLException, DataAccessException {
+			WebUrl webUrl = new WebUrl();
 			List<Bookmark> bookmarks = new ArrayList<>();
 			int row = 0;
 			boolean mapped = false;
@@ -61,20 +62,20 @@ public class WebResourceRepositoryImpl
 					User user = new User();
 					user.setId(rs.getLong("user_id"));
 					user.setName(rs.getString("user_name"));
-					webResource.setUser(user);
-					webResource.setUrl(rs.getString("url"));
-					webResource.setId(rs.getLong("webpageId"));
-					webResource.setDescription(rs.getString("description"));
+					//webResource.setUser(user);
+					webUrl.setUrl(rs.getString("url"));
+					webUrl.setId(rs.getLong("webpageId"));
+					webUrl.setDescription(rs.getString("description"));
 					//webResource.setDateCreated(rs.getTimestamp("date_created"));
-					webResource.setRefCount(rs.getInt("refCount"));
-					webResource.setTitle(rs.getString("title"));
+					webUrl.setRefCount(rs.getInt("refCount"));
+					webUrl.setTitle(rs.getString("title"));
 					mapped = true;
 				} else {
 					bookmarks.add(DEFAULT_ROW_MAPPER.mapRow(rs, row++));
 				}
 			}
-			webResource.setBookmarks(bookmarks);
-			return webResource;
+			webUrl.setBookmarks(bookmarks);
+			return webUrl;
 		}
 	};
 }

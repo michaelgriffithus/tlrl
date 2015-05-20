@@ -2,12 +2,13 @@ package com.gnoht.tlrl.service;
 
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.ResultPage;
 
 public interface BookmarkService {
@@ -32,5 +33,5 @@ public interface BookmarkService {
 	public ResultPage<Bookmark> findRecent(Pageable pageable);
 	public ResultPage<Bookmark> findPopular(Pageable pageable);
 	
-	public WebResource findAllByWebPage(Long webPageId);
+	public Page<Bookmark> findPopularByWebUrl(Long id);
 }

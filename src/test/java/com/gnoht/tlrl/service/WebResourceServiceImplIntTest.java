@@ -17,7 +17,7 @@ import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.security.OAuth2Authentication;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -25,7 +25,7 @@ import com.gnoht.tlrl.security.OAuth2Authentication;
 @ActiveProfiles("test")
 public class WebResourceServiceImplIntTest {
 
-	@Autowired WebResourceService webResourceService;
+	@Autowired WebUrlService webUrlService;
 	@Autowired UserService userService;
 	
 	@Before
@@ -37,11 +37,11 @@ public class WebResourceServiceImplIntTest {
 	@Test
 	public void findByUrlOrCreateShouldFindExisting() {
 		// given
-		WebResource existing = webResourceService.findByUrl("http://losangeles.craigslist.org/");
+		WebUrl existing = webUrlService.findByUrl("http://losangeles.craigslist.org/");
 		assertNotNull("Existing webResource not found", existing);
 		
 		// when
-		WebResource newBookmark = webResourceService
+		WebUrl newBookmark = webUrlService
 			.findByUrlOrCreate(existing.getUrl());
 		
 		//then
@@ -54,13 +54,13 @@ public class WebResourceServiceImplIntTest {
 	public void findByUrlOrCreateShouldCreate() {
 		// given
 		String urlToCreate = "http://yahoo.com";
-		assertNull(webResourceService.findByUrl(urlToCreate));
+		assertNull(webUrlService.findByUrl(urlToCreate));
 		
 		// when
-		WebResource saved = webResourceService.findByUrlOrCreate(urlToCreate);
+		WebUrl saved = webUrlService.findByUrlOrCreate(urlToCreate);
 		
 		// then
-		assertNotNull(webResourceService.findByUrl(urlToCreate));
+		assertNotNull(webUrlService.findByUrl(urlToCreate));
 		assertNotNull(saved.getId());
 	}
 }

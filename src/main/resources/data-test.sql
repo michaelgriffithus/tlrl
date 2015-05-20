@@ -23,5 +23,8 @@ SELECT nextval('user_id_seq'), 'thong@gnoht.com', true, 'thong', 'ROLE_USER' WHE
 --
 -- Test data
 -- 
-INSERT INTO webresource(title, url, user_id, date_created, date_modified)
-  VALUES ('Craigslist.org', 'http://losangeles.craigslist.org/', 1, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+INSERT INTO weburl(id, title, url, date_created, date_modified)
+  VALUES (nextval('weburl_id_seq'), 'Craigslist.org', 'http://losangeles.craigslist.org/', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+  
+  
+  

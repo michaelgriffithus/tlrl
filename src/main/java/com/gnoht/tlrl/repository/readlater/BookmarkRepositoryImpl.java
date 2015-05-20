@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +12,8 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -27,7 +28,7 @@ import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
@@ -49,18 +50,16 @@ public class BookmarkRepositoryImpl
 	@Override
 	public List<Bookmark> findPopular(Pageable pageable) {
 		LOG.debug("Starting findPopular: pageable={}", pageable);
-		System.out.println("================ sql: " + bundle.getSql("FindPopularQuery"));
 		return namedParameterJdbcTemplate.query(bundle.getSql("FindPopularQuery"), 
 				defaultSqlParameterSource, popularReadLaterRowMapper);
 	}
 
 	@Override
-	public WebResource findAllByWebPage(final Long webResourceId) {
-		LOG.debug("Starting findAllByWebPage: webResourceId={}", webResourceId);
-		SqlParameterSource paramSource = new MapSqlParameterSource("webResourceId", webResourceId);
-		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebResource", 
-				paramSource), paramSource, webPageReadLaterResultSetExtractor);
-		//return webPageReadLatersMappingSqlQuery.findWebPageReadLaters(webPageId);
+	public Page<Bookmark> findPopularByWebUrl(Long id) {
+		LOG.debug("Starting findPopularByWebUrl(): id={}", id);
+		SqlParameterSource paramSource = new MapSqlParameterSource("weburlId", id);
+		return namedParameterJdbcTemplate.query(bundle.getSql("FindBookmarksByWebUrl", 
+				paramSource), paramSource, popularBookmarkResultSetExtractor);
 	}
 
 	@Override
@@ -156,9 +155,9 @@ public class BookmarkRepositoryImpl
 			user.setName(rs.getString("user_name"));
 			bookmark.setUser(user);
 			
-			WebResource webResource = new WebResource(rs.getString("url"));
-			webResource.setId(rs.getLong("webresourceId"));
-			bookmark.setWebPage(webResource);
+			WebUrl webUrl = new WebUrl(rs.getString("url"));
+			webUrl.setId(rs.getLong("weburlId"));
+			bookmark.setWebPage(webUrl);
 			
 			return bookmark;
 		}
@@ -231,35 +230,19 @@ public class BookmarkRepositoryImpl
 	protected final RowMapper<Bookmark> privateReadLaterRowMapper = new PrivateReadLaterRowMapper();
 	protected final RowMapper<Bookmark> publicReadLaterRowMapper = new PublicReadLaterRowMapper();
 	
-	/**
-	 * 
-	 */
-	ResultSetExtractor<WebResource> webPageReadLaterResultSetExtractor = new ResultSetExtractor<WebResource>() {
+	ResultSetExtractor<Page<Bookmark>> popularBookmarkResultSetExtractor = 
+			new ResultSetExtractor<Page<Bookmark>>() {
 		@Override
-		public WebResource extractData(ResultSet rs) throws SQLException, DataAccessException {
-			WebResource webResource = new WebResource();
+		public Page<Bookmark> extractData(ResultSet rs) throws SQLException,
+				DataAccessException {
+			List<Bookmark> content = new ArrayList<>();
 			int rowCount = 0;
-			boolean webPageProcessed = false;
 			while(rs.next()) {
-				if(!webPageProcessed && rs.getString("type")
-						.equalsIgnoreCase("w")) {
-					User user = new User();
-					user.setId(rs.getLong("user_id"));
-					user.setName(rs.getString("user_name"));
-					webResource.setUser(user);
-					webResource.setUrl(rs.getString("url"));
-					webResource.setId(rs.getLong("webresourceId"));
-					webResource.setDescription(rs.getString("description"));
-					webResource.setDateCreated(new Date(rs.getTimestamp("date_created").getTime()));
-					webResource.setRefCount(rs.getInt("refCount"));
-					webResource.setTitle(rs.getString("title"));
-					webPageProcessed = true;
-				} else {
-					webResource.getBookmarks().add(
-						publicReadLaterRowMapper.mapRow(rs, rowCount++));
-				}
+				Bookmark bookmark = publicReadLaterRowMapper.mapRow(rs, rowCount);
+				content.add(bookmark);
+				rowCount++;
 			}
-			return webResource;
+			return new PageImpl<>(content, defaultPageable, content.size());
 		}
 	};
 	

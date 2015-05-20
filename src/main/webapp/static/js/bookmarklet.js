@@ -1,12 +1,13 @@
 (function(){
-	var baseUrl = 'https://tlrlapp.com';
-	//var baseUrl = 'http://localhost:8080';
+	//var baseUrl = 'https://tlrlapp.com';
+	var baseUrl = 'http://localhost:8080';
 	try {
 		/* simple test to detect SCP. If enabled, we should open 
 		 * TLRL in new window, as our scripts are probably blacklisted */
 		new Function('');
 	} catch(e) {
-		window.location.href= baseUrl + '/bm/add?url=' + encodeURIComponent(window.location.href);
+		window.location.href=baseUrl + '/bm/add?url=' + encodeURIComponent(window.location.href)
+			+ '&title=' + encodeURIComponent(window.document.title);
 		return;
 	}
 

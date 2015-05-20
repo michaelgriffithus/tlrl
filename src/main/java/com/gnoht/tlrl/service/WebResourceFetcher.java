@@ -2,10 +2,10 @@ package com.gnoht.tlrl.service;
 
 import com.gnoht.tlrl.domain.User;
 
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 
 public interface WebResourceFetcher {
 
-	public WebResource fetch(WebResource webResource);
-	public WebResource fetch(User user, String url);
+	public WebUrl fetch(WebUrl webUrl);
+	public WebUrl fetch(User user, String url);
 }

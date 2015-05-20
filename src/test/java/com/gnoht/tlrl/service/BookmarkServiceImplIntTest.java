@@ -19,7 +19,7 @@ import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebResource;
+import com.gnoht.tlrl.domain.WebUrl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={Application.class})
@@ -30,7 +30,7 @@ public class BookmarkServiceImplIntTest {
 	BookmarkService bookmarkService;
 
 	@Resource
-	WebResourceService webResourceService;
+	WebUrlService webUrlService;
 	
 	User testUser = new User();
 

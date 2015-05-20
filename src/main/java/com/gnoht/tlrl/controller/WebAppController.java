@@ -1,18 +1,10 @@
 package com.gnoht.tlrl.controller;
 
-import java.lang.reflect.Method;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.gnoht.tlrl.config.SecurityConfig;
 import com.gnoht.tlrl.domain.User;
@@ -29,12 +21,10 @@ public class WebAppController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebAppController.class);
 
-	@Autowired
-	AuthenticationManager authenticationManager;
-	
 	/**
-	 * Mapping for serving the "home" page. Depending on currently authenticated
-	 * status, home can be either generic home page or user's home page.
+	 * Mapping to serve the "home" page. Depending on currently authenticated
+	 * status, home can be either generic home page, user's home page or signup
+	 * if user hasn't confirmed their identity.
 	 * 
 	 * @param user
 	 * @return view name to generic home page or redirect to user's home.
