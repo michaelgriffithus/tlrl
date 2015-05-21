@@ -39,7 +39,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 @Table(uniqueConstraints={
 	@UniqueConstraint(columnNames={"user_id", "weburl_id"})
 })
-@EntityListeners(BookmarkListener.class)
+//@EntityListeners(BookmarkListener.class)
 public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = -1718561876002831254L;

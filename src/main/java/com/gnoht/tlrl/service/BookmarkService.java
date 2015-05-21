@@ -34,4 +34,5 @@ public interface BookmarkService {
 	public ResultPage<Bookmark> findPopular(Pageable pageable);
 	
 	public Page<Bookmark> findPopularByWebUrl(Long id);
+	
 }

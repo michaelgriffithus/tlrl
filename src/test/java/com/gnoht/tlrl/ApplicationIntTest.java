@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.gnoht.tlrl.config.RepositoryConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes={RepositoryConfig.class})
+@SpringApplicationConfiguration(classes={Application.class})
 @ActiveProfiles(profiles={"test"})
 public class ApplicationIntTest {
 
