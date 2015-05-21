@@ -10,6 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
@@ -17,7 +18,7 @@ import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes={RepositoryConfig.class})
+@SpringApplicationConfiguration(classes={Application.class})
 @ActiveProfiles("test")
 public class BookmarkRepositoryIntTest {
 

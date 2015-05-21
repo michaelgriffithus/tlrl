@@ -37,7 +37,6 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @EnableAutoConfiguration
 @EnableJpaRepositories(basePackageClasses={RepositoryPackage.class})
-@ComponentScan(basePackageClasses={RepositoryPackage.class})
 @EntityScan(basePackageClasses={DomainPackage.class})
 public class RepositoryConfig {
 
@@ -72,10 +71,10 @@ public class RepositoryConfig {
 	
 	@Configuration
 	@Order(100)
-	static class EventListenerConfigurer {
+	public static class EventListenerConfigurer {
 		
 		@Resource private EntityManagerFactory emf;
-		@Resource private BookmarkListener bookmarkListener;
+		@Resource private BookmarkedResourceService bookmarkedResourceService;
 		
 		@Bean
 		public SessionFactory sessionFactory() {
@@ -92,7 +91,7 @@ public class RepositoryConfig {
 					.getServiceRegistry().getService(EventListenerRegistry.class);
 			
 			registry.getEventListenerGroup(EventType.POST_COMMIT_INSERT)
-				.appendListener(bookmarkListener);
+				.appendListener(new BookmarkListener(bookmarkedResourceService));
 		}
 		
 	}

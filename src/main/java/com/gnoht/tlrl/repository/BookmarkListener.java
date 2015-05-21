@@ -8,7 +8,6 @@ import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.persister.entity.EntityPersister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.service.BookmarkedResourceService;
@@ -16,7 +15,6 @@ import com.gnoht.tlrl.service.BookmarkedResourceService;
 /**
  * 
  */
-@Component
 public class BookmarkListener implements PostCommitInsertEventListener, PostInsertEventListener {
 
 	private static final long serialVersionUID = 1307765396525536360L;
@@ -25,7 +23,6 @@ public class BookmarkListener implements PostCommitInsertEventListener, PostInse
 	
 	private final BookmarkedResourceService bookmarkedResourceService;
 
-	@Inject
 	public BookmarkListener(BookmarkedResourceService bookmarkedResourceService) {
 		this.bookmarkedResourceService = bookmarkedResourceService;
 	}

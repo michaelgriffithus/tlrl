@@ -33,7 +33,7 @@ public class BookmarkedResourceServiceImpl
 		super(repository, messageSource);
 	}
 
-	//@Async
+	@Async
 	@Override
 	public BookmarkedResource crawl(Bookmark bookmark) {
 		try {
@@ -50,6 +50,7 @@ public class BookmarkedResourceServiceImpl
 			resource.setContent(Jsoup.clean(document.body().text(), Whitelist.basic()));
 			LOG.debug("Saving resource={}", resource);
 			return save(resource);
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
