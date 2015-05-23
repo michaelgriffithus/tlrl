@@ -1,25 +1,19 @@
 package com.gnoht.tlrl.repository;
 
-import javax.inject.Inject;
-
-import org.hibernate.event.spi.PostCommitInsertEventListener;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
-import org.hibernate.persister.entity.EntityPersister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gnoht.tlrl.domain.Bookmark;
+import com.gnoht.tlrl.domain.BookmarkedResource;
 import com.gnoht.tlrl.service.BookmarkedResourceService;
 
 /**
- * 
+ * {@link Bookmark} specific {@link PostInsertEventListener} that firsts off a 
+ * crawl for {@link BookmarkedResource} whenever a new Bookmark is added.
  */
-public class BookmarkListener implements PostCommitInsertEventListener, PostInsertEventListener {
+public class BookmarkListener extends ManageablePostInsertEventListener<Bookmark> {
 
-	private static final long serialVersionUID = 1307765396525536360L;
-
-	private static final Logger LOG = LoggerFactory.getLogger(BookmarkListener.class);
+	private static final long serialVersionUID = 5956032168972510149L;
 	
 	private final BookmarkedResourceService bookmarkedResourceService;
 
@@ -28,21 +22,19 @@ public class BookmarkListener implements PostCommitInsertEventListener, PostInse
 	}
 	
 	@Override
-	public void onPostInsert(PostInsertEvent event) {
-		LOG.info("onPostInsert(): event.getEntity={}", event.getEntity());
-		Bookmark bookmark = (Bookmark) event.getEntity();
+	public void handleSuccess(Bookmark bookmark, PostInsertEvent event) {
+		LOG.info("Starting handleSuccess(): bookmark={}, event={}", bookmark, event);
 		bookmarkedResourceService.crawl(bookmark);
 	}
 
 	@Override
-	public boolean requiresPostCommitHanding(EntityPersister persister) {
-		boolean requiresHandling = persister.getEntityName().equals(Bookmark.class.getName()); 
-		LOG.info("requiresPostCommitHandling: {}", requiresHandling);
-		return requiresHandling;
+	public void handleFailure(Bookmark bookmark, PostInsertEvent event) {
+		LOG.info("Starting handleFailure(): bookmark={}, event={}", bookmark, event);
+		LOG.info("Skipping crawl since we were unable to save Bookmark!");
 	}
 
 	@Override
-	public void onPostInsertCommitFailed(PostInsertEvent event) {
-		LOG.info("Skipping crawl, bookmark save failed!: {}", event.getEntity());
+	Class<Bookmark> getSupportedClass() {
+		return Bookmark.class;
 	}
 }

@@ -2,7 +2,9 @@ package com.gnoht.tlrl.service;
 
 import java.io.IOException;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
@@ -27,12 +29,16 @@ public class BookmarkedResourceServiceImpl
 
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkedResourceServiceImpl.class); 
 	
+	@Resource
+	private BookmarkService bookmarkService;
+	
 	@Inject
 	public BookmarkedResourceServiceImpl(BookmarkedResourceRepository repository,
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
 
+	@Transactional
 	@Async
 	@Override
 	public BookmarkedResource crawl(Bookmark bookmark) {
@@ -48,13 +54,14 @@ public class BookmarkedResourceServiceImpl
 			resource.setBookmark(bookmark);
 			Document document = response.parse();
 			resource.setContent(Jsoup.clean(document.body().text(), Whitelist.basic()));
-			LOG.debug("Saving resource={}", resource);
-			return save(resource);
+			resource = save(resource);
+			return resource;
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
+
 }

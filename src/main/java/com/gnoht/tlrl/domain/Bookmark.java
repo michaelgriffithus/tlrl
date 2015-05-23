@@ -6,11 +6,13 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -39,7 +42,6 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 @Table(uniqueConstraints={
 	@UniqueConstraint(columnNames={"user_id", "weburl_id"})
 })
-//@EntityListeners(BookmarkListener.class)
 public class Bookmark extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = -1718561876002831254L;
@@ -63,13 +65,19 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@JsonIgnore
 	private WebUrl webUrl;
 	
-	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-	@JoinTable(name="bookmark_tags",
+	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, 
+			cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
+	@JoinTable(name="bookmark_tags", 
 			joinColumns={@JoinColumn(name="bookmark_id")},
 			inverseJoinColumns={@JoinColumn(name="tag_id")})
 	@OrderColumn(name="idx")
 	@Size(max=5)
 	private List<Tag> tags = new ArrayList<Tag>();
+	
+	@OneToOne(fetch=FetchType.LAZY, orphanRemoval=true, optional=true, 
+			targetEntity=BookmarkedResource.class, mappedBy="bookmark")
+	@JsonIgnore
+	private BookmarkedResource resource;
 	
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
 	@JoinColumn(name="user_id")
@@ -121,6 +129,14 @@ public class Bookmark extends ManagedAuditable<Long> {
 	}
 	public void setUser(User user) {
 		this.user = user;
+	}
+	@JsonIgnore
+	public void setBookmarkedResource(BookmarkedResource resource) {
+		this.resource = resource;
+	}
+	@JsonIgnore
+	public BookmarkedResource getResource() {
+		return this.resource;
 	}
 	
 	//TODO: move to DTO

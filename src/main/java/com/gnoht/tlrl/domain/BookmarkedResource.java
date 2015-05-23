@@ -2,15 +2,20 @@ package com.gnoht.tlrl.domain;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ConstraintMode;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gnoht.tlrl.domain.support.ManagedAuditable;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
@@ -26,9 +31,10 @@ public class BookmarkedResource extends ManagedAuditable<Long> {
 	@Id @GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@OneToOne(fetch=FetchType.LAZY, targetEntity=Bookmark.class,
-			cascade={CascadeType.REMOVE}, optional=true)
-	@JoinColumn(name="bookmark_id", unique=true, updatable=false)
+	@OneToOne(targetEntity=Bookmark.class, fetch=FetchType.LAZY, 
+			cascade={CascadeType.DETACH}, optional=false)
+	@JoinColumn(unique=true, name="bookmark_id")
+	@JsonIgnore
 	private Bookmark bookmark;
 	
 	@Column(nullable=true) @Lob
@@ -62,7 +68,7 @@ public class BookmarkedResource extends ManagedAuditable<Long> {
 	@Override
 	protected ToStringHelper toStringHelper() {
 		return super.toStringHelper()
-			.add("bookmark", bookmark == null ? bookmark : bookmark.getId())
-			.add("content", content == null ? content : content.length);
+			.add("content", content == null ? content : content.length)
+			.add("bookmark", bookmark);
 	}
 }

@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.hibernate.SessionFactory;
+import org.hibernate.event.service.spi.EventListenerGroup;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
@@ -26,9 +27,11 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
 import com.gnoht.tlrl.domain.DomainPackage;
 import com.gnoht.tlrl.repository.BookmarkListener;
+import com.gnoht.tlrl.repository.BookmarkedResourceListener;
 import com.gnoht.tlrl.repository.RepositoryPackage;
 import com.gnoht.tlrl.service.BookmarkedResourceService;
 import com.gnoht.tlrl.service.BookmarkedResourceServiceImpl;
+import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
@@ -75,6 +78,7 @@ public class RepositoryConfig {
 		
 		@Resource private EntityManagerFactory emf;
 		@Resource private BookmarkedResourceService bookmarkedResourceService;
+		@Resource private ReadLaterWebPageService readLaterWebPageService;
 		
 		@Bean
 		public SessionFactory sessionFactory() {
@@ -91,7 +95,8 @@ public class RepositoryConfig {
 					.getServiceRegistry().getService(EventListenerRegistry.class);
 			
 			registry.getEventListenerGroup(EventType.POST_COMMIT_INSERT)
-				.appendListener(new BookmarkListener(bookmarkedResourceService));
+				.appendListeners(new BookmarkListener(bookmarkedResourceService),
+						new BookmarkedResourceListener(readLaterWebPageService));
 		}
 		
 	}

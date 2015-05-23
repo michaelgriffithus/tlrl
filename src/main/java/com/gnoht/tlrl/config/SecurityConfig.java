@@ -80,9 +80,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public static final String SIGNOUT_URL = "/signout";
 	public static final String AUTH_CATCHALL_URL = "/auth/*"; 
 	public static final String[] SECURED_GET_URLS = {"/bm/add", "/bm/add/**"};
-	public static final String[] SECURED_DELETE_URLS = {"/api/urls/**"};
+	public static final String[] SECURED_DELETE_URLS = {"/api/urls", "/api/urls/**"};
 	public static final String[] SECURED_POST_URLS = {"/api/urls", "/api/urls/**"};
-	public static final String[] SECURED_PUT_URLS = {"/api/urls/**"};
+	public static final String[] SECURED_PUT_URLS = {"/api/urls", "/api/urls/**"};
 	
 	@Resource private Environment env;
 	@Resource private OAuth2ClientContextFilter oAuth2ClientContextFilter;
@@ -119,11 +119,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 						new NonBookmarkletRequestMatcher(), new XFrameOptionsHeaderWriter()))
 			.and()
 				.authorizeRequests()
-					.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
-					.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
-					.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
-					.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
-					.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
 					//URLs for all users
 					.antMatchers(
 							"/recent",
@@ -131,17 +126,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							"/popular",
 							"/help",
 							"/about",
+							"/test/**",
 							"/error/**",
 							AUTH_CATCHALL_URL,
 							SIGNOUT_URL,
 							SIGNIN_URL)
-					.permitAll()
+						.permitAll()
+					.antMatchers(SIGNUP_URL).hasRole(UNCONFIRMED_ROLE_ID)
+					.antMatchers(GET, SECURED_GET_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(PUT, SECURED_PUT_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(POST, SECURED_POST_URLS).hasRole(USER_ROLE_ID)
+					.antMatchers(DELETE, SECURED_DELETE_URLS).hasRole(USER_ROLE_ID)
 		.and()
 			.logout()
 				.deleteCookies("JSESSIONID", rememberMeCookieName)
 				// Note: unless CSRF is disable, we must "signout" via POST vs GET
 				// http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#csrf-logout
-				.logoutRequestMatcher(new AntPathRequestMatcher(SIGNOUT_URL))
+				.logoutRequestMatcher(new AntPathRequestMatcher(SIGNOUT_URL, GET.name()))
 				.logoutSuccessUrl(SIGNIN_URL)
 		.and()
 			.addFilterAfter(oAuth2ClientContextFilter, ExceptionTranslationFilter.class)

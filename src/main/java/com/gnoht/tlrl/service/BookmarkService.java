@@ -10,8 +10,9 @@ import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.ResultPage;
+import com.gnoht.tlrl.service.support.ManageableService;
 
-public interface BookmarkService {
+public interface BookmarkService extends ManageableService<Long, Bookmark> {
 
 	public Bookmark findOrCreateReadLater(User user, String url);
 	

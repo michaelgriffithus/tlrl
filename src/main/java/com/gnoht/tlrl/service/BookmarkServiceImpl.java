@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,16 +25,25 @@ import com.gnoht.tlrl.repository.ManageResultPage;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
+import com.gnoht.tlrl.service.support.ManagedService;
 
 
 @Service("tlrlService")
-public class BookmarkServiceImpl implements BookmarkService {
+public class BookmarkServiceImpl 
+			extends ManagedService<Long, Bookmark, BookmarkRepository> 
+		implements BookmarkService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkServiceImpl.class);
 
 	@Resource private BookmarkRepository readLaterRepository;
 	@Resource private WebUrlService webUrlService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
+
+	@Inject
+	public BookmarkServiceImpl(BookmarkRepository repository,
+			MessageSourceAccessor messageSource) {
+		super(repository, messageSource);
+	}
 
 	@Override
 	public Bookmark findOrCreateReadLater(User user, String url) {
@@ -54,12 +65,12 @@ public class BookmarkServiceImpl implements BookmarkService {
 				bookmark.setDescription(webUrl.getDescription());
 			}
 				
-			existing = readLaterRepository.save(bookmark);
+			existing = save(bookmark);
 			
 			ReadLaterWebPage readLaterWebPage = new ReadLaterWebPage(existing);
 //			if(webResource.getContent() != null)
 //				readLaterWebPage.setContent(new String(webResource.getContent()));
-			readLaterWebPageService.create(readLaterWebPage);
+//			readLaterWebPageService.create(readLaterWebPage);
 		}
 		return existing;
 	}
@@ -173,13 +184,15 @@ public class BookmarkServiceImpl implements BookmarkService {
 	
 	
 	@Override
-	public Bookmark deleteReadLater(Bookmark toDelete) {
-		Bookmark bookmark = readLaterRepository.findOne(toDelete.getId());
-		if(bookmark != null && bookmark.getUserId().equals(toDelete.getUserId())) {
-			readLaterRepository.delete(bookmark);
-			readLaterWebPageService.delete(bookmark.getId().toString());
+	public Bookmark deleteReadLater(Bookmark bookmark) {
+		delete(bookmark.getId());
+		readLaterWebPageService.delete(bookmark.getId().toString());
+//		Bookmark bookmark = readLaterRepository.findOne(toDelete.getId());
+//		if(bookmark != null && bookmark.getUserId().equals(toDelete.getUserId())) {
+//			readLaterRepository.delete(bookmark);
+//			readLaterWebPageService.delete(bookmark.getId().toString());
 			return bookmark;
-		}
-		return null;
+//		}
+//		return null;
 	}
 }

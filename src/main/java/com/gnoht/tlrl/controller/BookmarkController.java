@@ -49,6 +49,12 @@ public class BookmarkController {
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	@Resource private UserService userService;
 	
+	@RequestMapping(value="/test/{id}", method=RequestMethod.GET)
+	public String test(@PathVariable long id) {
+		bookmarkService.delete(id);
+		return "cool";
+	}
+	
 	@RequestMapping(value="/search", method=RequestMethod.GET)
 	public ResultPage<ReadLaterWebPage> searchAll(
 			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable,
@@ -180,7 +186,8 @@ public class BookmarkController {
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.DELETE)
-	public Bookmark delete(@CurrentUser User currentUser, @PathVariable Long id) {
+	public Bookmark delete(@CurrentUser User currentUser, @PathVariable("id") Long id) {
+		LOG.info("Starting delete(): id={}", id);
 		Bookmark bookmark = new Bookmark();
 		bookmark.setId(id);
 		bookmark.setUser(currentUser);

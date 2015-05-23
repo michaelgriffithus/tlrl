@@ -5,12 +5,14 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -18,19 +20,20 @@ import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.config.ApplicationConfig;
 import com.gnoht.tlrl.config.RepositoryConfig;
 import com.gnoht.tlrl.config.ServiceConfig;
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.security.OAuth2Authentication;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={Application.class})
 @ActiveProfiles("test")
 public class BookmarkServiceImplIntTest {
 
-	@Resource
-	BookmarkService bookmarkService;
-
-	@Resource
-	WebUrlService webUrlService;
+	@Resource BookmarkService bookmarkService;
+	@Resource UserService userService;
+	@Resource WebUrlService webUrlService;
+	@Resource BookmarkedResourceService bookmarkedResourceService;
 	
 	User testUser = new User();
 
@@ -59,14 +62,17 @@ public class BookmarkServiceImplIntTest {
 	 */
 	@Test
 	public void shouldBookmarkAndCreateWebResource() {
-//		String randomUrl = "http://domain.com/" + System.currentTimeMillis(); 
-//		assertNull(webResourceService.findByUrl(randomUrl));
-//		
-//		bookmarkService.findOrCreate(
-//			builder(randomUrl, testUser)
-//				.get());
-//		
-//		assertNotNull(webResourceService..findByUrl(randomUrl));
+		User user = userService.findByName("thong");
+		SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(user));
+		
+		String randomUrl = "http://domain.com/" + System.currentTimeMillis(); 
+		assertNull(webUrlService.findByUrl(randomUrl));
+		
+		Bookmark bookmark = bookmarkService.findOrCreateReadLater(user, randomUrl);
+		
+		//bookmarkedResourceService.crawl(bookmark);
+		
+		//assertNotNull(webUrlService.findByUrl(randomUrl));
 	}
 	
 }

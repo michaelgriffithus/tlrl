@@ -3,9 +3,11 @@ package com.gnoht.tlrl.service.support;
 import java.io.Serializable;
 
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gnoht.tlrl.domain.ManageableNotFoundException;
 import com.gnoht.tlrl.domain.support.Manageable;
@@ -27,24 +29,30 @@ public abstract class ManagedService<ID extends Serializable,
 		return repository.count();
 	}
 
+	@Transactional
 	@Override
 	public T create(T manageable) {
 		return repository.save(manageable);
 	}
 
+	@Transactional
 	@Override
-	public T delete(ID id) throws ManageableNotFoundException {
-		T manageable = get(id);
-		repository.delete(manageable);
-		return manageable;
+	public void delete(ID id) throws ManageableNotFoundException {
+		try {
+			repository.delete(id);
+		} catch(EmptyResultDataAccessException e) {
+			throw new ManageableNotFoundException(id);
+		}
 	}
 
+	@Transactional
 	@Override
 	public T save(T manageable) {
 		// TODO: unique violation
 		return repository.save(manageable);
 	}
 
+	@Transactional
 	@Override
 	public T update(T updatedManageable) throws ManageableNotFoundException {
 		//TODO: improve this
@@ -71,6 +79,7 @@ public abstract class ManagedService<ID extends Serializable,
 		return repository.findAll(pageable);
 	}
 
+	@Transactional
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();

@@ -30,10 +30,8 @@ public interface ManageableService<ID extends Serializable, T extends Manageable
 	/**
 	 * Deletes a Resource
 	 * @param id The id of resource to delete.
-	 * @return The deleted resource.
-	 * @throws ManageableNotFoundException if not resource if found with given id.
 	 */
-	public T delete(ID id) throws ManageableNotFoundException;
+	public void delete(ID id);
 	
 	/**
 	 * Convenience method for saving - either via "create" for new, or

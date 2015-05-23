@@ -5,6 +5,7 @@
  */
 angular.module('tlrlServices', ['ngResource'])
 .factory('TLRLService', ['$resource', function($resource) {
+	
 		return $resource('/api/:user/urls/:id', {}, {
 			'update': {method: 'PUT', headers: _tlrlHeaders },
 			'updateStatus': {method: 'PUT', url: '/api/urls/:id/status', headers: _tlrlHeaders },
@@ -115,6 +116,7 @@ angular.module('tlrl', [
 .config(['$routeProvider', '$locationProvider', '$httpProvider', 
     function($routeProvider, $locationProvider, $httpProvider) {
 	//$httpProvider.interceptors.push('securityInterceptor');
+	$httpProvider.defaults.headers.common = _tlrlHeaders;
 	$locationProvider.html5Mode({
 		enabled: true,
 		requireBase: false
