@@ -39,6 +39,6 @@ public class WebUrlServiceImpl extends ManagedService<Long, WebUrl, WebUrlReposi
 	@Override
 	public WebUrl findByUrl(String url) {
 		LOG.info("Starting findByUrl(): url={}", url);
-		return repository.findByUrl(url);
+		return getRepository().findByUrl(url);
 	}
 }

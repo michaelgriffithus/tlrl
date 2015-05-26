@@ -17,7 +17,7 @@ public abstract class ManagedService<ID extends Serializable,
 		implements ManageableService<ID, T> {
 
 	protected MessageSourceAccessor messageSource;
-	protected R repository;
+	private R repository;
 	
 	public ManagedService(R repository, MessageSourceAccessor messageSource) {
 		this.repository = repository;

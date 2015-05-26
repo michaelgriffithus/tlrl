@@ -4,15 +4,27 @@ import java.util.Set;
 
 import org.springframework.data.domain.Pageable;
 
+import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SearchResultPage;
 import com.gnoht.tlrl.service.support.ManageableService;
 
+/**
+ * Service for managing {@link ReadLaterWebPage}s.
+ */
+public interface ReadLaterWebPageService 
+		extends ManageableService<String, ReadLaterWebPage> {
 
-public interface ReadLaterWebPageService extends ManageableService<String, ReadLaterWebPage> {
-
+	/**
+	 * Updates the {@link ReadLaterWebPage} with attributes from given bookmark.
+	 * 
+	 * @param bookmark Bookmark with attributes to update to.
+	 * @return Updated ReadLaterWebPage or null if no corresponding ReadLaterWebPage found.
+	 */
+	ReadLaterWebPage updateFrom(Bookmark bookmark);
+	
 	/**
 	 * Search for {@link ReadLaterWebPage}s with given set of terms.
 	 * 

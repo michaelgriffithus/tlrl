@@ -25,8 +25,7 @@ public interface BookmarkService
 	 * @return Existing or newly created Bookmark.
 	 */
 	Bookmark findOrCreate(Bookmark bookmark);
-
-	public Bookmark updateReadLater(Bookmark bookmark);
+	
 	public Bookmark updateReadLaterStatus(Bookmark bookmark);
 
 	public ResultPage<Bookmark> findAllByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable);
@@ -34,8 +33,6 @@ public interface BookmarkService
 	
 	public ResultPage<Bookmark> findAllByUserAndTagged(User user, Set<String> tags, Pageable pageable);
 	public ResultPage<Bookmark> findAllTagged(Set<String> tags, Pageable pageable);
-	
-	public Bookmark deleteReadLater(Bookmark bookmark);
 	
 	public ResultPage<Bookmark> findRecent(Pageable pageable);
 	public ResultPage<Bookmark> findPopular(Pageable pageable);

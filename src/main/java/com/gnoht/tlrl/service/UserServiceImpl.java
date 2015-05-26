@@ -42,12 +42,12 @@ public class UserServiceImpl
 	@Transactional(readOnly=false)
 	@Override
 	public User signUpUser(User user) {
-		if(repository.findOneByEmail(user.getEmail()) != null)
+		if(getRepository().findOneByEmail(user.getEmail()) != null)
 			throw new AlreadySignedUpException("Your email has already been signed up!");
 		
 		user.setEnabled(true);
 		user.setRole(SecurityUtils.ROLE_USER);
-		return repository.saveAndFlush(user);
+		return getRepository().saveAndFlush(user);
 	}
 	
 }

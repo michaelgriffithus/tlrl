@@ -93,12 +93,16 @@ public class RepositoryConfig {
 		public void registerEntityListeners() {
 			EventListenerRegistry registry = ((SessionFactoryImpl) sessionFactory())
 					.getServiceRegistry().getService(EventListenerRegistry.class);
+
+			BookmarkListener bookmarkListener = new BookmarkListener(bookmarkResourceService, readLaterWebPageService);
+			BookmarkResourceListener bookmarkResourceListener = new BookmarkResourceListener(readLaterWebPageService);
 			
 			registry.getEventListenerGroup(EventType.POST_COMMIT_INSERT)
-				.appendListeners(
-					new BookmarkListener(bookmarkResourceService),
-					new BookmarkResourceListener(readLaterWebPageService)
-				);
+				.appendListeners(bookmarkListener, bookmarkResourceListener);
+			registry.getEventListenerGroup(EventType.POST_COMMIT_UPDATE)
+				.appendListeners(bookmarkListener);
+			registry.getEventListenerGroup(EventType.POST_COMMIT_DELETE)
+				.appendListeners(bookmarkListener);
 		}
 		
 	}

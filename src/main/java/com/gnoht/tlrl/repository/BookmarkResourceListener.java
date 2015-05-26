@@ -1,7 +1,9 @@
 package com.gnoht.tlrl.repository;
 
+import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.spi.PostUpdateEvent;
 
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.BookmarkResource;
@@ -13,7 +15,7 @@ import com.gnoht.tlrl.service.ReadLaterWebPageService;
  * of indexing of a {@link BookmarkResource} (and it's {@link Bookmark}).
  */
 public class BookmarkResourceListener extends 
-		ManageablePostInsertEventListener<BookmarkResource> {
+		ManageableEventListener<BookmarkResource> {
 
 	private static final long serialVersionUID = -8285651372419478302L;
 
@@ -24,7 +26,7 @@ public class BookmarkResourceListener extends
 	}
 
 	@Override
-	public void handleSuccess(BookmarkResource resource, PostInsertEvent event) {
+	public void handlePostInsertSuccess(BookmarkResource resource, PostInsertEvent event) {
 		LOG.info("Starting handleSuccess(): resource={}, event={}", resource, event);
 		ReadLaterWebPage webPage = new ReadLaterWebPage(resource.getBookmark());
 		webPage.setContent(new String(resource.getContent()));
@@ -32,12 +34,32 @@ public class BookmarkResourceListener extends
 	}
 
 	@Override
-	public void handleFailure(BookmarkResource resource, PostInsertEvent event) {
+	public void handlePostInsertFailure(BookmarkResource resource, PostInsertEvent event) {
 		LOG.info("Starting handleFailure(): resource={}, event={}", resource, event);
 		ReadLaterWebPage webPage = new ReadLaterWebPage(resource.getBookmark());
 		webPageService.save(webPage);
 	}
 	
+	@Override
+	public void handlePostUpdateSuccess(BookmarkResource entity,
+			PostUpdateEvent event) {
+	}
+
+	@Override
+	public void handlePostUpdateFailure(BookmarkResource entity,
+			PostUpdateEvent event) {
+	}
+
+	@Override
+	public void handlePostDeleteSuccess(BookmarkResource entity,
+			PostDeleteEvent event) {
+	}
+
+	@Override
+	public void handlePostDeleteFailure(BookmarkResource entity,
+			PostDeleteEvent event) {
+	}
+
 	@Override
 	Class<BookmarkResource> getSupportedClass() {
 		return BookmarkResource.class;

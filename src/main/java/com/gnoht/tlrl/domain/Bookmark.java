@@ -65,8 +65,8 @@ public class Bookmark extends ManagedAuditable<Long> {
 	@JsonIgnore
 	private WebUrl webUrl;
 	
-	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER, 
-			cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
+	@ManyToMany(targetEntity=Tag.class, fetch=FetchType.EAGER,  
+			cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
 	@JoinTable(name="bookmark_tags", 
 			joinColumns={@JoinColumn(name="bookmark_id")},
 			inverseJoinColumns={@JoinColumn(name="tag_id")})
@@ -203,6 +203,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 		return super.toStringHelper()
 			.add("webResource", webUrl)
 			.add("shared", shared)
+			.add("status", readLaterStatus)
 			.add("title", title)
 			.add("tags", tags)
 			.add("description", description)

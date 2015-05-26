@@ -36,16 +36,19 @@ public class BookmarkServiceImpl
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BookmarkServiceImpl.class);
 
-	@Resource private BookmarkRepository bookmarkRepository;
 	@Resource private WebUrlService webUrlService;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 
 	@Inject
 	public BookmarkServiceImpl(BookmarkRepository repository,
-			MessageSourceAccessor messageSource) {
+				MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
 	
+	/*
+	 * @see com.gnoht.tlrl.service.BookmarkService#findOrCreate(
+	 * 	com.gnoht.tlrl.domain.Bookmark)
+	 */
 	@Transactional
 	@Override
 	public Bookmark findOrCreate(Bookmark bookmark) {
@@ -54,16 +57,21 @@ public class BookmarkServiceImpl
 		User user = SecurityUtils.getCurrentUser();
 		
 		// See if we have an existing bookmark already for current user
-		Bookmark toReturn = bookmarkRepository
+		Bookmark toReturn = getRepository()
 				.findOneByUserAndWebUrlUrl(user, bookmark.getUrl());
 		
 		if(toReturn == null) {
 			return create(bookmark);
 		} else {
+			LOG.debug("Found existing bookmark={}", bookmark);
 			return toReturn;
 		}
 	}
 
+	/*
+	 * @see com.gnoht.tlrl.service.support.ManagedService#create(
+	 * 	com.gnoht.tlrl.domain.support.Manageable)
+	 */
 	@Transactional
 	@Override
 	public Bookmark create(Bookmark bookmark) {
@@ -75,7 +83,7 @@ public class BookmarkServiceImpl
 		bookmark.setWebPage(webUrl);
 		bookmark.setUser(user);
 		
-		// some defaults if new bookmark empty
+		// some defaults if new bookmark attrs are empty
 		if(bookmark.getTitle() == null) 
 			bookmark.setTitle(webUrl.getTitle());
 		if(bookmark.getDescription() == null) 
@@ -85,21 +93,21 @@ public class BookmarkServiceImpl
 	}
 
 	public Page<Bookmark> findPopularByWebUrl(Long id) {
-		return bookmarkRepository.findPopularByWebUrl(id);
+		return getRepository().findPopularByWebUrl(id);
 	}
 	
 	@Override
 	public ResultPage<Bookmark> findRecent(Pageable pageable) {
-		List<Bookmark> bookmarks = bookmarkRepository.findRecent(pageable);
-		ReadLaterStats stats = bookmarkRepository.findRecentTags();
+		List<Bookmark> bookmarks = getRepository().findRecent(pageable);
+		ReadLaterStats stats = getRepository().findRecentTags();
 		return new SimpleResultPage(bookmarks, stats, pageable);
 	}
 
 	@Override
 	public ResultPage<Bookmark> findPopular(Pageable pageable) {
-		List<Bookmark> bookmarks = bookmarkRepository.findPopular(pageable);
+		List<Bookmark> bookmarks = getRepository().findPopular(pageable);
 		
-		ReadLaterStats stats = bookmarkRepository.findPopularTags();
+		ReadLaterStats stats = getRepository().findPopularTags();
 		return new SimpleResultPage(bookmarks, stats, pageable);
 	}
 
@@ -109,9 +117,9 @@ public class BookmarkServiceImpl
 		
 		LOG.debug("Starting findAllByOwnerAndTagged(): owner={}, filters={}, tags={}", owner, readLaterQueryFilter, tags);
 		
-		ReadLaterStats stats = bookmarkRepository.
+		ReadLaterStats stats = getRepository().
 				findReadLaterStatsByOwnerAndTagged(owner, readLaterQueryFilter, tags);
-		List<Bookmark> bookmarks = bookmarkRepository.
+		List<Bookmark> bookmarks = getRepository().
 				findAllByOwnerAndTagged(owner, readLaterQueryFilter, tags, pageable);
 		return new ManageResultPage(new PageImpl<Bookmark>(
 				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
@@ -123,9 +131,9 @@ public class BookmarkServiceImpl
 		
 		LOG.debug("Starting findAllByOwnerAndUntagged(): owner={}, filters={}", owner, readLaterQueryFilter);
 		
-		ReadLaterStats stats = bookmarkRepository.
+		ReadLaterStats stats = getRepository().
 				findReadLaterStatsByOwnerAndUntagged(owner, readLaterQueryFilter);
-		List<Bookmark> bookmarks = bookmarkRepository.
+		List<Bookmark> bookmarks = getRepository().
 				findAllByOwnerAndUntagged(owner, readLaterQueryFilter, pageable);
 		return new ManageResultPage(new PageImpl<Bookmark>(
 				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
@@ -134,9 +142,9 @@ public class BookmarkServiceImpl
 	@Override
 	public ResultPage<Bookmark> findAllByUserAndTagged(User user,
 			Set<String> tags, Pageable pageable) {
-		ReadLaterStats stats = bookmarkRepository.
+		ReadLaterStats stats = getRepository().
 				findReadLaterStatsByUserAndTags(user, tags);
-		List<Bookmark> bookmarks = bookmarkRepository.
+		List<Bookmark> bookmarks = getRepository().
 				findAllByUserAndTags(user, tags, pageable);
 		return new ManageResultPage(new PageImpl<Bookmark>(
 				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
@@ -144,59 +152,41 @@ public class BookmarkServiceImpl
 
 	@Override
 	public ResultPage<Bookmark> findAllTagged(Set<String> tags, Pageable pageable) {
-		ReadLaterStats stats = bookmarkRepository.
+		ReadLaterStats stats = getRepository().
 				findReadLaterStatsByTags(tags);
-		List<Bookmark> bookmarks = bookmarkRepository.
+		List<Bookmark> bookmarks = getRepository().
 				findAllByTags(tags, pageable);
 		return new ManageResultPage(new PageImpl<Bookmark>(
 				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
 	}
 
+	/*
+	 * @see com.gnoht.tlrl.service.support.ManagedService#update(
+	 * 	com.gnoht.tlrl.domain.support.Manageable)
+	 */
 	@Transactional(readOnly=false)
 	@Override
-	public Bookmark updateReadLater(Bookmark updated) {
-		Bookmark bookmark = bookmarkRepository.findOne(updated.getId());
+	public Bookmark update(Bookmark toUpdate) {
+		LOG.info("Starting update(): toUpdate={}", toUpdate);
 		
-		checkIfOwner(bookmark, updated);
-		
-		updated = bookmarkRepository.save(bookmark.update(updated));
-		readLaterWebPageService.update(new ReadLaterWebPage(updated));
-		return updated;
+		User user = SecurityUtils.getCurrentUser();
+		Bookmark bookmark = getRepository().findOneByUserAndId(user, toUpdate.getId());
+		bookmark.setTitle(toUpdate.getTitle());
+		bookmark.setDescription(toUpdate.getDescription());
+		bookmark.setShared(toUpdate.isShared());
+		bookmark.setTags(toUpdate.getTags());
+		return getRepository().save(bookmark); 
 	}
 
 	@Transactional(readOnly=false)
 	@Override
-	public Bookmark updateReadLaterStatus(Bookmark updated) {
-		Bookmark bookmark = bookmarkRepository.findOne(updated.getId());
-
-		// TODO: need to get current user making call for more robust check.
-		// current check rely on fact that only caller is safe
-		checkIfOwner(bookmark, updated);
+	public Bookmark updateReadLaterStatus(Bookmark toUpdate) {
+		LOG.info("Starting updateReadLaterStatus(): toUpdate={}", toUpdate);
 		
-		bookmark.setReadLaterStatus(updated.getReadLaterStatus());
-		bookmark = bookmarkRepository.save(bookmark);
-		readLaterWebPageService.update(new ReadLaterWebPage(bookmark));
-		return bookmark;
-	}
-
-	private void checkIfOwner(Bookmark stored, Bookmark updated) {
-		if(!(stored != null && updated != null && updated.getUser() != null 
-				&& stored.getUserId().equals(updated.getUserId()))) {
-			throw new RuntimeException("Not the owner!");
-		}
+		User user = SecurityUtils.getCurrentUser();
+		Bookmark bookmark = getRepository().findOneByUserAndId(user, toUpdate.getId());
+		bookmark.setReadLaterStatus(toUpdate.getReadLaterStatus());
+		return getRepository().save(bookmark);
 	}
 	
-	
-	@Override
-	public Bookmark deleteReadLater(Bookmark bookmark) {
-		delete(bookmark.getId());
-		readLaterWebPageService.delete(bookmark.getId().toString());
-//		Bookmark bookmark = readLaterRepository.findOne(toDelete.getId());
-//		if(bookmark != null && bookmark.getUserId().equals(toDelete.getUserId())) {
-//			readLaterRepository.delete(bookmark);
-//			readLaterWebPageService.delete(bookmark.getId().toString());
-			return bookmark;
-//		}
-//		return null;
-	}
 }

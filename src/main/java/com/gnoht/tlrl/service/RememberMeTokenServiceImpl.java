@@ -36,13 +36,13 @@ public class RememberMeTokenServiceImpl
 	@Override
 	public void createNewToken(PersistentRememberMeToken token) {
 		LOG.info("Starting createToken(): token={}", token);
-		repository.save(new RememberMeToken(token));
+		getRepository().save(new RememberMeToken(token));
 	}
 
 	@Override
 	public PersistentRememberMeToken getTokenForSeries(String series) {
 		LOG.info("Starting getTokenForSeries(): series={}", series);
-		RememberMeToken token = repository.findBySeries(series);
+		RememberMeToken token = getRepository().findBySeries(series);
 		LOG.debug("Found token={}", token);
 		return token == null ? null : new PersistentRememberMeToken(
 			token.getUserName(), token.getSeries(), token.getValue(), token.getDate());
@@ -51,12 +51,12 @@ public class RememberMeTokenServiceImpl
 	@Override
 	public void removeUserTokens(String userName) {
 		LOG.info("Starting removeUserToken(): userName={}", userName);
-		repository.deleteByUserName(userName);
+		getRepository().deleteByUserName(userName);
 	}
 
 	@Override
 	public void updateToken(String series, String value, Date date) {
-		if(repository.update(series, value, date) == 0)
+		if(getRepository().update(series, value, date) == 0)
 			throw new ManageableNotFoundException(series);
 	}
 	

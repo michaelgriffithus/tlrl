@@ -181,17 +181,15 @@ public class BookmarkController {
 		}
 		// check if user owns readlater
 		bookmark.setId(id);
-		bookmark.setUser(currentUser); //prevent spoofing
-		return bookmarkService.updateReadLater(bookmark);
+		return bookmarkService.update(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.DELETE)
 	public Bookmark delete(@CurrentUser User currentUser, @PathVariable("id") Long id) {
 		LOG.info("Starting delete(): id={}", id);
+		bookmarkService.delete(id);
 		Bookmark bookmark = new Bookmark();
 		bookmark.setId(id);
-		bookmark.setUser(currentUser);
-		bookmarkService.deleteReadLater(bookmark);
 		return bookmark;
 	}
 	
