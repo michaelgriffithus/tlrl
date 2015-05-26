@@ -167,7 +167,7 @@ public class BookmarkController {
 			@Valid @RequestBody(required=true) Bookmark bookmark) {
 		LOG.debug("Starting create(): readLater={}", bookmark);
 		bookmark.setUser(currentUser);
-		return bookmarkService.findOrCreateReadLater(bookmark);
+		return bookmarkService.findOrCreate(bookmark); //.findOrCreateReadLater(bookmark);
 	}
 	
 	@RequestMapping(value="/urls/{id}", method=RequestMethod.PUT)

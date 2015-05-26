@@ -8,18 +8,24 @@ import org.springframework.data.domain.Pageable;
 import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
-import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.service.support.ManageableService;
 
-public interface BookmarkService extends ManageableService<Long, Bookmark> {
+/**
+ * Service for managing {@link Bookmark}s.
+ */
+public interface BookmarkService 
+		extends ManageableService<Long, Bookmark> {
+	
+	/**
+	 * Finds {@link Bookmark} matching the given one or create a new Bookmark
+	 * with the given one.
+	 *  
+	 * @param bookmark Bookmark with attributes to find or create
+	 * @return Existing or newly created Bookmark.
+	 */
+	Bookmark findOrCreate(Bookmark bookmark);
 
-	public Bookmark findOrCreateReadLater(User user, String url);
-	
-	public Bookmark findOrCreateReadLater(Bookmark bookmark);
-	
-	public Bookmark findReadLaterById(Long id);
-	
 	public Bookmark updateReadLater(Bookmark bookmark);
 	public Bookmark updateReadLaterStatus(Bookmark bookmark);
 

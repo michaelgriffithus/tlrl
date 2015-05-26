@@ -31,7 +31,7 @@ public class BookmarkletController {
 				Bookmark bookmark, RedirectAttributes redirectAttributes) {
 		LOG.debug("Starting add(): user={}, bookmark={}", currentUser, bookmark);
 		bookmark.setUser(currentUser);
-		bookmark = bookmarkService.findOrCreateReadLater(bookmark);
+		bookmark = bookmarkService.findOrCreate(bookmark);
 		redirectAttributes.addFlashAttribute("bookmark", bookmark);
 		return "redirect:/bm/add/complete";
 	}

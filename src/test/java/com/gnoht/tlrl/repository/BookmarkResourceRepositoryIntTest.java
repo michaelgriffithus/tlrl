@@ -35,7 +35,7 @@ public class BookmarkResourceRepositoryIntTest {
 		User user = userService.findByName("thong");
 		SecurityContextHolder.getContext().setAuthentication(new OAuth2Authentication(user));		
 	
-		Bookmark bookmark = bookmarkService.findOrCreateReadLater(new Bookmark(user, 
+		Bookmark bookmark = bookmarkService.findOrCreate(new Bookmark(user, 
 				new WebUrl(user, "http://forum.spring.io/forum/spring-projects/data/15887-howto-register-a-hibernate-event-listener")));
 		
 //		Assert.assertTrue(bookmarkResourceRepository.count() > 0);
