@@ -75,9 +75,9 @@ public class Bookmark extends ManagedAuditable<Long> {
 	private List<Tag> tags = new ArrayList<Tag>();
 	
 	@OneToOne(fetch=FetchType.LAZY, orphanRemoval=true, optional=true, 
-			targetEntity=BookmarkedResource.class, mappedBy="bookmark")
+			targetEntity=BookmarkResource.class, mappedBy="bookmark")
 	@JsonIgnore
-	private BookmarkedResource resource;
+	private BookmarkResource resource;
 	
 	@ManyToOne(fetch=FetchType.LAZY, cascade={CascadeType.MERGE}, optional=false)
 	@JoinColumn(name="user_id")
@@ -131,11 +131,11 @@ public class Bookmark extends ManagedAuditable<Long> {
 		this.user = user;
 	}
 	@JsonIgnore
-	public void setBookmarkedResource(BookmarkedResource resource) {
+	public void setResource(BookmarkResource resource) {
 		this.resource = resource;
 	}
 	@JsonIgnore
-	public BookmarkedResource getResource() {
+	public BookmarkResource getResource() {
 		return this.resource;
 	}
 	

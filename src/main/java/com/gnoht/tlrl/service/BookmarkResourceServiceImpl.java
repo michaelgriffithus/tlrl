@@ -18,22 +18,22 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.BookmarkedResource;
-import com.gnoht.tlrl.repository.BookmarkedResourceRepository;
+import com.gnoht.tlrl.domain.BookmarkResource;
+import com.gnoht.tlrl.repository.BookmarkResourceRepository;
 import com.gnoht.tlrl.service.support.ManagedService;
 
 @Service
-public class BookmarkedResourceServiceImpl 
-			extends ManagedService<Long, BookmarkedResource, BookmarkedResourceRepository> 
-		implements BookmarkedResourceService {
+public class BookmarkResourceServiceImpl 
+			extends ManagedService<Long, BookmarkResource, BookmarkResourceRepository> 
+		implements BookmarkResourceService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BookmarkedResourceServiceImpl.class); 
+	private static final Logger LOG = LoggerFactory.getLogger(BookmarkResourceServiceImpl.class); 
 	
 	@Resource
 	private BookmarkService bookmarkService;
 	
 	@Inject
-	public BookmarkedResourceServiceImpl(BookmarkedResourceRepository repository,
+	public BookmarkResourceServiceImpl(BookmarkResourceRepository repository,
 			MessageSourceAccessor messageSource) {
 		super(repository, messageSource);
 	}
@@ -41,7 +41,7 @@ public class BookmarkedResourceServiceImpl
 	@Transactional
 	@Async
 	@Override
-	public BookmarkedResource crawl(Bookmark bookmark) {
+	public BookmarkResource crawl(Bookmark bookmark) {
 		try {
 			Response response = Jsoup.connect(bookmark.getUrl())
 					.method(Method.GET)
@@ -50,7 +50,7 @@ public class BookmarkedResourceServiceImpl
 					.maxBodySize(1500000) // 1.5MB ~ average page size in 2014
 				.execute();
 			
-			BookmarkedResource resource = new BookmarkedResource();
+			BookmarkResource resource = new BookmarkResource();
 			resource.setBookmark(bookmark);
 			Document document = response.parse();
 			resource.setContent(Jsoup.clean(document.body().text(), Whitelist.basic()));

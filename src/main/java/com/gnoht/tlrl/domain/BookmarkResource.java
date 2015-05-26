@@ -24,7 +24,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  * a given {@link Bookmark}.  
  */
 @Entity
-public class BookmarkedResource extends ManagedAuditable<Long> {
+public class BookmarkResource extends ManagedAuditable<Long> {
 
 	private static final long serialVersionUID = -8872717866719466925L;
 

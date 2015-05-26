@@ -1,18 +1,18 @@
 package com.gnoht.tlrl.service;
 
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.BookmarkedResource;
+import com.gnoht.tlrl.domain.BookmarkResource;
 
 /**
- * Service for managing {@link BookmarkedResource}s.
+ * Service for managing {@link BookmarkResource}s.
  */
-public interface BookmarkedResourceService {
+public interface BookmarkResourceService {
 
 	/**
 	 * Crawls the url of given {@link Bookmark} and retrieves the resource.
 	 * 
 	 * @param bookmark Bookmark instance containing the url to crawl
-	 * @return BookmarkedResource
+	 * @return BookmarkResource
 	 */
-	BookmarkedResource crawl(Bookmark bookmark);
+	BookmarkResource crawl(Bookmark bookmark);
 }

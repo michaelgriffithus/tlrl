@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gnoht.tlrl.controller.support.TargetUser;
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.BookmarkedResource;
+import com.gnoht.tlrl.domain.BookmarkResource;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
-import com.gnoht.tlrl.repository.BookmarkedResourceRepository;
+import com.gnoht.tlrl.repository.BookmarkResourceRepository;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
 import com.gnoht.tlrl.security.CurrentUser;

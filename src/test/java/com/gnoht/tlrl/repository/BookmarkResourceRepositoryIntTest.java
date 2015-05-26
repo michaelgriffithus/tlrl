@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.gnoht.tlrl.Application;
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.BookmarkedResource;
+import com.gnoht.tlrl.domain.BookmarkResource;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
@@ -24,9 +24,9 @@ import com.gnoht.tlrl.service.UserService;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={Application.class})
 @ActiveProfiles("test")
-public class BookmarkedResourceRepositoryIntTest {
+public class BookmarkResourceRepositoryIntTest {
 
-	@Autowired BookmarkedResourceRepository bookmarkedResourceRepository;
+	@Autowired BookmarkResourceRepository bookmarkResourceRepository;
 	@Autowired BookmarkService bookmarkService;
 	@Autowired UserService userService;
 	
@@ -38,9 +38,9 @@ public class BookmarkedResourceRepositoryIntTest {
 		Bookmark bookmark = bookmarkService.findOrCreateReadLater(new Bookmark(user, 
 				new WebUrl(user, "http://forum.spring.io/forum/spring-projects/data/15887-howto-register-a-hibernate-event-listener")));
 		
-//		Assert.assertTrue(bookmarkedResourceRepository.count() > 0);
-//		List<BookmarkedResource> resources = bookmarkedResourceRepository.findAll();
-//		for(BookmarkedResource resource: resources) {
+//		Assert.assertTrue(bookmarkResourceRepository.count() > 0);
+//		List<BookmarkResource> resources = bookmarkResourceRepository.findAll();
+//		for(BookmarkResource resource: resources) {
 //			System.out.println(resource.getContent());
 //		}
 	}

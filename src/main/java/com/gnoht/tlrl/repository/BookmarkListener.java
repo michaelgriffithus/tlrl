@@ -4,27 +4,27 @@ import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.BookmarkedResource;
-import com.gnoht.tlrl.service.BookmarkedResourceService;
+import com.gnoht.tlrl.domain.BookmarkResource;
+import com.gnoht.tlrl.service.BookmarkResourceService;
 
 /**
  * {@link Bookmark} specific {@link PostInsertEventListener} that firsts off a 
- * crawl for {@link BookmarkedResource} whenever a new Bookmark is added.
+ * crawl for {@link BookmarkResource} whenever a new Bookmark is added.
  */
 public class BookmarkListener extends ManageablePostInsertEventListener<Bookmark> {
 
 	private static final long serialVersionUID = 5956032168972510149L;
 	
-	private final BookmarkedResourceService bookmarkedResourceService;
+	private final BookmarkResourceService bookmarkResourceService;
 
-	public BookmarkListener(BookmarkedResourceService bookmarkedResourceService) {
-		this.bookmarkedResourceService = bookmarkedResourceService;
+	public BookmarkListener(BookmarkResourceService bookmarkResourceService) {
+		this.bookmarkResourceService = bookmarkResourceService;
 	}
 	
 	@Override
 	public void handleSuccess(Bookmark bookmark, PostInsertEvent event) {
 		LOG.info("Starting handleSuccess(): bookmark={}, event={}", bookmark, event);
-		bookmarkedResourceService.crawl(bookmark);
+		bookmarkResourceService.crawl(bookmark);
 	}
 
 	@Override

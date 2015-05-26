@@ -15,7 +15,7 @@ import com.gnoht.tlrl.config.RepositoryConfig.EventListenerConfigurer;
 import com.gnoht.tlrl.config.SecurityConfig;
 import com.gnoht.tlrl.config.WebMvcConfig;
 import com.gnoht.tlrl.service.BookmarkService;
-import com.gnoht.tlrl.service.BookmarkedResourceService;
+import com.gnoht.tlrl.service.BookmarkResourceService;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.gnoht.tlrl.service.RememberMeTokenService;
 import com.gnoht.tlrl.service.UserService;
@@ -34,14 +34,14 @@ public class MockApplicationForControllerTesting {
 	@Mock UserService userService;
 	@Mock RememberMeTokenService rememberMeTokenService;
 	@Mock ReadLaterWebPageService readLaterWebPageService;
-	@Mock BookmarkedResourceService bookmarkedResourceService;
+	@Mock BookmarkResourceService bookmarkResourceService;
 	
 	public MockApplicationForControllerTesting() {
 		MockitoAnnotations.initMocks(this);
 	}
 	
-	@Bean public BookmarkedResourceService BookmarkedResourceService() {
-		return bookmarkedResourceService;
+	@Bean public BookmarkResourceService BookmarkResourceService() {
+		return bookmarkResourceService;
 	}
 	
 	@Bean public UserService userService() { 

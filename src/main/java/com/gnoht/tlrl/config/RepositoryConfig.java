@@ -27,10 +27,10 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
 import com.gnoht.tlrl.domain.DomainPackage;
 import com.gnoht.tlrl.repository.BookmarkListener;
-import com.gnoht.tlrl.repository.BookmarkedResourceListener;
+import com.gnoht.tlrl.repository.BookmarkResourceListener;
 import com.gnoht.tlrl.repository.RepositoryPackage;
-import com.gnoht.tlrl.service.BookmarkedResourceService;
-import com.gnoht.tlrl.service.BookmarkedResourceServiceImpl;
+import com.gnoht.tlrl.service.BookmarkResourceService;
+import com.gnoht.tlrl.service.BookmarkResourceServiceImpl;
 import com.gnoht.tlrl.service.ReadLaterWebPageService;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -77,7 +77,7 @@ public class RepositoryConfig {
 	public static class EventListenerConfigurer {
 		
 		@Resource private EntityManagerFactory emf;
-		@Resource private BookmarkedResourceService bookmarkedResourceService;
+		@Resource private BookmarkResourceService bookmarkResourceService;
 		@Resource private ReadLaterWebPageService readLaterWebPageService;
 		
 		@Bean
@@ -95,8 +95,10 @@ public class RepositoryConfig {
 					.getServiceRegistry().getService(EventListenerRegistry.class);
 			
 			registry.getEventListenerGroup(EventType.POST_COMMIT_INSERT)
-				.appendListeners(new BookmarkListener(bookmarkedResourceService),
-						new BookmarkedResourceListener(readLaterWebPageService));
+				.appendListeners(
+					new BookmarkListener(bookmarkResourceService),
+					new BookmarkResourceListener(readLaterWebPageService)
+				);
 		}
 		
 	}

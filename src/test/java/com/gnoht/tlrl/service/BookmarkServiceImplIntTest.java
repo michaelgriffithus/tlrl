@@ -33,7 +33,7 @@ public class BookmarkServiceImplIntTest {
 	@Resource BookmarkService bookmarkService;
 	@Resource UserService userService;
 	@Resource WebUrlService webUrlService;
-	@Resource BookmarkedResourceService bookmarkedResourceService;
+	@Resource BookmarkResourceService bookmarkResourceService;
 	
 	User testUser = new User();
 
@@ -70,7 +70,7 @@ public class BookmarkServiceImplIntTest {
 		
 		Bookmark bookmark = bookmarkService.findOrCreateReadLater(user, randomUrl);
 		
-		//bookmarkedResourceService.crawl(bookmark);
+		//bookmarkResourceService.crawl(bookmark);
 		
 		//assertNotNull(webUrlService.findByUrl(randomUrl));
 	}
