@@ -44,6 +44,17 @@ public class BookmarkRepositorySqlParameterSource
 		super.addValue(paramName, value);
 		return this;
 	}
+	
+	public BookmarkRepositorySqlParameterSource(final Set<String> tags, Pageable pageable) {
+		this(pageable);
+		addValue(UNTAGGED_PARAM, false);
+		addValue(HAS_TAGS_PARAM, tags.isEmpty());
+		addValue(TAG_COUNT_PARAM, tags.size());
+		int tagIndex = 0;
+		for(String tag: tags) {
+			addValue(("tag" + tagIndex++), tag);
+		}
+	}
 
 	/**
 	 * Constructs {@link SqlParameterSource} for findAllByOwnerTagged query. 

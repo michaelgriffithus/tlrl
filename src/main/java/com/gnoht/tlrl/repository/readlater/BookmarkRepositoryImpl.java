@@ -82,8 +82,11 @@ public class BookmarkRepositoryImpl
 
 	@Override
 	public List<Bookmark> findAllByTags(Set<String> tags, Pageable pageable) {
-		SqlParameterSource paramSource = forByTagsQueries(tags, pageable);
-		LOG.debug("sql={}", bundle.getSql("FindAllQuery", paramSource));
+		LOG.info("Starting findAllByTags(): tags={}, pageable={}", tags, pageable);
+		SqlParameterSource paramSource = new BookmarkRepositorySqlParameterSource(tags, pageable);
+		if(LOG.isDebugEnabled()) {
+			LOG.debug("sql={}", bundle.getSql("FindAllQuery", paramSource));
+		}
 		return namedParameterJdbcTemplate.query(bundle.getSql("FindAllQuery", paramSource), paramSource, publicReadLaterRowMapper);
 	}
 	

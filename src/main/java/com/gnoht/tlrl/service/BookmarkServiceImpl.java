@@ -178,6 +178,10 @@ public class BookmarkServiceImpl
 		return getRepository().save(bookmark); 
 	}
 
+	/*
+	 * @see com.gnoht.tlrl.service.BookmarkService#updateReadLaterStatus(
+	 * 	com.gnoht.tlrl.domain.Bookmark)
+	 */
 	@Transactional(readOnly=false)
 	@Override
 	public Bookmark updateReadLaterStatus(Bookmark toUpdate) {
