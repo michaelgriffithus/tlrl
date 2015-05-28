@@ -30,6 +30,7 @@ import com.gnoht.tlrl.domain.BookmarkResource;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.repository.BookmarkPageRequest;
 import com.gnoht.tlrl.repository.BookmarkResourceRepository;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.readlater.BookmarkRepository;
@@ -48,12 +49,6 @@ public class BookmarkController {
 	@Resource private BookmarkRepository repo;
 	@Resource private ReadLaterWebPageService readLaterWebPageService;
 	@Resource private UserService userService;
-	
-	@RequestMapping(value="/test/{id}", method=RequestMethod.GET)
-	public String test(@PathVariable long id) {
-		bookmarkService.delete(id);
-		return "cool";
-	}
 	
 	@RequestMapping(value="/search", method=RequestMethod.GET)
 	public ResultPage<ReadLaterWebPage> searchAll(
@@ -127,7 +122,7 @@ public class BookmarkController {
 	 * @param pageable 
 	 * @return 
 	 */
-	@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
+	//@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
 	public ResultPage<Bookmark> findAllByUser(@CurrentUser User currentUser, @TargetUser("userName") User user, 
 			@RequestParam(value="filters", defaultValue="") ReadLaterQueryFilter ownerOnlyFilters, 
 			@RequestParam(value="tags", required=false) String[] tags,
@@ -149,6 +144,34 @@ public class BookmarkController {
 		}
 	}
 
+	/**
+	 * 
+	 * @param currentUser
+	 * @param targetUser
+	 * @param tags
+	 * @param pageable
+	 * @return
+	 */
+	@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
+	public ResultPage<Bookmark> findAllByUser2(@CurrentUser User currentUser, 
+			@TargetUser("userName") User targetUser, 
+			@RequestParam(value="tags", required=false) String[] tags,
+			@PageableDefault(page=0, size=20) Pageable pageable) 
+	{
+		LOG.info("Starting findAllByUser(): currentUser={}, targetUser={}, tags={}, pageable={}",
+				currentUser, targetUser, tags, pageable);
+		
+		if(isOwner(currentUser, targetUser)) {
+			BookmarkPageRequest bookmarkPageRequest = new BookmarkPageRequest(pageable);
+			LOG.debug("bookmarkPageRequest={}", bookmarkPageRequest);
+			return bookmarkPageRequest.hasUntaggedSortProperty() ? 
+					bookmarkService.findAllByOwnerAndUntagged2(currentUser, bookmarkPageRequest) :
+				bookmarkService.findAllByOwnerAndTagged2(currentUser, toSet(tags), bookmarkPageRequest);
+		} else {
+			return bookmarkService.findAllByUserAndTagged(targetUser, toSet(tags), pageable);
+		}
+	}
+	
 	@RequestMapping(value="/urls/{id}/status", method=RequestMethod.PUT)
 	public Bookmark setReadLaterStatus(@CurrentUser User currentUser,
 			@PathVariable("id") Long id, @RequestBody(required=true) Bookmark bookmark) {

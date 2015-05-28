@@ -589,7 +589,7 @@ angular.module('tlrl', [
 	 */
 	$scope.queryReadLaters = function(req) {
 		TLRLService.query({user: $scope.getTargetUserAtName(), 
-				page: req.page, sort: req.sort, tags: req.tags, filters: $location.search().f },
+				page: req.page, tags: req.tags, sort: $location.search().f },
 			$scope.handleResultPage,
 			$scope.handleError);
 		

@@ -21,6 +21,7 @@ import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.repository.BookmarkPageRequest;
 import com.gnoht.tlrl.repository.ManageResultPage;
 import com.gnoht.tlrl.repository.ResultPage;
 import com.gnoht.tlrl.repository.SimpleResultPage;
@@ -137,6 +138,29 @@ public class BookmarkServiceImpl
 				findAllByOwnerAndUntagged(owner, readLaterQueryFilter, pageable);
 		return new ManageResultPage(new PageImpl<Bookmark>(
 				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
+	}
+
+	
+	
+	@Override
+	public ResultPage<Bookmark> findAllByOwnerAndTagged2(User owner,
+			Set<String> tags, BookmarkPageRequest pageable) {
+		ReadLaterStats stats = getRepository().findAllMetaByOwnerAndTagged(owner, tags);
+		List<Bookmark> bookmarks = getRepository().findAllByOwnerAndTagged(owner, tags, pageable);
+		return new ManageResultPage(
+				new PageImpl<>(bookmarks, pageable, stats.getTotalReadLaters()), 
+				stats, 
+				pageable);
+	}
+
+	@Override
+	public ResultPage<Bookmark> findAllByOwnerAndUntagged2(User owner,
+			BookmarkPageRequest pageable) {
+		ReadLaterStats stats = getRepository().findAllMetaByOwnerAndUntagged(owner);
+		List<Bookmark> bookmarks = getRepository()
+				.findAllByOwnerAndUntagged(owner, pageable);
+		return new ManageResultPage(new PageImpl<>(bookmarks, pageable, stats.getTotalReadLaters()), 
+				stats, pageable);
 	}
 
 	@Override

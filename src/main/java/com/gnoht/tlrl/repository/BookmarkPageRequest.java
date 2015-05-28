@@ -1,8 +1,14 @@
 package com.gnoht.tlrl.repository;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 /**
  * {@link Pageable} implementation with support for Bookmark specific sort
@@ -10,41 +16,50 @@ import org.springframework.data.domain.Sort;
  */
 public class BookmarkPageRequest extends PageRequest {
 
-	private static final long serialVersionUID = 6547418522737048133L;
+	private static final long serialVersionUID = 1L;
 	
-	private boolean sortUnread, 
-		sortPrivate,
-		sortPublic,
-		sortUntagged;
+	private boolean unreadSortProperty,
+		privateSortProperty,
+		publicSortProperty,
+		untaggedSortProperty;
 	
-	public BookmarkPageRequest(int page, String ... properties) {
-		super(page, 50);
+	public BookmarkPageRequest(int page, int size) {
+		super(page, size);
+	}
+	
+	public BookmarkPageRequest(Pageable pageable) {
+		super(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
 		
-		for(String prop: properties) {
-			if(prop.equals("unread"))
-				sortUnread = true;
-			else if(prop.equals("private"))
-				sortPrivate = true;
-			else if(prop.equals("public"))
-				sortPublic = true;
-			else if(prop.equals("untagged"))
-				sortUntagged = true;
+		Sort sort = getSort();
+		if(sort != null) {
+			Iterator<Sort.Order> sortIter = getSort().iterator();
+			while(sortIter.hasNext()) {
+				String property = sortIter.next().getProperty();
+				if(property.equals("unread"))
+					unreadSortProperty = true;
+				else if(property.equals("private"))
+					privateSortProperty = true;
+				else if(property.equals("public"))
+					publicSortProperty = true;
+				else if(property.equals("untagged"))
+					untaggedSortProperty = true;
+			}
 		}
 	}
 
-	public boolean hasSortUnread() {
-		return sortUnread;
+	public boolean hasUnreadSortProperty() {
+		return unreadSortProperty;
 	}
 	
-	public boolean hasSortUntagged() {
-		return sortUntagged;
+	public boolean hasPrivateSortProperty() {
+		return privateSortProperty;
 	}
 	
-	public boolean hasSortPublic() {
-		return sortPublic;
+	public boolean hasPublicSortProperty() {
+		return publicSortProperty;
 	}
 	
-	public boolean hasSortPrivate() {
-		return sortPrivate;
+	public boolean hasUntaggedSortProperty() {
+		return untaggedSortProperty;
 	}
 }

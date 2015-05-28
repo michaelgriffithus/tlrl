@@ -11,6 +11,7 @@ import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.repository.BookmarkPageRequest;
 
 public interface BookmarkCustomRepository {
 
@@ -20,8 +21,15 @@ public interface BookmarkCustomRepository {
 	public ReadLaterStats findReadLaterStatsByUserAndTags(User user, Set<String> tags);
 	public ReadLaterStats findReadLaterStatsByTags(Set<String> tags);
 	
+	@Deprecated
 	public List<Bookmark> findAllByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Pageable pageable);
+	@Deprecated
 	public List<Bookmark> findAllByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable);
+
+	public List<Bookmark> findAllByOwnerAndUntagged(User owner, BookmarkPageRequest pageable);
+	public List<Bookmark> findAllByOwnerAndTagged(User owner, Set<String> tags, BookmarkPageRequest pageable);
+	public ReadLaterStats findAllMetaByOwnerAndUntagged(User owner);
+	public ReadLaterStats findAllMetaByOwnerAndTagged(User owner, Set<String> tags);
 	
 	public ReadLaterStats findReadLaterStatsByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter);
 	public ReadLaterStats findReadLaterStatsByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags);

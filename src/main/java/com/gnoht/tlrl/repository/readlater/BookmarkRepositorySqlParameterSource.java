@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.SharedStatus;
+import com.gnoht.tlrl.repository.BookmarkPageRequest;
 
 /**
  * {@link SqlParameterSource} implementation holding named SQL parameters 
@@ -45,17 +46,6 @@ public class BookmarkRepositorySqlParameterSource
 		return this;
 	}
 	
-	public BookmarkRepositorySqlParameterSource(final Set<String> tags, Pageable pageable) {
-		this(pageable);
-		addValue(UNTAGGED_PARAM, false);
-		addValue(HAS_TAGS_PARAM, tags.isEmpty());
-		addValue(TAG_COUNT_PARAM, tags.size());
-		int tagIndex = 0;
-		for(String tag: tags) {
-			addValue(("tag" + tagIndex++), tag);
-		}
-	}
-
 	/**
 	 * Constructs {@link SqlParameterSource} for findAllByOwnerTagged query. 
 	 * 
@@ -102,6 +92,142 @@ public class BookmarkRepositorySqlParameterSource
 			addValue(SHARED_STATUS_PARAM, true);
 		}
 	}
+
+	/**
+	 * Constructs {@link SqlParameterSource} for *ByOwnerAndTaggedQueries.
+	 * 
+	 * @param userId
+	 * @param tags
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQueries(
+			final Long userId,
+			final Set<String> tags,
+			final ReadLaterQueryFilter filter,
+			final Pageable pageable) 
+	{
+		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+				forByOwnerUntaggedQueries(userId, filter, pageable)
+			.addValue(UNTAGGED_PARAM, false);
+
+		if(tags != null) {
+			sqlParameterSource
+				.addValue(HAS_TAGS_PARAM, !tags.isEmpty())
+				.addValue(TAG_COUNT_PARAM, tags.size());
+		
+			int tagIndex = 0;
+			for(String tag: tags) {
+				sqlParameterSource.addValue(("tag" + tagIndex++), tag);
+			}
+		}
+		
+		return sqlParameterSource;
+//		return BookmarkRepositorySqlParameterSource(userId, tags, queryFilter, pageable);
+	}
+	
+	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQuery(
+			final Long userId,
+			final Set<String> tags,
+			final BookmarkPageRequest pageRequest) 
+	{
+		BookmarkRepositorySqlParameterSource sqlParameterSource =
+				forByOwnerUntaggedQuery(userId, pageRequest)
+			.addValue(UNTAGGED_PARAM, false);
+		
+		if(tags != null) {
+			sqlParameterSource
+				.addValue(HAS_TAGS_PARAM, !tags.isEmpty())
+				.addValue(TAG_COUNT_PARAM, tags.size());
+			
+			int tagIndex = 0;
+			for(String tag: tags) {
+				sqlParameterSource.addValue(("tag" + tagIndex++), tag);
+			}
+		}
+		
+		return sqlParameterSource;
+	}
+	
+	/**
+	 * Constructs {@link SqlParameterSource} for *ByOwnerUntagged queries.
+	 * 
+	 * @param userId
+	 * @param filter
+	 * @param pageable
+	 * @return
+	 */
+	@Deprecated
+	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQueries(
+			final Long userId,
+			final ReadLaterQueryFilter filter,
+			final Pageable pageable) 
+	{
+		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+					new BookmarkRepositorySqlParameterSource(pageable)
+			.addValue(UNTAGGED_PARAM, true)
+			.addValue(HAS_TAGS_PARAM, false)
+			.addValue(USER_ID_PARAM, userId);
+		
+		if(filter != null) {
+			if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
+				sqlParameterSource.addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+			}
+			
+			if(filter.getSharedStatus() == SharedStatus.PUBLIC)
+				sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+			else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
+				sqlParameterSource.addValue(SHARED_STATUS_PARAM, false);
+		}
+		
+		return sqlParameterSource;
+		//return new BookmarkRepositorySqlParameterSource(userId, NULL_TAGS, filter, pageable);
+	}
+	
+	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQuery(
+			final Long userId,
+			final BookmarkPageRequest pageRequest) 
+	{
+		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+					new BookmarkRepositorySqlParameterSource(pageRequest)
+			.addValue(UNTAGGED_PARAM, true)
+			.addValue(HAS_TAGS_PARAM, false)
+			.addValue(USER_ID_PARAM, userId);
+	
+		if(pageRequest.hasUnreadSortProperty()) {
+			sqlParameterSource.addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+		}
+		if(pageRequest.hasPrivateSortProperty()) {
+			sqlParameterSource.addValue(SHARED_STATUS_PARAM, false);
+		} else if(pageRequest.hasPublicSortProperty()) {
+			sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+		}
+		
+		return sqlParameterSource;
+	}
+	
+	/**
+	 * Constructs {@link SqlParameterSource} for findAllByUserAndTags query.
+	 * 
+	 * @param userId
+	 * @param tags
+	 * @param pageable
+	 */
+	public static BookmarkRepositorySqlParameterSource forByUserAndTagsQueries(
+			final Long userId, 
+			final Set<String> tags, 
+			final Pageable pageable) 
+	{
+		return forByTagsQueries(tags, pageable)
+				.addValue(USER_ID_PARAM, userId)
+				.addValue(SHARED_STATUS_PARAM, true);
+		
+//		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+//				new BookmarkRepositorySqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
+//		sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+//		return sqlParameterSource;
+	}
 	
 	/**
 	 * Constructs {@link SqlParameterSource} for all pageable queries.
@@ -124,59 +250,25 @@ public class BookmarkRepositorySqlParameterSource
 			final Set<String> tags, 
 			final Pageable pageable) 
 	{
-		return new BookmarkRepositorySqlParameterSource(NULL_USERID, tags, NULL_QUERYFILTER, pageable);
-	}
-	
-	/**
-	 * Constructs {@link SqlParameterSource} for findAllByUserAndTags query.
-	 * 
-	 * @param userId
-	 * @param tags
-	 * @param pageable
-	 */
-	public static BookmarkRepositorySqlParameterSource forByUserAndTagsQueries(
-			final Long userId, 
-			final Set<String> tags, 
-			final Pageable pageable) 
-	{
-		BookmarkRepositorySqlParameterSource sqlParameterSource = 
-				new BookmarkRepositorySqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
-		sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+		BookmarkRepositorySqlParameterSource sqlParameterSource =
+				new BookmarkRepositorySqlParameterSource(pageable)
+				.addValue(UNTAGGED_PARAM, false)
+				.addValue(HAS_TAGS_PARAM, false);
+		
+		if(tags != null) {
+			sqlParameterSource
+				.addValue(HAS_TAGS_PARAM, !tags.isEmpty())
+				.addValue(TAG_COUNT_PARAM, tags.size());
+			
+			int tagIndex = 0;
+			for(String tag: tags) {
+				sqlParameterSource.addValue(("tag" + tagIndex++), tag);
+			}
+		}
+		
 		return sqlParameterSource;
 	}
 	
-	/**
-	 * Constructs {@link SqlParameterSource} for *ByOwnerAndTaggedQueries.
-	 * 
-	 * @param userId
-	 * @param tags
-	 * @param queryFilter
-	 * @param pageable
-	 * @return
-	 */
-	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQueries(
-			final Long userId,
-			final Set<String> tags,
-			final ReadLaterQueryFilter queryFilter,
-			final Pageable pageable) 
-	{
-		return new BookmarkRepositorySqlParameterSource(userId, tags, queryFilter, pageable);
-	}
 	
-	/**
-	 * Constructs {@link SqlParameterSource} for *ByOwnerUntagged queries.
-	 * 
-	 * @param userId
-	 * @param filter
-	 * @param pageable
-	 * @return
-	 */
-	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQueries(
-			final Long userId,
-			final ReadLaterQueryFilter filter,
-			final Pageable pageable) 
-	{
-		return new BookmarkRepositorySqlParameterSource(userId, NULL_TAGS, filter, pageable);
-	}
 	
 }

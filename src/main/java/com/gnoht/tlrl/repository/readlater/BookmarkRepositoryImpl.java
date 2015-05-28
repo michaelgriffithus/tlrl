@@ -29,6 +29,7 @@ import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
+import com.gnoht.tlrl.repository.BookmarkPageRequest;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.elsql.ElSqlConfig;
 
@@ -80,24 +81,93 @@ public class BookmarkRepositoryImpl
 				defaultSqlParameterSource, readLaterStatsRsExtractor);
 	}
 
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllByTags(
+	 * 	java.util.Set, org.springframework.data.domain.Pageable)
+	 */
 	@Override
 	public List<Bookmark> findAllByTags(Set<String> tags, Pageable pageable) {
 		LOG.info("Starting findAllByTags(): tags={}, pageable={}", tags, pageable);
-		SqlParameterSource paramSource = new BookmarkRepositorySqlParameterSource(tags, pageable);
-		if(LOG.isDebugEnabled()) {
-			LOG.debug("sql={}", bundle.getSql("FindAllQuery", paramSource));
-		}
-		return namedParameterJdbcTemplate.query(bundle.getSql("FindAllQuery", paramSource), paramSource, publicReadLaterRowMapper);
+		SqlParameterSource params = forByTagsQueries(tags, pageable);
+		return namedParameterJdbcTemplate.query(bundle
+			.getSql("FindAllQuery", params), params, publicReadLaterRowMapper);
+	}
+	
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findReadLaterStatsByTags(java.util.Set)
+	 */
+	@Override
+	public ReadLaterStats findReadLaterStatsByTags(Set<String> tags) {
+		LOG.info("Starting findReadLaterStatsByTags(): tags={}", tags);
+		SqlParameterSource params = forByTagsQueries(tags, defaultPageable);
+		return namedParameterJdbcTemplate.query(bundle
+			.getSql("StatsQuery", params), params, findReadLaterStatsResultsExtractor);
+	}
+	
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllByUserAndTags(
+	 * 	com.gnoht.tlrl.domain.User, java.util.Set, org.springframework.data.domain.Pageable)
+	 */
+	@Override
+	public List<Bookmark> findAllByUserAndTags(User user, Set<String> tags, Pageable pageable) {
+		LOG.info("Starting findAllByUserAndTags(): user={}, tags={}, pageable={}", user, tags, pageable);
+		SqlParameterSource params = forByUserAndTagsQueries(user.getId(), tags, pageable);
+		return namedParameterJdbcTemplate.query(bundle
+			.getSql("FindAllQuery", params),  params, publicReadLaterRowMapper);
+	}
+
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findReadLaterStatsByUserAndTags(
+	 * 	com.gnoht.tlrl.domain.User, java.util.Set)
+	 */
+	@Override
+	public ReadLaterStats findReadLaterStatsByUserAndTags(User user, Set<String> tags) {
+		LOG.info("Starting findReadLaterStatsByUserAndTags(): user={}, tags={}", user, tags);
+		SqlParameterSource params = forByUserAndTagsQueries(user.getId(), tags, defaultPageable);
+		return namedParameterJdbcTemplate.query(bundle
+			.getSql("StatsQuery", params), params, findReadLaterStatsResultsExtractor);
+	}
+	
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllByOwnerAndUntagged(
+	 * 	com.gnoht.tlrl.domain.User, 
+	 * 	com.gnoht.tlrl.controller.ReadLaterQueryFilter, 
+	 * 	org.springframework.data.domain.Pageable)
+	 */
+	@Override @Deprecated
+	public List<Bookmark> findAllByOwnerAndUntagged(User owner, 
+			ReadLaterQueryFilter queryFilter, Pageable pageable) 
+	{
+		LOG.info("Starting findAllByOwnerAndUntagged(): owner={}, queryFilter={}", owner, queryFilter);
+		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), queryFilter, pageable); 
+		return namedParameterJdbcTemplate.query(
+				bundle.getSql("FindAllQuery", paramSource), paramSource, privateReadLaterRowMapper);
 	}
 	
 	@Override
-	public List<Bookmark> findAllByUserAndTags(User user, Set<String> tags, Pageable pageable) {
-		SqlParameterSource paramSource = forByUserAndTagsQueries(user.getId(), tags, pageable);
-		return namedParameterJdbcTemplate.query(
-				bundle.getSql("FindAllQuery", paramSource),  paramSource, publicReadLaterRowMapper);
+	public List<Bookmark> findAllByOwnerAndTagged(User owner, Set<String> tags,
+			BookmarkPageRequest pageRequest) {
+		LOG.info("Starting findAllByOwnerAndTagged(): owner={}, tags={}, pageRequest={}",
+				owner, tags, pageRequest);
+		
+		SqlParameterSource params = forByOwnerAndTaggedQuery(owner.getId(), tags, pageRequest);
+		return namedParameterJdbcTemplate.query(bundle
+				.getSql("FindAllQuery", params), params, privateReadLaterRowMapper);
 	}
 
-	@Override
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findReadLaterStatsByOwnerAndUntagged(
+	 * 	com.gnoht.tlrl.domain.User, 
+	 * 	com.gnoht.tlrl.controller.ReadLaterQueryFilter)
+	 */
+	@Override @Deprecated
+	public ReadLaterStats findReadLaterStatsByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter) {
+		LOG.info("Starting findReadLaterStatsByOwerAndUntagged(): owner={}, filter={}", owner, readLaterQueryFilter);
+		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), readLaterQueryFilter, defaultPageable);
+		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
+	}
+
+	@Override @Deprecated
 	public List<Bookmark> findAllByOwnerAndTagged(User owner, 
 			ReadLaterQueryFilter queryFilter, Set<String> tags, Pageable pageable) 
 	{
@@ -106,38 +176,43 @@ public class BookmarkRepositoryImpl
 				bundle.getSql("FindAllQuery", paramSource), paramSource, privateReadLaterRowMapper);
 	}
 
-	@Override
-	public List<Bookmark> findAllByOwnerAndUntagged(User owner, 
-			ReadLaterQueryFilter queryFilter, Pageable pageable) 
-	{
-		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), queryFilter, pageable); 
-		return namedParameterJdbcTemplate.query(
-				bundle.getSql("FindAllQuery", paramSource), paramSource, privateReadLaterRowMapper);
-	}
-	
-	@Override
-	public ReadLaterStats findReadLaterStatsByTags(Set<String> tags) {
-		SqlParameterSource paramSource = forByTagsQueries(tags, defaultPageable);
-		String sql = bundle.getSql("StatsQuery", paramSource);
-		return namedParameterJdbcTemplate.query(sql, paramSource, findReadLaterStatsResultsExtractor);
-	}
-	
-	@Override
-	public ReadLaterStats findReadLaterStatsByUserAndTags(User user, Set<String> tags) {
-		SqlParameterSource paramSource = forByUserAndTagsQueries(user.getId(), tags, defaultPageable);
-		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
-	}
-	
-	@Override
+	@Override @Deprecated
 	public ReadLaterStats findReadLaterStatsByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags) {
 		SqlParameterSource paramSource = forByOwnerAndTaggedQueries(owner.getId(), tags, readLaterQueryFilter, defaultPageable);
 		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
 	}
-	
+
 	@Override
-	public ReadLaterStats findReadLaterStatsByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter) {
-		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), readLaterQueryFilter, defaultPageable);
-		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
+	public ReadLaterStats findAllMetaByOwnerAndUntagged(User owner) {
+		LOG.info("Starting findAllMetaByOwnerAndUntagged(): owner={}", owner);
+		SqlParameterSource params = forByOwnerUntaggedQuery(owner.getId(), new BookmarkPageRequest(1, 50));
+		return namedParameterJdbcTemplate.query(bundle
+				.getSql("StatsQuery", params), params, findReadLaterStatsResultsExtractor);
+	}
+
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllMetaByOwnerAndTagged(
+	 * 	com.gnoht.tlrl.domain.User, java.util.Set)
+	 */
+	@Override
+	public ReadLaterStats findAllMetaByOwnerAndTagged(User owner, Set<String> tags) {
+		LOG.info("Starting findAllMetaByOwnerAndTagged(): owner={}, tags={}", owner, tags);
+		SqlParameterSource params = forByOwnerAndTaggedQuery(owner.getId(), tags, new BookmarkPageRequest(1, 50));
+		return namedParameterJdbcTemplate.query(bundle
+				.getSql("StatsQuery", params), params, findReadLaterStatsResultsExtractor); 
+	}
+
+	/*
+	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllByOwnerAndUntagged(
+	 * 	com.gnoht.tlrl.domain.User, com.gnoht.tlrl.repository.BookmarkPageRequest)
+	 */
+	@Override
+	public List<Bookmark> findAllByOwnerAndUntagged(User owner,
+			BookmarkPageRequest pageRequest) {
+		LOG.info("Starting findAllByOwnerAndUntagged(): owner={}, pageRequest={}", owner, pageRequest);
+		SqlParameterSource params = forByOwnerUntaggedQuery(owner.getId(), pageRequest);
+		return namedParameterJdbcTemplate.query(bundle
+				.getSql("FindAllQuery", params), params, privateReadLaterRowMapper);
 	}
 
 	/**
