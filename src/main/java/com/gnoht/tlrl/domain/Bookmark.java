@@ -45,9 +45,8 @@ public class Bookmark extends ManagedAuditable<Long> {
 	private boolean shared = false;
 
 	@Enumerated(EnumType.STRING)
-	@JsonProperty(value="status")
 	@Column(name="read_later_status", nullable=false)
-	private ReadLaterStatus readLaterStatus = ReadLaterStatus.NA;
+	private Status status = Status.NA;
 	
 	@ManyToOne(fetch=FetchType.EAGER, targetEntity=WebUrl.class,
 			cascade={CascadeType.MERGE}, optional=false)
@@ -172,11 +171,11 @@ public class Bookmark extends ManagedAuditable<Long> {
 		this.webUrl = webUrl;
 	}
 	
-	public ReadLaterStatus getReadLaterStatus() {
-		return readLaterStatus;
+	public Status getStatus() {
+		return status;
 	}
-	public void setReadLaterStatus(ReadLaterStatus readLaterStatus) {
-		this.readLaterStatus = readLaterStatus;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 	
 	@Deprecated
@@ -193,7 +192,7 @@ public class Bookmark extends ManagedAuditable<Long> {
 		return super.toStringHelper()
 			.add("webResource", webUrl)
 			.add("shared", shared)
-			.add("status", readLaterStatus)
+			.add("status", status)
 			.add("title", title)
 			.add("tags", tags)
 			.add("description", description)
@@ -201,10 +200,9 @@ public class Bookmark extends ManagedAuditable<Long> {
 	}
 	
 	/**
-	 * Class indicating whether this {@link Bookmark} should be added to the 
-	 * "read later" queue.
+	 * Status of bookmark.
 	 */
-	public static enum ReadLater {
+	public static enum Status {
 		NA, UNREAD, READ;
 	}
 }

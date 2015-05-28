@@ -6,9 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
-import com.gnoht.tlrl.domain.ReadLaterStatus;
-import com.gnoht.tlrl.domain.SharedStatus;
+import com.gnoht.tlrl.domain.Bookmark.Status;
 import com.gnoht.tlrl.repository.BookmarkPageRequest;
 
 /**
@@ -33,7 +31,7 @@ public class BookmarkRepositorySqlParameterSource
 	
 	static final Set<String> NULL_TAGS = null;
 	static final Long NULL_USERID = null;  
-	static final ReadLaterQueryFilter NULL_QUERYFILTER = null;
+//	static final ReadLaterQueryFilter NULL_QUERYFILTER = null;
 	
 	private BookmarkRepositorySqlParameterSource(Pageable pageable) {
 		addValue(PAGE_PARAM, pageable.getOffset());
@@ -46,52 +44,52 @@ public class BookmarkRepositorySqlParameterSource
 		return this;
 	}
 	
-	/**
-	 * Constructs {@link SqlParameterSource} for findAllByOwnerTagged query. 
-	 * 
-	 * @param userId
-	 * @param tags
-	 * @param filter
-	 * @param pageable
-	 */
-	private BookmarkRepositorySqlParameterSource(
-			final Long userId, 
-			final Set<String> tags, 
-			final ReadLaterQueryFilter filter, 
-			final Pageable pageable) 
-	{
-		this(pageable);
-		addValue(UNTAGGED_PARAM, tags == null);
-		addValue(HAS_TAGS_PARAM, false);
-		if(tags != null) {
-			addValue(HAS_TAGS_PARAM, !tags.isEmpty());
-			addValue(TAG_COUNT_PARAM, tags.size());
-			if(!tags.isEmpty()) {
-				int tagCount = 0;
-				for(String tag: tags) {
-					// add each tag as a parameter with name of "tag" + index
-					// e.g tag0, tag1, ...
-					addValue(("tag" + tagCount++), tag);
-				}
-			}
-		}
-		
-		if(userId != null) {
-			addValue(USER_ID_PARAM, userId);
-			if(filter != null) {
-				if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
-					addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
-				}
-				
-				if(filter.getSharedStatus() == SharedStatus.PUBLIC)
-					addValue(SHARED_STATUS_PARAM, true);
-				else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
-					addValue(SHARED_STATUS_PARAM, false);
-			}
-		} else {
-			addValue(SHARED_STATUS_PARAM, true);
-		}
-	}
+//	/**
+//	 * Constructs {@link SqlParameterSource} for findAllByOwnerTagged query. 
+//	 * 
+//	 * @param userId
+//	 * @param tags
+//	 * @param filter
+//	 * @param pageable
+//	 */
+//	private BookmarkRepositorySqlParameterSource(
+//			final Long userId, 
+//			final Set<String> tags, 
+//			final ReadLaterQueryFilter filter, 
+//			final Pageable pageable) 
+//	{
+//		this(pageable);
+//		addValue(UNTAGGED_PARAM, tags == null);
+//		addValue(HAS_TAGS_PARAM, false);
+//		if(tags != null) {
+//			addValue(HAS_TAGS_PARAM, !tags.isEmpty());
+//			addValue(TAG_COUNT_PARAM, tags.size());
+//			if(!tags.isEmpty()) {
+//				int tagCount = 0;
+//				for(String tag: tags) {
+//					// add each tag as a parameter with name of "tag" + index
+//					// e.g tag0, tag1, ...
+//					addValue(("tag" + tagCount++), tag);
+//				}
+//			}
+//		}
+//		
+//		if(userId != null) {
+//			addValue(USER_ID_PARAM, userId);
+//			if(filter != null) {
+//				if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
+//					addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+//				}
+//				
+//				if(filter.getSharedStatus() == SharedStatus.PUBLIC)
+//					addValue(SHARED_STATUS_PARAM, true);
+//				else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
+//					addValue(SHARED_STATUS_PARAM, false);
+//			}
+//		} else {
+//			addValue(SHARED_STATUS_PARAM, true);
+//		}
+//	}
 
 	/**
 	 * Constructs {@link SqlParameterSource} for *ByOwnerAndTaggedQueries.
@@ -102,30 +100,30 @@ public class BookmarkRepositorySqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQueries(
-			final Long userId,
-			final Set<String> tags,
-			final ReadLaterQueryFilter filter,
-			final Pageable pageable) 
-	{
-		BookmarkRepositorySqlParameterSource sqlParameterSource = 
-				forByOwnerUntaggedQueries(userId, filter, pageable)
-			.addValue(UNTAGGED_PARAM, false);
-
-		if(tags != null) {
-			sqlParameterSource
-				.addValue(HAS_TAGS_PARAM, !tags.isEmpty())
-				.addValue(TAG_COUNT_PARAM, tags.size());
-		
-			int tagIndex = 0;
-			for(String tag: tags) {
-				sqlParameterSource.addValue(("tag" + tagIndex++), tag);
-			}
-		}
-		
-		return sqlParameterSource;
-//		return BookmarkRepositorySqlParameterSource(userId, tags, queryFilter, pageable);
-	}
+//	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQueries(
+//			final Long userId,
+//			final Set<String> tags,
+//			final ReadLaterQueryFilter filter,
+//			final Pageable pageable) 
+//	{
+//		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+//				forByOwnerUntaggedQueries(userId, filter, pageable)
+//			.addValue(UNTAGGED_PARAM, false);
+//
+//		if(tags != null) {
+//			sqlParameterSource
+//				.addValue(HAS_TAGS_PARAM, !tags.isEmpty())
+//				.addValue(TAG_COUNT_PARAM, tags.size());
+//		
+//			int tagIndex = 0;
+//			for(String tag: tags) {
+//				sqlParameterSource.addValue(("tag" + tagIndex++), tag);
+//			}
+//		}
+//		
+//		return sqlParameterSource;
+////		return BookmarkRepositorySqlParameterSource(userId, tags, queryFilter, pageable);
+//	}
 	
 	public static BookmarkRepositorySqlParameterSource forByOwnerAndTaggedQuery(
 			final Long userId,
@@ -158,32 +156,32 @@ public class BookmarkRepositorySqlParameterSource
 	 * @param pageable
 	 * @return
 	 */
-	@Deprecated
-	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQueries(
-			final Long userId,
-			final ReadLaterQueryFilter filter,
-			final Pageable pageable) 
-	{
-		BookmarkRepositorySqlParameterSource sqlParameterSource = 
-					new BookmarkRepositorySqlParameterSource(pageable)
-			.addValue(UNTAGGED_PARAM, true)
-			.addValue(HAS_TAGS_PARAM, false)
-			.addValue(USER_ID_PARAM, userId);
-		
-		if(filter != null) {
-			if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
-				sqlParameterSource.addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
-			}
-			
-			if(filter.getSharedStatus() == SharedStatus.PUBLIC)
-				sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
-			else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
-				sqlParameterSource.addValue(SHARED_STATUS_PARAM, false);
-		}
-		
-		return sqlParameterSource;
-		//return new BookmarkRepositorySqlParameterSource(userId, NULL_TAGS, filter, pageable);
-	}
+//	@Deprecated
+//	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQueries(
+//			final Long userId,
+//			final ReadLaterQueryFilter filter,
+//			final Pageable pageable) 
+//	{
+//		BookmarkRepositorySqlParameterSource sqlParameterSource = 
+//					new BookmarkRepositorySqlParameterSource(pageable)
+//			.addValue(UNTAGGED_PARAM, true)
+//			.addValue(HAS_TAGS_PARAM, false)
+//			.addValue(USER_ID_PARAM, userId);
+//		
+//		if(filter != null) {
+//			if(filter.getReadLaterStatus() == ReadLaterStatus.UNREAD) {
+//				sqlParameterSource.addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+//			}
+//			
+//			if(filter.getSharedStatus() == SharedStatus.PUBLIC)
+//				sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
+//			else if(filter.getSharedStatus() == SharedStatus.PRIVATE)
+//				sqlParameterSource.addValue(SHARED_STATUS_PARAM, false);
+//		}
+//		
+//		return sqlParameterSource;
+//		//return new BookmarkRepositorySqlParameterSource(userId, NULL_TAGS, filter, pageable);
+//	}
 	
 	public static BookmarkRepositorySqlParameterSource forByOwnerUntaggedQuery(
 			final Long userId,
@@ -196,7 +194,7 @@ public class BookmarkRepositorySqlParameterSource
 			.addValue(USER_ID_PARAM, userId);
 	
 		if(pageRequest.hasUnreadSortProperty()) {
-			sqlParameterSource.addValue(READLATER_STATUS_PARAM, ReadLaterStatus.UNREAD);
+			sqlParameterSource.addValue(READLATER_STATUS_PARAM, Status.UNREAD);
 		}
 		if(pageRequest.hasPrivateSortProperty()) {
 			sqlParameterSource.addValue(SHARED_STATUS_PARAM, false);
@@ -222,11 +220,6 @@ public class BookmarkRepositorySqlParameterSource
 		return forByTagsQueries(tags, pageable)
 				.addValue(USER_ID_PARAM, userId)
 				.addValue(SHARED_STATUS_PARAM, true);
-		
-//		BookmarkRepositorySqlParameterSource sqlParameterSource = 
-//				new BookmarkRepositorySqlParameterSource(userId, tags, NULL_QUERYFILTER, pageable);
-//		sqlParameterSource.addValue(SHARED_STATUS_PARAM, true);
-//		return sqlParameterSource;
 	}
 	
 	/**

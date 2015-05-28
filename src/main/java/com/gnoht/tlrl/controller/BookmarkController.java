@@ -113,47 +113,14 @@ public class BookmarkController {
 	 * Otherwise it's a public query and only tags filter may be applied in addition 
 	 * to the target User.
 	 * 
-	 * @param currentUser the current authenticated User making this request
-	 * @param user the target User to query by
-	 * @param ownerOnlyFilters optional filters to apply against the query. Note, 
-	 * these filters will only be applied if calling authenticated User is also 
-	 * the target User.
-	 * @param tags list of tags to filter by
+	 * @param currentUser The current authenticated {@link User} for current context
+	 * @param targetUser The user to filter by
+	 * @param tags List of tags to filter by
 	 * @param pageable 
-	 * @return 
-	 */
-	//@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
-	public ResultPage<Bookmark> findAllByUser(@CurrentUser User currentUser, @TargetUser("userName") User user, 
-			@RequestParam(value="filters", defaultValue="") ReadLaterQueryFilter ownerOnlyFilters, 
-			@RequestParam(value="tags", required=false) String[] tags,
-			@PageableDefault(page=0, size=10, sort={"id"}, direction=Direction.ASC) Pageable pageable) {
-		
-		LOG.debug("Starting findAllByUser(): currentUser={}, user={}, filters={}, tags={}", 
-				currentUser, user, ownerOnlyFilters, tags);
-		
-		if(!isOwner(currentUser, user)) {
-			LOG.debug("In non owner block");
-			/* public/non owner queries can only filter by tags */
-			return bookmarkService.findAllByUserAndTagged(user, toSet(tags), pageable);
-		} else {
-			LOG.debug("In owner block");
-			/* private/owner queries can filter by tags and optional untagged, shared, status */
-			return (ownerOnlyFilters.isUntagged() ? 
-					bookmarkService.findAllByOwnerAndUntagged(currentUser, ownerOnlyFilters, pageable) :
-				bookmarkService.findAllByOwnerAndTagged(currentUser, ownerOnlyFilters, toSet(tags), pageable));
-		}
-	}
-
-	/**
-	 * 
-	 * @param currentUser
-	 * @param targetUser
-	 * @param tags
-	 * @param pageable
 	 * @return
 	 */
 	@RequestMapping(value={"/@{userName}", "/@{userName}/urls"}, method=RequestMethod.GET)
-	public ResultPage<Bookmark> findAllByUser2(@CurrentUser User currentUser, 
+	public ResultPage<Bookmark> findAllByUser(@CurrentUser User currentUser, 
 			@TargetUser("userName") User targetUser, 
 			@RequestParam(value="tags", required=false) String[] tags,
 			@PageableDefault(page=0, size=20) Pageable pageable) 
@@ -165,8 +132,8 @@ public class BookmarkController {
 			BookmarkPageRequest bookmarkPageRequest = new BookmarkPageRequest(pageable);
 			LOG.debug("bookmarkPageRequest={}", bookmarkPageRequest);
 			return bookmarkPageRequest.hasUntaggedSortProperty() ? 
-					bookmarkService.findAllByOwnerAndUntagged2(currentUser, bookmarkPageRequest) :
-				bookmarkService.findAllByOwnerAndTagged2(currentUser, toSet(tags), bookmarkPageRequest);
+					bookmarkService.findAllByOwnerAndUntagged(currentUser, bookmarkPageRequest) :
+				bookmarkService.findAllByOwnerAndTagged(currentUser, toSet(tags), bookmarkPageRequest);
 		} else {
 			return bookmarkService.findAllByUserAndTagged(targetUser, toSet(tags), pageable);
 		}

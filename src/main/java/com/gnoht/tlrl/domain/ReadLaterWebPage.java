@@ -10,6 +10,7 @@ import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gnoht.tlrl.domain.Bookmark.Status;
 import com.gnoht.tlrl.domain.support.Managed;
 
 @SolrDocument
@@ -39,8 +40,7 @@ public class ReadLaterWebPage extends Managed<String>{
 	private Long userId;
 	
 	@Field(value="rlStatus") @Indexed(required=false)
-	@JsonProperty(value="status")
-	private ReadLaterStatus readLaterStatus;
+	private Status status;
 	
 	@Field @Indexed
 	private String userName;
@@ -61,7 +61,7 @@ public class ReadLaterWebPage extends Managed<String>{
 		this.description = bookmark.getDescription();
 		this.setTags(bookmark.getTags());
 		this.shared = bookmark.isShared();
-		this.readLaterStatus = bookmark.getReadLaterStatus();
+		this.status = bookmark.getStatus();
 		this.title = bookmark.getTitle();
 		this.url = bookmark.getUrl();
 		this.userName = bookmark.getUserName();
@@ -155,11 +155,11 @@ public class ReadLaterWebPage extends Managed<String>{
 	public void setDateModified(Date dateModified) {
 		this.dateModified = dateModified;
 	}
-	public ReadLaterStatus getReadLaterStatus() {
-		return readLaterStatus;
+	public Status getStatus() {
+		return status;
 	}
-	public void setReadLaterStatus(ReadLaterStatus readLaterStatus) {
-		this.readLaterStatus = readLaterStatus;
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 	@Deprecated
@@ -168,7 +168,7 @@ public class ReadLaterWebPage extends Managed<String>{
 		this.description = from.getDescription();
 		this.title = from.getTitle();
 		this.shared = from.isShared();
-		this.readLaterStatus = from.readLaterStatus;
+		this.status = from.getStatus();
 		this.setTags(from.getTags());
 		return this;
 	}

@@ -15,10 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.ReadLaterStats;
-import com.gnoht.tlrl.domain.ReadLaterWebPage;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
 import com.gnoht.tlrl.repository.BookmarkPageRequest;
@@ -30,7 +28,7 @@ import com.gnoht.tlrl.security.SecurityUtils;
 import com.gnoht.tlrl.service.support.ManagedService;
 
 
-@Service("tlrlService")
+@Service("bookmarkService")
 public class BookmarkServiceImpl 
 			extends ManagedService<Long, Bookmark, BookmarkRepository> 
 		implements BookmarkService {
@@ -113,37 +111,7 @@ public class BookmarkServiceImpl
 	}
 
 	@Override
-	public ResultPage<Bookmark> findAllByOwnerAndTagged(
-				User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable) {
-		
-		LOG.debug("Starting findAllByOwnerAndTagged(): owner={}, filters={}, tags={}", owner, readLaterQueryFilter, tags);
-		
-		ReadLaterStats stats = getRepository().
-				findReadLaterStatsByOwnerAndTagged(owner, readLaterQueryFilter, tags);
-		List<Bookmark> bookmarks = getRepository().
-				findAllByOwnerAndTagged(owner, readLaterQueryFilter, tags, pageable);
-		return new ManageResultPage(new PageImpl<Bookmark>(
-				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
-	}
-
-	@Override
-	public ResultPage<Bookmark> findAllByOwnerAndUntagged(
-				User owner, ReadLaterQueryFilter readLaterQueryFilter, Pageable pageable) {
-		
-		LOG.debug("Starting findAllByOwnerAndUntagged(): owner={}, filters={}", owner, readLaterQueryFilter);
-		
-		ReadLaterStats stats = getRepository().
-				findReadLaterStatsByOwnerAndUntagged(owner, readLaterQueryFilter);
-		List<Bookmark> bookmarks = getRepository().
-				findAllByOwnerAndUntagged(owner, readLaterQueryFilter, pageable);
-		return new ManageResultPage(new PageImpl<Bookmark>(
-				bookmarks, pageable, stats.getTotalReadLaters()), stats, pageable);
-	}
-
-	
-	
-	@Override
-	public ResultPage<Bookmark> findAllByOwnerAndTagged2(User owner,
+	public ResultPage<Bookmark> findAllByOwnerAndTagged(User owner,
 			Set<String> tags, BookmarkPageRequest pageable) {
 		ReadLaterStats stats = getRepository().findAllMetaByOwnerAndTagged(owner, tags);
 		List<Bookmark> bookmarks = getRepository().findAllByOwnerAndTagged(owner, tags, pageable);
@@ -154,7 +122,7 @@ public class BookmarkServiceImpl
 	}
 
 	@Override
-	public ResultPage<Bookmark> findAllByOwnerAndUntagged2(User owner,
+	public ResultPage<Bookmark> findAllByOwnerAndUntagged(User owner,
 			BookmarkPageRequest pageable) {
 		ReadLaterStats stats = getRepository().findAllMetaByOwnerAndUntagged(owner);
 		List<Bookmark> bookmarks = getRepository()
@@ -213,7 +181,7 @@ public class BookmarkServiceImpl
 		
 		User user = SecurityUtils.getCurrentUser();
 		Bookmark bookmark = getRepository().findOneByUserAndId(user, toUpdate.getId());
-		bookmark.setReadLaterStatus(toUpdate.getReadLaterStatus());
+		bookmark.setStatus(toUpdate.getStatus());
 		return getRepository().save(bookmark);
 	}
 	

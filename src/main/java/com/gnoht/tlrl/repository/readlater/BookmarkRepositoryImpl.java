@@ -22,10 +22,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
+import com.gnoht.tlrl.domain.Bookmark.Status;
 import com.gnoht.tlrl.domain.ReadLaterStats;
-import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;
@@ -128,22 +127,6 @@ public class BookmarkRepositoryImpl
 			.getSql("StatsQuery", params), params, findReadLaterStatsResultsExtractor);
 	}
 	
-	/*
-	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findAllByOwnerAndUntagged(
-	 * 	com.gnoht.tlrl.domain.User, 
-	 * 	com.gnoht.tlrl.controller.ReadLaterQueryFilter, 
-	 * 	org.springframework.data.domain.Pageable)
-	 */
-	@Override @Deprecated
-	public List<Bookmark> findAllByOwnerAndUntagged(User owner, 
-			ReadLaterQueryFilter queryFilter, Pageable pageable) 
-	{
-		LOG.info("Starting findAllByOwnerAndUntagged(): owner={}, queryFilter={}", owner, queryFilter);
-		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), queryFilter, pageable); 
-		return namedParameterJdbcTemplate.query(
-				bundle.getSql("FindAllQuery", paramSource), paramSource, privateReadLaterRowMapper);
-	}
-	
 	@Override
 	public List<Bookmark> findAllByOwnerAndTagged(User owner, Set<String> tags,
 			BookmarkPageRequest pageRequest) {
@@ -153,33 +136,6 @@ public class BookmarkRepositoryImpl
 		SqlParameterSource params = forByOwnerAndTaggedQuery(owner.getId(), tags, pageRequest);
 		return namedParameterJdbcTemplate.query(bundle
 				.getSql("FindAllQuery", params), params, privateReadLaterRowMapper);
-	}
-
-	/*
-	 * @see com.gnoht.tlrl.repository.readlater.BookmarkCustomRepository#findReadLaterStatsByOwnerAndUntagged(
-	 * 	com.gnoht.tlrl.domain.User, 
-	 * 	com.gnoht.tlrl.controller.ReadLaterQueryFilter)
-	 */
-	@Override @Deprecated
-	public ReadLaterStats findReadLaterStatsByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter) {
-		LOG.info("Starting findReadLaterStatsByOwerAndUntagged(): owner={}, filter={}", owner, readLaterQueryFilter);
-		SqlParameterSource paramSource = forByOwnerUntaggedQueries(owner.getId(), readLaterQueryFilter, defaultPageable);
-		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
-	}
-
-	@Override @Deprecated
-	public List<Bookmark> findAllByOwnerAndTagged(User owner, 
-			ReadLaterQueryFilter queryFilter, Set<String> tags, Pageable pageable) 
-	{
-		SqlParameterSource paramSource = forByOwnerAndTaggedQueries(owner.getId(), tags, queryFilter, pageable);
-		return namedParameterJdbcTemplate.query(
-				bundle.getSql("FindAllQuery", paramSource), paramSource, privateReadLaterRowMapper);
-	}
-
-	@Override @Deprecated
-	public ReadLaterStats findReadLaterStatsByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags) {
-		SqlParameterSource paramSource = forByOwnerAndTaggedQueries(owner.getId(), tags, readLaterQueryFilter, defaultPageable);
-		return namedParameterJdbcTemplate.query(bundle.getSql("StatsQuery", paramSource), paramSource, findReadLaterStatsResultsExtractor);
 	}
 
 	@Override
@@ -265,7 +221,7 @@ public class BookmarkRepositoryImpl
 		public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Bookmark bookmark = super.mapRow(rs, rowNum);
 			bookmark.setShared(rs.getBoolean("shared"));
-			bookmark.setReadLaterStatus(ReadLaterStatus.valueOf(rs.getString("read_later_status")));
+			bookmark.setStatus(Status.valueOf(rs.getString("read_later_status")));
 			return bookmark;
 		}
 	};

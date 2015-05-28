@@ -52,7 +52,7 @@ public class ReadLaterWebPageServiceImpl extends
 			readLaterWebPage.setDescription(bookmark.getDescription());
 			readLaterWebPage.setTags(bookmark.getTags());
 			readLaterWebPage.setShared(bookmark.isShared());
-			readLaterWebPage.setReadLaterStatus(bookmark.getReadLaterStatus());
+			readLaterWebPage.setStatus(bookmark.getStatus());
 			return save(readLaterWebPage);
 		}
 		return readLaterWebPage;

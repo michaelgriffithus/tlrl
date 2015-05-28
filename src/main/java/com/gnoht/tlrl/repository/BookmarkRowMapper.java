@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.gnoht.tlrl.domain.Bookmark;
-import com.gnoht.tlrl.domain.ReadLaterStatus;
 import com.gnoht.tlrl.domain.Tag;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.domain.WebUrl;

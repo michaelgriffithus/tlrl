@@ -5,7 +5,6 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.gnoht.tlrl.controller.ReadLaterQueryFilter;
 import com.gnoht.tlrl.domain.Bookmark;
 import com.gnoht.tlrl.domain.User;
 import com.gnoht.tlrl.repository.BookmarkPageRequest;
@@ -29,10 +28,10 @@ public interface BookmarkService
 	
 	public Bookmark updateReadLaterStatus(Bookmark bookmark);
 
-	public ResultPage<Bookmark> findAllByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable);
-	public ResultPage<Bookmark> findAllByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Pageable pageable);
-	public ResultPage<Bookmark> findAllByOwnerAndTagged2(User owner, Set<String> tags, BookmarkPageRequest pageable);
-	public ResultPage<Bookmark> findAllByOwnerAndUntagged2(User owner, BookmarkPageRequest pageable);
+//	public ResultPage<Bookmark> findAllByOwnerAndTagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Set<String> tags, Pageable pageable);
+//	public ResultPage<Bookmark> findAllByOwnerAndUntagged(User owner, ReadLaterQueryFilter readLaterQueryFilter, Pageable pageable);
+	public ResultPage<Bookmark> findAllByOwnerAndTagged(User owner, Set<String> tags, BookmarkPageRequest pageable);
+	public ResultPage<Bookmark> findAllByOwnerAndUntagged(User owner, BookmarkPageRequest pageable);
 	
 	public ResultPage<Bookmark> findAllByUserAndTagged(User user, Set<String> tags, Pageable pageable);
 	public ResultPage<Bookmark> findAllTagged(Set<String> tags, Pageable pageable);
